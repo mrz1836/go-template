@@ -28,25 +28,26 @@
 <br/>
 
 ## About
-This is a GitHub repository template for Go. It has been created for ease-of-use for anyone who wants to:
+This is a GitHub repository starter template for a Go library. It has been created for ease-of-use for anyone who wants to:
 
 - Quickly get into Go without losing too much time on environment setup
 - Create a new repository with basic Continuous Integration
+- Cheat codes for all the popular Go patterns
 
-**It includes:**
+**The go-template includes:**
 
 - Continuous integration via [GitHub Actions](https://github.com/features/actions)
 - Build automation via [Make](https://www.gnu.org/software/make)
 - Dependency management using [Go Modules](https://github.com/golang/go/wiki/Modules)
-- Code formatting using [gofumpt](https://github.com/mvdan/gofumpt)
-- Code formatting and linting with [golangci-lint](https://github.com/golangci/golangci-lint)
+- Code formatting using [gofumpt](https://github.com/mvdan/gofumpt) and linting with [golangci-lint](https://github.com/golangci/golangci-lint)
 - Unit testing with [testify](https://github.com/stretchr/testify), [race detector](https://blog.golang.org/race-detector), code coverage [HTML report](https://blog.golang.org/cover) and [Codecov report](https://codecov.io/)
 - Releasing using [GoReleaser](https://github.com/goreleaser/goreleaser)
-- Dependencies scanning and updating thanks to [Dependabot](https://dependabot.com)
+- Dependency scanning and updating thanks to [Dependabot](https://dependabot.com)
 - Security code analysis using [CodeQL Action](https://docs.github.com/en/github/finding-security-vulnerabilities-and-errors-in-your-code/about-code-scanning)
 - Automatic syndication to [pkg.go.dev](https://pkg.go.dev/) on every release
 - Basic templates for [Issues and Pull Requests](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository) in Github
 - Automatic sync for [labels](.github/labels.yml) into Github using a pre-defined [configuration](.github/labels.yml)
+- Built-in powerful merging rules using [Mergify](https://mergify.io/)
 - [Visual Studio Code](https://code.visualstudio.com) configuration with [Go](https://code.visualstudio.com/docs/languages/go)
 
 <br/>
@@ -76,8 +77,7 @@ View the generated [documentation](https://pkg.go.dev/github.com/mrz1836/go-temp
 
 [![GoDoc](https://godoc.org/github.com/mrz1836/go-template?status.svg&style=flat&v=1)](https://pkg.go.dev/github.com/mrz1836/go-template)
 
-### Features
-- List some features here about your library!
+<br/>
 
 <details>
 <summary><strong><code>Package Dependencies</code></strong></summary>
