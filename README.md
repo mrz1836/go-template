@@ -34,7 +34,9 @@ This is a GitHub repository starter template for a Go library. It has been creat
 - Create a new repository with basic Continuous Integration
 - Cheat codes for all the popular Go patterns
 
-**The go-template includes:**
+<br/>
+
+**The `go-template` includes:**
 
 - Continuous integration via [GitHub Actions](https://github.com/features/actions)
 - Build automation via [Make](https://www.gnu.org/software/make)
