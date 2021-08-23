@@ -63,8 +63,8 @@ go get -u github.com/mrz1836/go-template
 3. Replace all occurrences of `mrz1836/go-template` to `your_org/repo_name` in all files
 4. Replace all occurrences of `go-template` to `repo_name` in all files
 5. Replace all occurrences of `mrz1836` to `repo_owner` in all files
-6. Update the following files:
-    - [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+6. Remove or update the [`go-share-image.png`](.github/IMAGES/go-share-image.png) and add to your Github repo (in settings)
+7. Update the following files:
     - [LICENSE](LICENSE)
     - [README.md](README.md)
     - [SECURITY.md](SECURITY.md)
@@ -91,7 +91,9 @@ View the generated [documentation](https://pkg.go.dev/github.com/mrz1836/go-temp
 <summary><strong><code>Library Deployment</code></strong></summary>
 <br/>
 
-[goreleaser](https://github.com/goreleaser/goreleaser) for easy binary or library deployment to Github and can be installed via: `brew install goreleaser`.
+[goreleaser](https://github.com/goreleaser/goreleaser) for easy binary or library deployment to Github and can be installed:
+- **using make:** `make install-tools`
+- **using brew:** `brew install goreleaser`
 
 The [.goreleaser.yml](.goreleaser.yml) file is used to configure [goreleaser](https://github.com/goreleaser/goreleaser).
 
