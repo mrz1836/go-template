@@ -33,24 +33,7 @@ This is a GitHub repository starter template for a Go library. It has been creat
 - Quickly get into Go without losing too much time on environment setup
 - Create a new repository with basic Continuous Integration
 - Cheat codes for all the popular Go patterns
-
-<br/>
-
-**The `go-template` includes:**
-
-- Continuous integration via [GitHub Actions](https://github.com/features/actions)
-- Build automation via [Make](https://www.gnu.org/software/make)
-- Dependency management using [Go Modules](https://github.com/golang/go/wiki/Modules)
-- Code formatting using [gofumpt](https://github.com/mvdan/gofumpt) and linting with [golangci-lint](https://github.com/golangci/golangci-lint)
-- Unit testing with [testify](https://github.com/stretchr/testify), [race detector](https://blog.golang.org/race-detector), code coverage [HTML report](https://blog.golang.org/cover) and [Codecov report](https://codecov.io/)
-- Releasing using [GoReleaser](https://github.com/goreleaser/goreleaser)
-- Dependency scanning and updating thanks to [Dependabot](https://dependabot.com)
-- Security code analysis using [CodeQL Action](https://docs.github.com/en/github/finding-security-vulnerabilities-and-errors-in-your-code/about-code-scanning)
-- Automatic syndication to [pkg.go.dev](https://pkg.go.dev/) on every release
-- Basic templates for [Issues and Pull Requests](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository) in Github
-- Automatic sync for [labels](.github/labels.yml) into Github using a pre-defined [configuration](.github/labels.yml)
-- Built-in powerful merging rules using [Mergify](https://mergify.io/)
-- [Visual Studio Code](https://code.visualstudio.com) configuration with [Go](https://code.visualstudio.com/docs/languages/go)
+- [See all the Repository Features](#documentation)
 
 <br/>
 
@@ -61,6 +44,9 @@ This is a GitHub repository starter template for a Go library. It has been creat
 go get -u github.com/mrz1836/go-template
 ```
 
+<br/>
+
+#### Template Instructions (Temporary Section)
 1. Sign up on [Codecov](https://codecov.io/) and configure [Codecov GitHub Application](https://github.com/apps/codecov) for all repositories
 2. Click the `Use this template` button (alt. clone or download this repository)
 3. Replace all occurrences of `mrz1836/go-template` to `your_org/repo_name` in all files
@@ -82,11 +68,33 @@ View the generated [documentation](https://pkg.go.dev/github.com/mrz1836/go-temp
 <br/>
 
 <details>
+<summary><strong><code>Repository Features</code></strong></summary>
+<br/>
+
+This repository was created using [MrZ's `go-template`](https://github.com/mrz1836/go-template#about)
+
+#### Built-in Features
+- Continuous integration via [GitHub Actions](https://github.com/features/actions)
+- Build automation via [Make](https://www.gnu.org/software/make)
+- Dependency management using [Go Modules](https://github.com/golang/go/wiki/Modules)
+- Code formatting using [gofumpt](https://github.com/mvdan/gofumpt) and linting with [golangci-lint](https://github.com/golangci/golangci-lint)
+- Unit testing with [testify](https://github.com/stretchr/testify), [race detector](https://blog.golang.org/race-detector), code coverage [HTML report](https://blog.golang.org/cover) and [Codecov report](https://codecov.io/)
+- Releasing using [GoReleaser](https://github.com/goreleaser/goreleaser)
+- Dependency scanning and updating thanks to [Dependabot](https://dependabot.com)
+- Security code analysis using [CodeQL Action](https://docs.github.com/en/github/finding-security-vulnerabilities-and-errors-in-your-code/about-code-scanning)
+- Automatic syndication to [pkg.go.dev](https://pkg.go.dev/) on every release
+- Basic templates for [Issues and Pull Requests](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository) in Github
+- Automatic sync for [labels](.github/labels.yml) into Github using a pre-defined [configuration](.github/labels.yml)
+- Built-in powerful merging rules using [Mergify](https://mergify.io/)
+- [Visual Studio Code](https://code.visualstudio.com) configuration with [Go](https://code.visualstudio.com/docs/languages/go)
+
+</details>
+
+<details>
 <summary><strong><code>Package Dependencies</code></strong></summary>
 <br/>
 
-- [owner/repo](https://github.com/mrz1836/go-template)
-- [owner/repo](https://github.com/mrz1836/go-template)
+- [stretchr/testify](https://github.com/stretchr/testify)
 </details>
 
 <details>
