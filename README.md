@@ -123,7 +123,7 @@ make help
 List of all current commands:
 ```text
 all                  Runs multiple commands
-clean                Remove previous builds and any test cache data
+clean                Remove previous builds and any cached data
 clean-mods           Remove all the Go mod cache
 coverage             Shows the test coverage
 diff                 Show the git diff
@@ -132,7 +132,7 @@ godocs               Sync the latest tag with GoDocs
 help                 Show this help message
 install              Install the application
 install-go           Install the application (Using Native Go)
-install-tools        Install go tools
+install-tools        Install the go tools
 lint                 Run the golangci-lint application (install if not found)
 release              Full production release (creates release in Github)
 release              Runs common.release then runs godocs
@@ -151,6 +151,7 @@ test-short           Runs vet, lint and tests (excludes integration tests)
 test-unit            Runs tests and outputs coverage
 uninstall            Uninstall the application (and remove files)
 update-linter        Update the golangci-lint package (macOS only)
+update-tools         Update all go tools
 vet                  Run the Go vet application
 ```
 </details>

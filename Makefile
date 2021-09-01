@@ -19,7 +19,8 @@ endif
 all: ## Runs multiple commands
 	@$(MAKE) test
 
-clean: ## Remove previous builds and any test cache data
+clean: ## Remove previous builds and any cached data
+	@echo "cleaning local cache..."
 	@go clean -cache -testcache -i -r
 	@test $(DISTRIBUTIONS_DIR)
 	@if [ -d $(DISTRIBUTIONS_DIR) ]; then rm -r $(DISTRIBUTIONS_DIR); fi
@@ -30,3 +31,7 @@ install-tools: ## Install the go tools
 
 release:: ## Runs common.release then runs godocs
 	@$(MAKE) godocs
+
+update-tools: ## Update all go tools
+	@echo "updating local tool dependencies..."
+	@cd tools && go get -u -v && go mod tidy -v
