@@ -42,6 +42,7 @@ This is a GitHub repository starter template for a Go library. It has been creat
 **go-template** requires a [supported release of Go](https://golang.org/doc/devel/release.html#policy).
 ```shell script
 go get -u github.com/mrz1836/go-template
+make install-tools
 ```
 
 <br/>
