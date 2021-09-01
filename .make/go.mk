@@ -13,7 +13,7 @@ DARWIN=$(BINARY_NAME)-darwin
 LINUX=$(BINARY_NAME)-linux
 WINDOWS=$(BINARY_NAME)-windows.exe
 
-.PHONY: test lint vet install generate diff
+.PHONY: test lint vet install generate
 
 bench:  ## Run all benchmarks in the Go application
 	@go test -bench=. -benchmem
