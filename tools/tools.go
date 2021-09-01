@@ -1,3 +1,4 @@
+//go:build tools
 // +build tools
 
 package tools
@@ -6,6 +7,10 @@ package tools
 //
 // https://github.com/golang/go/wiki/Modules#how-can-i-track-tool-dependencies-for-a-module
 // https://github.com/golang/go/issues/25922
+//
+// golangci-lint (formatting and linting)
+// goreleaser (release management)
+//
 import (
 	_ "github.com/golangci/golangci-lint/cmd/golangci-lint"
 	_ "github.com/goreleaser/goreleaser"
