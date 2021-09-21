@@ -33,3 +33,6 @@ gin-bin
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# Custom repo notes
+/todo.md
