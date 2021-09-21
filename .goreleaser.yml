@@ -19,27 +19,29 @@ changelog:
 # ---------------------------
 build:
   skip: true
+
 # ---------------------------
 # Github Release
 # ---------------------------
 release:
   prerelease: true
   name_template: "Release v{{.Version}}"
+
 # ---------------------------
 # Announce
 # ---------------------------
-announce:
-  slack:
+# announce:
+  # slack:
     # Weather its enabled or not.
     # Defaults to false.
-    enabled: true
+    # enabled: true
 
     # Message template to use while publishing.
     # Defaults to `{{ .ProjectName }} {{ .Tag }} is out! Check it out at {{ .GitURL }}/releases/tag/{{ .Tag }}`
     # message_template: 'Awesome project {{.Tag}} is out!'
 
     # The name of the channel that the user selected as a destination for webhook messages.
-    channel: '#test_slack'
+    # channel: '#test_slack'
 
     # Set your Webhook's username.
     # username: ''

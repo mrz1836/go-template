@@ -93,6 +93,7 @@ This repository was created using [MrZ's `go-template`](https://github.com/mrz18
 - Automatic sync for [labels](.github/labels.yml) into Github using a pre-defined [configuration](.github/labels.yml)
 - Built-in powerful merging rules using [Mergify](https://mergify.io/)
 - [Visual Studio Code](https://code.visualstudio.com) configuration with [Go](https://code.visualstudio.com/docs/languages/go)
+- (Optional) [Slack notifications](https://slack.com) on new Github Releases
 
 </details>
 
