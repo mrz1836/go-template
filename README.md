@@ -60,6 +60,10 @@ make install-tools
     - [README.md](README.md)
     - [SECURITY.md](.github/SECURITY.md)
 
+#### (Optional) Slack Release Notifications
+1. Create a new [Incoming Webhook](https://api.slack.com/messaging/webhooks)
+2. Set an environment variable in Github: `SLACK_WEBHOOK`
+
 <br/>
 
 ## Documentation
