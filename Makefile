@@ -29,13 +29,15 @@ install-tools: ## Install the go tools
 	@echo "installing local Go tools..."
 	@cd tools && go install $(shell cd tools && go list -f '{{ join .Imports " " }}' -tags=tools)
 
+install-all-contributors: ## Installs all contributors locally
+	@echo "installing all-contributors cli tool..."
+	@yarn global add all-contributors-cli
+
 release:: ## Runs common.release then runs godocs
 	@$(MAKE) godocs
 
-install-all-contributors: ## Installs all contributors locally
-	@yarn global add all-contributors-cli
-
-update-contributors: ## Regenerates the contributors list
+update-contributors: ## Regenerates the contributors html/list
+	@echo "generating contributor html..."
 	@all-contributors generate
 
 update-tools: ## Update all go tools

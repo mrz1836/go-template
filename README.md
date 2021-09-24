@@ -47,6 +47,8 @@ make install-tools
 
 <br/>
 
+<!-- remove-this-section:start -->
+
 #### Template Instructions (Temporary Section)
 1. Sign up on [Codecov](https://codecov.io/) and configure [Codecov GitHub Application](https://github.com/apps/codecov) for all repositories
 2. Click the `Use this template` button (alt. clone or download this repository)
@@ -71,6 +73,8 @@ make install-tools
 4. Run `make update-contributors` to update the list of contributors
 
 <br/>
+
+<!-- remove-this-section:end -->
 
 ## Documentation
 View the generated [documentation](https://pkg.go.dev/github.com/mrz1836/go-template)
