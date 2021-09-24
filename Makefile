@@ -26,11 +26,17 @@ clean: ## Remove previous builds and any cached data
 	@if [ -d $(DISTRIBUTIONS_DIR) ]; then rm -r $(DISTRIBUTIONS_DIR); fi
 
 install-tools: ## Install the go tools
-	@echo "installing local tools..."
+	@echo "installing local Go tools..."
 	@cd tools && go install $(shell cd tools && go list -f '{{ join .Imports " " }}' -tags=tools)
 
 release:: ## Runs common.release then runs godocs
 	@$(MAKE) godocs
+
+install-all-contributors: ## Installs all contributors locally
+	@yarn global add all-contributors-cli
+
+update-contributors: ## Regenerates the contributors list
+	@all-contributors generate
 
 update-tools: ## Update all go tools
 	@echo "updating local tool dependencies..."

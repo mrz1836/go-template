@@ -66,10 +66,9 @@ make install-tools
 
 #### (Optional) Set up: All Contributors Integration
 1. Follow these [instructions](https://allcontributors.org/docs/en/bot/installation)
-2. Add all your current contributors using this example:
-```text
-@all-contributors please add @<username> for <contributions>
-```
+2. Install the local CLI: `make install-all-contributors`
+3. Modify the [.all-contributorsrc](.all-contributorsrc) file
+4. Run `make update-contributors` to update the list of contributors
 
 <br/>
 
@@ -136,37 +135,39 @@ make help
 
 List of all current commands:
 ```text
-all                  Runs multiple commands
-clean                Remove previous builds and any cached data
-clean-mods           Remove all the Go mod cache
-coverage             Shows the test coverage
-diff                 Show the git diff
-generate             Runs the go generate command in the base of the repo
-godocs               Sync the latest tag with GoDocs
-help                 Show this help message
-install              Install the application
-install-go           Install the application (Using Native Go)
-install-tools        Install the go tools
-lint                 Run the golangci-lint application (install if not found)
-release              Full production release (creates release in Github)
-release              Runs common.release then runs godocs
-release-snap         Test the full release (build binaries)
-release-test         Full production test release (everything except deploy)
-replace-version      Replaces the version in HTML/JS (pre-deploy)
-tag                  Generate a new tag and push (tag version=0.0.0)
-tag-remove           Remove a tag if found (tag-remove version=0.0.0)
-tag-update           Update an existing tag to current commit (tag-update version=0.0.0)
-test                 Runs lint and ALL tests
-test-ci              Runs all tests via CI (exports coverage)
-test-ci-no-race      Runs all tests via CI (no race) (exports coverage)
-test-ci-short        Runs unit tests via CI (exports coverage)
-test-no-lint         Runs just tests
-test-short           Runs vet, lint and tests (excludes integration tests)
-test-unit            Runs tests and outputs coverage
-uninstall            Uninstall the application (and remove files)
-update-linter        Update the golangci-lint package (macOS only)
-update-tools         Update all go tools
-vet                  Run the Go vet application
+all                           Runs multiple commands
+clean                         Remove previous builds and any cached data
+clean-mods                    Remove all the Go mod cache
+coverage                      Shows the test coverage
+diff                          Show the git diff
+generate                      Runs the go generate command in the base of the repo
+godocs                        Sync the latest tag with GoDocs
+help                          Show this help message
+install                       Install the application
+install-all-contributors      Installs all contributors locally
+install-go                    Install the application (Using Native Go)
+install-tools                 Install the go tools
+lint                          Run the golangci-lint application (install if not found)
+release                       Full production release (creates release in Github)
+release                       Runs common.release then runs godocs
+release-snap                  Test the full release (build binaries)
+release-test                  Full production test release (everything except deploy)
+replace-version               Replaces the version in HTML/JS (pre-deploy)
+tag                           Generate a new tag and push (tag version=0.0.0)
+tag-remove                    Remove a tag if found (tag-remove version=0.0.0)
+tag-update                    Update an existing tag to current commit (tag-update version=0.0.0)
+test                          Runs lint and ALL tests
+test-ci                       Runs all tests via CI (exports coverage)
+test-ci-no-race               Runs all tests via CI (no race) (exports coverage)
+test-ci-short                 Runs unit tests via CI (exports coverage)
+test-no-lint                  Runs just tests
+test-short                    Runs vet, lint and tests (excludes integration tests)
+test-unit                     Runs tests and outputs coverage
+uninstall                     Uninstall the application (and remove files)
+update-contributors           Regenerates the contributors list
+update-linter                 Update the golangci-lint package (macOS only)
+update-tools                  Update all go tools
+vet                           Run the Go vet application
 ```
 </details>
 
@@ -227,7 +228,7 @@ Thank you to these wonderful people ([emoji key](https://allcontributors.org/doc
 <!-- markdownlint-disable -->
 <table>
   <tr>
-    <td align="center"><a href="https://mrz1818.com"><img src="https://avatars.githubusercontent.com/u/3743002?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Mr. Z</b></sub></a><br /><a href="#maintenance-mrz1836" title="Maintenance">🚧</a></td>
+    <td align="center"><a href="https://mrz1818.com"><img src="https://avatars.githubusercontent.com/u/3743002?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Mr. Z</b></sub></a><br /><a href="#infra-mrz1836" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/mrz1836/go-template/commits?author=mrz1836" title="Code">💻</a> <a href="#maintenance-mrz1836" title="Maintenance">🚧</a> <a href="#security-mrz1836" title="Security">🛡️</a></td>
   </tr>
 </table>
 
