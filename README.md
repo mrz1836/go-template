@@ -25,7 +25,6 @@
 - [Benchmarks](#benchmarks)
 - [Code Standards](#code-standards)
 - [Usage](#usage)
-- [Maintainers](#maintainers)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -70,6 +69,10 @@ make install-tools
 
 #### (Optional) Set up: All Contributors Integration
 1. Follow these [instructions](https://allcontributors.org/docs/en/bot/installation)
+2. Add all your current contributors using this example:
+```text
+@all-contributors please add @<username> for <contributions>
+```
 
 <br/>
 
@@ -206,13 +209,6 @@ Checkout all the [examples](examples)!
 
 <br/>
 
-## Maintainers
-| [<img src="https://github.com/mrz1836.png" height="50" alt="MrZ" />](https://github.com/mrz1836) |
-|:---:|
-| [MrZ](https://github.com/mrz1836) |
-
-<br/>
-
 ## Contributing
 
 View the [contributing guidelines](.github/CONTRIBUTING.md) and follow the [code of conduct](.github/CODE_OF_CONDUCT.md).
@@ -224,6 +220,26 @@ You can also support this project by [becoming a sponsor on GitHub](https://gith
 or by making a [**bitcoin donation**](https://gobitcoinsv.com/#sponsor?utm_source=github&utm_medium=sponsor-link&utm_campaign=go-template&utm_term=go-template&utm_content=go-template) to ensure this journey continues indefinitely! :rocket:
 
 [![Stars](https://img.shields.io/github/stars/mrz1836/go-template?label=Please%20like%20us&style=social)](https://github.com/mrz1836/go-template/stargazers)
+
+### Contributors ✨
+
+Thank you to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://mrz1818.com"><img src="https://avatars.githubusercontent.com/u/3743002?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Mr. Z</b></sub></a><br /><a href="#maintenance-mrz1836" title="Maintenance">🚧</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
 <br/>
 
