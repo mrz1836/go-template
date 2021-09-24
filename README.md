@@ -226,6 +226,7 @@ or by making a [**bitcoin donation**](https://gobitcoinsv.com/#sponsor?utm_sourc
 <br/>
 
 ### Contributors ✨
+Thank you to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
@@ -247,4 +248,4 @@ or by making a [**bitcoin donation**](https://gobitcoinsv.com/#sponsor?utm_sourc
 
 ## License
 
-![License](https://img.shields.io/github/license/mrz1836/go-template.svg?style=flat&v=1)
+[![License](https://img.shields.io/github/license/mrz1836/go-template.svg?style=flat&v=1)](LICENSE)
