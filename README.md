@@ -105,9 +105,7 @@ This repository was created using [MrZ's `go-template`](https://github.com/mrz18
 - Automatic sync for [labels](.github/labels.yml) into Github using a pre-defined [configuration](.github/labels.yml)
 - Built-in powerful merging rules using [Mergify](https://mergify.io/)
 - [Visual Studio Code](https://code.visualstudio.com) configuration with [Go](https://code.visualstudio.com/docs/languages/go)
-- (Optional) [Slack notifications](https://slack.com) on new Github Releases
-- (Optional) [Discord notifications](https://discord.com) on new Github Releases
-- (Optional) [Twitter notifications](https://twitter.com) on new Github Releases
+- (Optional) [Slack](https://slack.com), [Discord](https://discord.com) or [Twitter](https://twitter.com) announcements on new Github Releases
 - (Optional) Easily add [contributors](https://allcontributors.org/docs/en/bot/installation) in any Issue or Pull-Request
 
 </details>
@@ -123,16 +121,21 @@ This repository was created using [MrZ's `go-template`](https://github.com/mrz18
 <summary><strong><code>Library Deployment</code></strong></summary>
 <br/>
 
+Releases are automatically created when you create a new git tag!
+
 [goreleaser](https://github.com/goreleaser/goreleaser) for easy binary or library deployment to Github and can be installed:
 - **using make:** `make install-tools`
 - **using brew:** `brew install goreleaser`
 
 The [.goreleaser.yml](.goreleaser.yml) file is used to configure [goreleaser](https://github.com/goreleaser/goreleaser).
 
-### Automatic Releases on Tag Creation
-Automatic releases via [Github Actions](.github/workflows/release.yml) from creating a tag: `make tag version=1.2.3`
+### Automatic Releases on Tag Creation (recommended)
+Automatic releases via [Github Actions](.github/workflows/release.yml) from creating a new tag:
+```shell
+make tag version=1.2.3
+```
 
-### Manual Releases
+### Manual Releases (optional)
 Use `make release-snap` to create a snapshot version of the release, and finally `make release` to ship to production (manually).
 
 </details>

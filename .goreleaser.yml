@@ -29,12 +29,6 @@ build:
   skip: true
 
 # ---------------------------
-# Signing
-# ---------------------------
-signs:
-  - artifacts: checksum
-
-# ---------------------------
 # Github Release
 # ---------------------------
 release:
