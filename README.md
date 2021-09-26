@@ -125,7 +125,12 @@ This repository was created using [MrZ's `go-template`](https://github.com/mrz18
 
 The [.goreleaser.yml](.goreleaser.yml) file is used to configure [goreleaser](https://github.com/goreleaser/goreleaser).
 
-Use `make release-snap` to create a snapshot version of the release, and finally `make release` to ship to production.
+### Automatic Releases on Tag Creation
+Automatic releases via [Github Actions](.github/workflows/release.yml) from creating a tag: `make tag version=1.2.3`
+
+### Manual Releases
+Use `make release-snap` to create a snapshot version of the release, and finally `make release` to ship to production (manually).
+
 </details>
 
 <details>
