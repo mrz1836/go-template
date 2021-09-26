@@ -23,8 +23,8 @@ jobs:
         with:
           fail_on_error: true
           reporter: github-pr-review
-          yamllint_flags: '-d "{extends: default, rules: {truthy: disable}}" .'
   test:
+    needs: yamllint
     strategy:
       matrix:
         go-version: [ 1.16.x, 1.17.x ]
