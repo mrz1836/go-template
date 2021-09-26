@@ -5,10 +5,11 @@
 [![Build Status](https://img.shields.io/github/workflow/status/mrz1836/go-template/run-go-tests?logo=github&v=1)](https://github.com/mrz1836/go-template/actions)
 [![Report](https://goreportcard.com/badge/github.com/mrz1836/go-template?style=flat&v=1)](https://goreportcard.com/report/github.com/mrz1836/go-template)
 [![codecov](https://codecov.io/gh/mrz1836/go-template/branch/master/graph/badge.svg?v=1)](https://codecov.io/gh/mrz1836/go-template)
+[![Mergify Status](https://img.shields.io/endpoint.svg?url=https://gh.mergify.io/badges/mrz1836/go-template&style=flat&v=1)](https://mergify.io)
 [![Go](https://img.shields.io/github/go-mod/go-version/mrz1836/go-template?v=1)](https://golang.org/)
 <br>
-[![Mergify Status](https://img.shields.io/endpoint.svg?url=https://gh.mergify.io/badges/mrz1836/go-template&style=flat&v=1)](https://mergify.io)
 [![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/mrz1836/go-template)
+[![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 [![Sponsor](https://img.shields.io/badge/sponsor-mrz1836-181717.svg?logo=github&style=flat&v=1)](https://github.com/sponsors/mrz1836)
 [![Donate](https://img.shields.io/badge/donate-bitcoin-ff9900.svg?logo=bitcoin&style=flat&v=1)](https://gobitcoinsv.com/#sponsor?utm_source=github&utm_medium=sponsor-link&utm_campaign=go-template&utm_term=go-template&utm_content=go-template)
 
@@ -28,12 +29,12 @@
 <br/>
 
 ## About
-This is a GitHub repository starter template for a Go library. It has been created for ease-of-use for anyone who wants to:
+This is a GitHub repository starter template for a Go library. It has been created for anyone who wants to:
 
 - Quickly get into Go without losing too much time on environment setup
 - Create a new repository with basic Continuous Integration
 - Cheat codes for all the popular Go patterns
-- [See all the Repository Features](#documentation)
+- **[See: All 15+ Repository Features](#documentation)**
 
 <br/>
 
@@ -104,6 +105,8 @@ This repository was created using [MrZ's `go-template`](https://github.com/mrz18
 - Basic templates for [Issues and Pull Requests](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository) in Github
 - Automatic sync for [labels](.github/labels.yml) into Github using a pre-defined [configuration](.github/labels.yml)
 - Built-in powerful merging rules using [Mergify](https://mergify.io/)
+- Welcome [new contributors](.github/mergify.yml) on their first Pull-Request
+- Follows the [standard-readme](https://github.com/RichardLitt/standard-readme/blob/master/spec.md) specification
 - [Visual Studio Code](https://code.visualstudio.com) configuration with [Go](https://code.visualstudio.com/docs/languages/go)
 - (Optional) [Slack](https://slack.com), [Discord](https://discord.com) or [Twitter](https://twitter.com) announcements on new Github Releases
 - (Optional) Easily add [contributors](https://allcontributors.org/docs/en/bot/installation) in any Issue or Pull-Request
@@ -224,7 +227,6 @@ Checkout all the [examples](examples)!
 <br/>
 
 ## Contributing
-
 View the [contributing guidelines](.github/CONTRIBUTING.md) and follow the [code of conduct](.github/CODE_OF_CONDUCT.md).
 
 ### How can I help?
