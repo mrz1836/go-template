@@ -1,3 +1,4 @@
+# From: https://goreleaser.com/ci/actions/#usage
 name: release
 
 env:

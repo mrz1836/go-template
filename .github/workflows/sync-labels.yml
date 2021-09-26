@@ -1,6 +1,6 @@
 # Workflow: https://github.com/micnncim/action-label-syncer
 # Export your labels: https://github.com/micnncim/label-exporter
-name: Sync labels
+name: sync-labels
 on:
   push:
     branches:
