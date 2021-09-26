@@ -61,10 +61,12 @@ make install-tools
     - [README.md](README.md)
     - [SECURITY.md](.github/SECURITY.md)
 
-#### (Optional) Set up: Slack Release Notifications
+#### (Optional) Slack Message on New Release
 1. Create a new [Incoming Webhook](https://api.slack.com/messaging/webhooks)
 2. Set an environment variable in Github: `SLACK_WEBHOOK`
 
+#### (Optional) Discord, Twitter or Reddit on New Release
+Follow the instructions on [GoReleaser's documentation](https://goreleaser.com/customization/announce/#discord)
 
 #### (Optional) Set up: All Contributors Integration
 1. Follow these [instructions](https://allcontributors.org/docs/en/bot/installation)
@@ -104,7 +106,9 @@ This repository was created using [MrZ's `go-template`](https://github.com/mrz18
 - Built-in powerful merging rules using [Mergify](https://mergify.io/)
 - [Visual Studio Code](https://code.visualstudio.com) configuration with [Go](https://code.visualstudio.com/docs/languages/go)
 - (Optional) [Slack notifications](https://slack.com) on new Github Releases
-- (Optional) Automatically add [contributors](https://allcontributors.org/docs/en/bot/installation)
+- (Optional) [Discord notifications](https://discord.com) on new Github Releases
+- (Optional) [Twitter notifications](https://twitter.com) on new Github Releases
+- (Optional) Easily add [contributors](https://allcontributors.org/docs/en/bot/installation) in any Issue or Pull-Request
 
 </details>
 
