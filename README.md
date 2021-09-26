@@ -202,10 +202,14 @@ vet                           Run the Go vet application
 All unit tests and [examples](examples) run via [Github Actions](https://github.com/mrz1836/go-template/actions) and
 uses [Go version 1.16.x and 1.17.x](https://golang.org/doc/go1.16). View the [configuration file](.github/workflows/run-tests.yml).
 
+<br/>
+
 Run all tests (including integration tests)
 ```shell script
 make test
 ```
+
+<br/>
 
 Run tests (excluding integration tests)
 ```shell script
@@ -234,6 +238,8 @@ Checkout all the [examples](examples)!
 
 ## Contributing
 View the [contributing guidelines](.github/CONTRIBUTING.md) and follow the [code of conduct](.github/CODE_OF_CONDUCT.md).
+
+<br/>
 
 ### How can I help?
 All kinds of contributions are welcome :raised_hands:!
