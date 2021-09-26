@@ -96,7 +96,7 @@ This repository was created using [MrZ's `go-template`](https://github.com/mrz18
 - Continuous integration via [GitHub Actions](https://github.com/features/actions)
 - Build automation via [Make](https://www.gnu.org/software/make)
 - Dependency management using [Go Modules](https://github.com/golang/go/wiki/Modules)
-- Code formatting using [gofumpt](https://github.com/mvdan/gofumpt) and linting with [golangci-lint](https://github.com/golangci/golangci-lint)
+- Code formatting using [gofumpt](https://github.com/mvdan/gofumpt) and linting with [golangci-lint](https://github.com/golangci/golangci-lint) and [yamllint](https://yamllint.readthedocs.io/en/stable/index.html)
 - Unit testing with [testify](https://github.com/stretchr/testify), [race detector](https://blog.golang.org/race-detector), code coverage [HTML report](https://blog.golang.org/cover) and [Codecov report](https://codecov.io/)
 - Releasing using [GoReleaser](https://github.com/goreleaser/goreleaser)
 - Dependency scanning and updating thanks to [Dependabot](https://dependabot.com) and [Nancy](https://github.com/sonatype-nexus-community/nancy)
