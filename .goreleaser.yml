@@ -12,7 +12,15 @@ changelog:
   filters:
     exclude:
       - '^.github:'
+      - '^.vscode:'
       - '^test:'
+
+# ---------------------------
+# PUBLISHERS
+# ---------------------------
+publishers:
+  - name: "Publish GoDocs"
+    cmd: make godocs
 
 # ---------------------------
 # BUILDER
@@ -32,22 +40,10 @@ release:
 # ---------------------------
 announce:
   slack:
-    # Weather its enabled or not.
     # Defaults to false.
     enabled: true
-
-    # Message template to use while publishing.
-    # Defaults to `{{ .ProjectName }} {{ .Tag }} is out! Check it out at {{ .GitURL }}/releases/tag/{{ .Tag }}`
-    # message_template: 'Awesome project {{.Tag}} is out!'
-
-    # The name of the channel that the user selected as a destination for webhook messages.
+    message_template: '{{ .ProjectName }} {{ .Tag }} is out!'
     channel: '#test_slack'
-
-    # Set your Webhook's username.
     # username: ''
-
-    # Emoji to use as the icon for this message. Overrides icon_url.
     # icon_emoji: ''
-
-    # URL to an image to use as the icon for this message.
     # icon_url: ''
