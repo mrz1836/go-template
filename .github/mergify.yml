@@ -159,6 +159,7 @@ pull_request_rules:
       - and:
           - author!=dependabot[bot]
           - author!=mergify[bot]
+          - author!=allcontributors[bot]
           - author!=mrz1836
     actions:
       comment:

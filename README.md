@@ -132,14 +132,20 @@ Releases are automatically created when you create a new git tag!
 
 The [.goreleaser.yml](.goreleaser.yml) file is used to configure [goreleaser](https://github.com/goreleaser/goreleaser).
 
+<br/>
+
 ### Automatic Releases on Tag Creation (recommended)
 Automatic releases via [Github Actions](.github/workflows/release.yml) from creating a new tag:
 ```shell
 make tag version=1.2.3
 ```
 
+<br/>
+
 ### Manual Releases (optional)
 Use `make release-snap` to create a snapshot version of the release, and finally `make release` to ship to production (manually).
+
+<br/>
 
 </details>
 
@@ -194,7 +200,7 @@ vet                           Run the Go vet application
 
 ## Examples & Tests
 All unit tests and [examples](examples) run via [Github Actions](https://github.com/mrz1836/go-template/actions) and
-uses [Go version 1.16.x](https://golang.org/doc/go1.16). View the [configuration file](.github/workflows/run-tests.yml).
+uses [Go version 1.16.x and 1.17.x](https://golang.org/doc/go1.16). View the [configuration file](.github/workflows/run-tests.yml).
 
 Run all tests (including integration tests)
 ```shell script
