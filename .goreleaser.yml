@@ -43,8 +43,7 @@ announce:
   # See more at: https://goreleaser.com/customization/announce/#slack
   slack:
     enabled: true
-    message_template: '{{ .ProjectName }} {{ .Tag }} is out!
-    Changelog: https://github.com/mrz1836/go-template/releases/tag/{{ .Tag }}'
+    message_template: '{{ .ProjectName }} {{ .Tag }} is out! Changelog: https://github.com/mrz1836/{{ .ProjectName }}/releases/tag/{{ .Tag }}'
     channel: '#test_slack'
     # username: ''
     # icon_emoji: ''
