@@ -43,7 +43,7 @@ announce:
   # See more at: https://goreleaser.com/customization/announce/#slack
   slack:
     enabled: true
-    message_template: '[{{ .ProjectName }}](https://github.com/mrz1836/go-template/releases) {{ .Tag }} is out!'
+    message_template: '{{ .ProjectName }} {{ .Tag }} is out! \n Changelog: https://github.com/mrz1836/go-template/releases/tag/{{ .Tag }}'
     channel: '#test_slack'
     # username: ''
     # icon_emoji: ''
@@ -52,12 +52,12 @@ announce:
   # See more at: https://goreleaser.com/customization/announce/#twitter
   twitter:
     enabled: false
-    message_template: 'Awesome project {{.Tag}} is out!'
+    message_template: '{{ .ProjectName }} {{ .Tag }} is out!'
 
   # See more at: https://goreleaser.com/customization/announce/#discord
   discord:
     enabled: false
-    message_template: 'Awesome project {{.Tag}} is out!'
+    message_template: '{{ .ProjectName }} {{ .Tag }} is out!'
     # Defaults to `GoReleaser`
     author: ''
     # Defaults to `3888754` - the grey-ish from goreleaser
