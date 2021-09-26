@@ -1,3 +1,4 @@
+# See more at: https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
 name: run-go-tests
 
 env:
@@ -18,13 +19,26 @@ jobs:
     name: Run yaml linter
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.4
-      - uses: reviewdog/action-yamllint@v1.4.0
+      - name: Checkout code
+        uses: actions/checkout@v2.3.4
+      - name: Run yaml linter
+        uses: reviewdog/action-yamllint@v1.4.0
         with:
           fail_on_error: true
           reporter: github-pr-review
+  asknancy:
+    name: Ask Nancy (check dependencies)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.3.4
+      - name: Write go list
+        run: go list -json -m all > go.list
+      - name: Ask Nancy
+        uses: sonatype-nexus-community/nancy-github-action@v1.0.2
+        #continue-on-error: true
   test:
-    needs: yamllint
+    needs: [yamllint, asknancy]
     strategy:
       matrix:
         go-version: [ 1.16.x, 1.17.x ]
@@ -50,10 +64,5 @@ jobs:
             ${{ runner.os }}-go-
       - name: Run linter and tests
         run: make test-ci
-      - name: Write go list
-        run: go list -json -m all > go.list
-      - name: Ask Nancy
-        uses: sonatype-nexus-community/nancy-github-action@v1.0.2
-        #continue-on-error: true
       - name: Update code coverage
         run: bash <(curl -s https://codecov.io/bash)

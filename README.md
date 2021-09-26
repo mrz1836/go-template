@@ -99,7 +99,7 @@ This repository was created using [MrZ's `go-template`](https://github.com/mrz18
 - Code formatting using [gofumpt](https://github.com/mvdan/gofumpt) and linting with [golangci-lint](https://github.com/golangci/golangci-lint)
 - Unit testing with [testify](https://github.com/stretchr/testify), [race detector](https://blog.golang.org/race-detector), code coverage [HTML report](https://blog.golang.org/cover) and [Codecov report](https://codecov.io/)
 - Releasing using [GoReleaser](https://github.com/goreleaser/goreleaser)
-- Dependency scanning and updating thanks to [Dependabot](https://dependabot.com)
+- Dependency scanning and updating thanks to [Dependabot](https://dependabot.com) and [Nancy](https://github.com/sonatype-nexus-community/nancy)
 - Security code analysis using [CodeQL Action](https://docs.github.com/en/github/finding-security-vulnerabilities-and-errors-in-your-code/about-code-scanning)
 - Automatic syndication to [pkg.go.dev](https://pkg.go.dev/) on every release
 - Basic templates for [Issues and Pull Requests](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository) in Github
