@@ -38,12 +38,11 @@ jobs:
     needs: [yamllint, asknancy]
     strategy:
       matrix:
-        #go-version: [1.16.x, 1.17.x]
-        go-version: [1.16.x]
+        go-version: [1.16.x, 1.17.x]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Install Go
+      - name: Install Go ${{ matrix.go-version }}
         uses: actions/setup-go@v2.1.4
         with:
           go-version: ${{ matrix.go-version }}
@@ -60,8 +59,8 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - name: Install tools
-        run: make install-tools
+      # - name: Install tools
+      #  run: make install-tools
       - name: Run linter and tests
         run: make test-ci
       - name: Update code coverage
