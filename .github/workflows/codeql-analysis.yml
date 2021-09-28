@@ -11,8 +11,8 @@ on:
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [master]
-  schedule:
-    - cron: '0 23 * * 0'
+  # schedule:
+  #  - cron: '0 23 * * 0'
 
 jobs:
   analyze:
@@ -30,10 +30,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2.3.4
         with:
           # We must fetch at least the immediate parents so that if this is
-          # a pull request then we can checkout the head.
+          # a pull request then we can check out the head.
           fetch-depth: 2
 
       # If this run was triggered by a pull request event, then checkout
