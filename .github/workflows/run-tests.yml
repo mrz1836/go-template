@@ -59,6 +59,8 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+      - name: Install tools
+        run: make install-tools
       - name: Run linter and tests
         run: make test-ci
       - name: Update code coverage
