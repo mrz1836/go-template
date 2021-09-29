@@ -43,7 +43,6 @@ This is a GitHub repository starter template for a Go library. It has been creat
 **go-template** requires a [supported release of Go](https://golang.org/doc/devel/release.html#policy).
 ```shell script
 go get -u github.com/mrz1836/go-template
-make install-tools
 ```
 
 <br/>
@@ -98,7 +97,7 @@ This repository was created using [MrZ's `go-template`](https://github.com/mrz18
 - Dependency management using [Go Modules](https://github.com/golang/go/wiki/Modules)
 - Code formatting using [gofumpt](https://github.com/mvdan/gofumpt) and linting with [golangci-lint](https://github.com/golangci/golangci-lint) and [yamllint](https://yamllint.readthedocs.io/en/stable/index.html)
 - Unit testing with [testify](https://github.com/stretchr/testify), [race detector](https://blog.golang.org/race-detector), code coverage [HTML report](https://blog.golang.org/cover) and [Codecov report](https://codecov.io/)
-- Releasing using [GoReleaser](https://github.com/goreleaser/goreleaser)
+- Releasing using [GoReleaser](https://github.com/goreleaser/goreleaser) on [new Tag](https://git-scm.com/book/en/v2/Git-Basics-Tagging)
 - Dependency scanning and updating thanks to [Dependabot](https://dependabot.com) and [Nancy](https://github.com/sonatype-nexus-community/nancy)
 - Security code analysis using [CodeQL Action](https://docs.github.com/en/github/finding-security-vulnerabilities-and-errors-in-your-code/about-code-scanning)
 - Automatic syndication to [pkg.go.dev](https://pkg.go.dev/) on every release
@@ -125,10 +124,12 @@ This repository was created using [MrZ's `go-template`](https://github.com/mrz18
 <summary><strong><code>Library Deployment</code></strong></summary>
 <br/>
 
-Releases are automatically created when you create a new git tag!
+Releases are automatically created when you create a new [git tag](https://git-scm.com/book/en/v2/Git-Basics-Tagging)!
+
+If you want to manually make releases, please install GoReleaser:
 
 [goreleaser](https://github.com/goreleaser/goreleaser) for easy binary or library deployment to Github and can be installed:
-- **using make:** `make install-tools`
+- **using make:** `make install-releaser`
 - **using brew:** `brew install goreleaser`
 
 The [.goreleaser.yml](.goreleaser.yml) file is used to configure [goreleaser](https://github.com/goreleaser/goreleaser).
@@ -172,7 +173,7 @@ help                          Show this help message
 install                       Install the application
 install-all-contributors      Installs all contributors locally
 install-go                    Install the application (Using Native Go)
-install-tools                 Install the go tools
+install-releaser              Install the GoReleaser application
 lint                          Run the golangci-lint application (install if not found)
 release                       Full production release (creates release in Github)
 release                       Runs common.release then runs godocs
@@ -190,9 +191,8 @@ test-no-lint                  Runs just tests
 test-short                    Runs vet, lint and tests (excludes integration tests)
 test-unit                     Runs tests and outputs coverage
 uninstall                     Uninstall the application (and remove files)
-update-contributors           Regenerates the contributors list
+update-contributors           Regenerates the contributors html/list
 update-linter                 Update the golangci-lint package (macOS only)
-update-tools                  Update all go tools
 vet                           Run the Go vet application
 ```
 </details>
@@ -201,7 +201,7 @@ vet                           Run the Go vet application
 
 ## Examples & Tests
 All unit tests and [examples](examples) run via [Github Actions](https://github.com/mrz1836/go-template/actions) and
-uses [Go version 1.16.x and 1.17.x](https://golang.org/doc/go1.16). View the [configuration file](.github/workflows/run-tests.yml).
+uses [Go version 1.16.x](https://golang.org/doc/go1.16). View the [configuration file](.github/workflows/run-tests.yml).
 
 <br/>
 
