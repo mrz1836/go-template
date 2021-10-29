@@ -67,3 +67,5 @@ jobs:
           flags: unittests
           fail_ci_if_error: true # optional (default = false)
           verbose: true # optional (default = false)
+      - name: Syndicate to GoDocs
+        run: make godocs
