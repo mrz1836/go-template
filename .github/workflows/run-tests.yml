@@ -62,4 +62,8 @@ jobs:
       - name: Run linter and tests
         run: make test-ci
       - name: Update code coverage
-        run: bash <(curl -s https://codecov.io/bash)
+        uses: codecov/codecov-action@v2.1.0
+        with:
+          flags: unittests
+          fail_ci_if_error: true # optional (default = false)
+          verbose: true # optional (default = false)
