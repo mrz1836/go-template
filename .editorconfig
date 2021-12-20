@@ -1,3 +1,6 @@
+# Check http://editorconfig.org for more information
+# This is the main config file for this project:
+
 root = true
 
 [*]
@@ -63,6 +66,9 @@ indent_size = 2
 [*.diff]
 indent_size = 1
 
+[*.{diff,patch}]
+trim_trailing_whitespace = false
+
 [*.m]
 indent_size = 1
 indent_style = space
@@ -76,3 +82,6 @@ indent_style = space
 block_comment_start = /**
 block_comment = *
 block_comment_end = */
+
+[*.{md,rst}]
+trim_trailing_whitespace = false
