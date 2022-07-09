@@ -22,7 +22,7 @@ build:
   skip: true
 
 # ---------------------------
-# Github Release
+# GitHub Release
 # ---------------------------
 release:
   prerelease: true
