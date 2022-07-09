@@ -14,11 +14,11 @@ ifeq ($(REPO_OWNER),)
 	REPO_OWNER="mrz1836"
 endif
 
-.PHONY: clean install-all-contributors update-contributors
-
+.PHONY: all
 all: ## Runs multiple commands
 	@$(MAKE) test
 
+.PHONY: clean
 clean: ## Remove previous builds and any cached data
 	@echo "cleaning local cache..."
 	@go clean -cache -testcache -i -r
@@ -26,13 +26,16 @@ clean: ## Remove previous builds and any cached data
 	@test $(DISTRIBUTIONS_DIR)
 	@if [ -d $(DISTRIBUTIONS_DIR) ]; then rm -r $(DISTRIBUTIONS_DIR); fi
 
+.PHONY: install-all-contributors
 install-all-contributors: ## Installs all contributors locally
 	@echo "installing all-contributors cli tool..."
 	@yarn global add all-contributors-cli
 
+.PHONY: release
 release:: ## Runs common.release then runs godocs
 	@$(MAKE) godocs
 
+.PHONY: update-contributors
 update-contributors: ## Regenerates the contributors html/list
 	@echo "generating contributor html..."
 	@all-contributors generate
