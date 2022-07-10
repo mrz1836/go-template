@@ -24,7 +24,8 @@ jobs:
       - name: Lint Code Base
         uses: github/super-linter@v4
         env:
+          VALIDATE_EDITORCONFIG: false  # Not needed in this project
           VALIDATE_ALL_CODEBASE: false
-          VALIDATE_EDITORCONFIG: false
+          VALIDATE_GO: false # Already running in Go tests
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
