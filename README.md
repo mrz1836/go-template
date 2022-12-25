@@ -2,7 +2,7 @@
 > Robust starter template for a new Go library
 
 [![Release](https://img.shields.io/github/release-pre/mrz1836/go-template.svg?logo=github&style=flat&v=1)](https://github.com/mrz1836/go-template/releases)
-[![Build Status](https://img.shields.io/github/workflow/status/mrz1836/go-template/run-go-tests?logo=github&v=1)](https://github.com/mrz1836/go-template/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/mrz1836/go-template/run-tests.yml?branch=master&logo=github&v=1)](https://github.com/mrz1836/go-template/actions)
 [![Report](https://goreportcard.com/badge/github.com/mrz1836/go-template?style=flat&v=1)](https://goreportcard.com/report/github.com/mrz1836/go-template)
 [![codecov](https://codecov.io/gh/mrz1836/go-template/branch/master/graph/badge.svg?v=1)](https://codecov.io/gh/mrz1836/go-template)
 [![Mergify Status](https://img.shields.io/endpoint.svg?url=https://api.mergify.com/v1/badges/mrz1836/go-template&style=flat&v=1)](https://mergify.io)
