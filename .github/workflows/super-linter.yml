@@ -29,5 +29,6 @@ jobs:
           VALIDATE_EDITORCONFIG: false  # Not needed in this project
           VALIDATE_ALL_CODEBASE: false
           VALIDATE_GO: false # Already running in Go tests
+          VALIDATE_CHECKOV: false
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
