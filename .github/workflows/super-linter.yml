@@ -24,11 +24,13 @@ jobs:
       - name: Lint Code Base
         uses: github/super-linter@v7
         env:
-          VALIDATE_JSCPD_ALL_CODEBASE: false
-          VALIDATE_JSCPD: false
-          VALIDATE_EDITORCONFIG: false  # Not needed in this project
-          VALIDATE_ALL_CODEBASE: false
-          VALIDATE_GO: false # Already running in Go tests
-          VALIDATE_CHECKOV: false
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_ALL_CODEBASE: false
+          VALIDATE_CHECKOV: false
+          VALIDATE_EDITORCONFIG: false  # Not needed in this project
+          VALIDATE_GO: false # Already running in Go tests
+          VALIDATE_JSCPD: false
+          VALIDATE_JSCPD_ALL_CODEBASE: false
+          VALIDATE_MARKDOWN_PRETTIER: false # Not needed in this project
+          VALIDATE_YAML_PRETTIER: false # Not needed in this project
