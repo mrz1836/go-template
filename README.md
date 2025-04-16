@@ -104,7 +104,7 @@ This repository was created using [MrZ's `go-template`](https://github.com/mrz18
 - Generic templates for [Issues and Pull Requests](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository) in GitHub
 - All standard GitHub files such as `LICENSE`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and `SECURITY.md`
 - Code [ownership configuration](.github/CODEOWNERS) for GitHub
-- All your ignore files for [Visual Studio Code](.editorconfig), [docker](.dockerignore) and [Git](.gitignore)
+- All the "ignore" files for [Visual Studio Code](.editorconfig), [docker](.dockerignore) and [Git](.gitignore)
 - Automatic sync for [labels](.github/labels.yml) into GitHub using a predefined [configuration](.github/labels.yml)
 - Built-in powerful merging rules using [Mergify](https://mergify.io/)
 - Welcome [new contributors](.github/mergify.yml) on their first Pull-Request
@@ -203,7 +203,7 @@ vet                           Run the Go vet application
 
 ## Examples & Tests
 All unit tests and [examples](examples) run via [GitHub Actions](https://github.com/mrz1836/go-template/actions) and
-uses [Go version 1.22.x](https://golang.org/doc/go1.22). View the [configuration file](.github/workflows/run-tests.yml).
+uses [Go version 1.23.x](https://golang.org/doc/go1.23). View the [configuration file](.github/workflows/run-tests.yml).
 
 <br/>
 
