@@ -153,21 +153,21 @@ go get -u github.com/mrz1836/go-template
 
 *(delete this section once your project is initialized)*
 
-#### 1) Clone or "Use this template"
+#### 1) Clone or "[Use this template](https://github.com/new?template_name=go-template&template_owner=mrz1836)"
 
 ```bash
 git clone https://github.com/mrz1836/go-template.git my-lib
 cd my-lib
 ```
 
-... or click **Use this template** on [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template) and create a new repo.
+... or click **[Use this template](https://github.com/new?template_name=go-template&template_owner=mrz1836)** on GitHub and create a new repo.
 
 <br/>
 
 #### 2) Run the one-liner to personalize everything
 
 ```bash
-make install-template owner=myorg repo=my-lib
+make install-template owner=my_org repo=my-lib
 ```
 
 <br/>
@@ -176,9 +176,9 @@ This command will do the following:
 
 | Replaced / Deleted    | Replaced With                | Action   |
 |-----------------------|------------------------------|----------|
-| `mrz1836/go-template` | `myorg/my-lib`               | Replaced |
+| `mrz1836/go-template` | `my_org/my-lib`              | Replaced |
 | `go-template`         | `my-lib`                     | Replaced |
-| `mrz1836`             | `myorg`                      | Replaced |
+| `mrz1836`             | `my_org`                     | Replaced |
 | Default share image   | *(deleted, ready for yours)* | Deleted  |
 | Installation makefile | *(temporary file)*           | Deleted  |
 
@@ -186,7 +186,7 @@ This command will do the following:
 
 #### 3) Drop in your own share graphic (optional)
 
-Replace `.github/IMAGES/go-share-image.png` with something on-brand and then add it to GitHub as the default share image for your repo.
+Replace `.github/IMAGES/go-share-image.png` with something on-brand and then [add it to GitHub as the default share image](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/customizing-your-repositorys-social-media-preview) for your repo.
 
 <br/>
 
@@ -194,10 +194,10 @@ Replace `.github/IMAGES/go-share-image.png` with something on-brand and then add
 
 Edit the highlighted files so they match your project:
 
-* `AGENTS.md`
-* `LICENSE`
-* `README.md`
-* `.github/SECURITY.md`
+* [`AGENTS.md`](.github/AGENTS.md)
+* [`LICENSE`](LICENSE)
+* [`README.md`](README.md)
+* [`.github/SECURITY.md`](.github/SECURITY.md)
 
 <br/>
 

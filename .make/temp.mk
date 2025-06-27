@@ -34,7 +34,7 @@ install-template: ## Kick-start a fresh copy of go-template (run once!)
 	# 1. Validate CLI input
 	# --------------------------------------------------------------------
 	if [ -z "$(owner)" ]; then \
-	  echo '✋ Supply \"owner\" (e.g. owner=myorg)'; exit 1; \
+	  echo '✋ Supply \"owner\" (e.g. owner=my_org)'; exit 1; \
 	fi; \
 	if [ -z "$(repo)" ]; then \
 	  echo '✋ Supply \"repo\"  (e.g. repo=my-lib)'; exit 1; \
