@@ -1,4 +1,4 @@
-# go-template
+# 🚀 go-template
 > From Zero to Go Hero: Pre-wired Template for Modern Libraries
 
 <table>
