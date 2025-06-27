@@ -181,8 +181,6 @@ This repository was created using [MrZ's `go-template`](https://github.com/mrz18
 
 </details>
 
-### Additional Documentation & Repository Management
-
 <details>
 <summary><strong><code>Library Deployment</code></strong></summary>
 <br/>
