@@ -189,18 +189,16 @@ Edit the highlighted files so they match your project:
 * `README.md`
 * `.github/SECURITY.md`
 
----
-
 <br/>
 
-### 🔔 Optional Release Announcements
+#### 🔔 Optional Release Announcements
 
 | Channel                        | How to wire it up                                                                                                 |
 |--------------------------------|-------------------------------------------------------------------------------------------------------------------|
 | **Slack**                      | 1. Create an [Incoming Webhook](https://api.slack.com/messaging/webhooks)<br>2. Add a repo secret `SLACK_WEBHOOK` |
 | **Discord / Twitter / Reddit** | Follow the steps in [GoReleaser docs](https://goreleaser.com/customization/announce/#discord)                     |
 
----
+<br/>
 
 > **Next step:** push your initial commit and run `make tag version=0.1.0` - the CI/CD pipeline will take it from there. 🚀
 
