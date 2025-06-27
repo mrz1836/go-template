@@ -153,14 +153,14 @@ go get -u github.com/mrz1836/go-template
 
 *(delete this section once your project is initialized)*
 
-#### 1) Clone or “Use this template”
+#### 1) Clone or "Use this template"
 
 ```bash
 git clone https://github.com/mrz1836/go-template.git my-lib
 cd my-lib
 ```
 
-—or—click **Use this template** on [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template) and create a new repo.
+... or click **Use this template** on [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template) and create a new repo.
 
 <br/>
 
@@ -170,18 +170,21 @@ cd my-lib
 make install-template owner=myorg repo=my-lib
 ```
 
+<br/>
+
 This command will do the following:
 
-| Replaced              | With                         |
-|-----------------------|------------------------------|
-| `mrz1836/go-template` | `myorg/my-lib`               |
-| `go-template`         | `my-lib`                     |
-| `mrz1836`             | `myorg`                      |
-| Default share image   | *(deleted, ready for yours)* |
+| Replaced / Deleted    | Replaced With                | Action   |
+|-----------------------|------------------------------|----------|
+| `mrz1836/go-template` | `myorg/my-lib`               | Replaced |
+| `go-template`         | `my-lib`                     | Replaced |
+| `mrz1836`             | `myorg`                      | Replaced |
+| Default share image   | *(deleted, ready for yours)* | Deleted  |
+| Installation makefile | *(temporary file)*           | Deleted  |
 
 <br/>
 
-#### 3) Drop in your own share graphic
+#### 3) Drop in your own share graphic (optional)
 
 Replace `.github/IMAGES/go-share-image.png` with something on-brand and then add it to GitHub as the default share image for your repo.
 
@@ -198,7 +201,7 @@ Edit the highlighted files so they match your project:
 
 <br/>
 
-#### 🔔 Optional Release Announcements
+#### 🔔 Configure Release Announcements (Optional)
 
 | Channel                        | How to wire it up                                                                                                 |
 |--------------------------------|-------------------------------------------------------------------------------------------------------------------|
