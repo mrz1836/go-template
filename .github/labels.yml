@@ -32,11 +32,8 @@
   description: "Anything GUI related"
   name: "ui-ux"
 - color: 006b75
-  description: "Simple updates or version bumps"
+  description: "Simple dependency updates or version bumps"
   name: "chore"
-- color: 006b75
-  description: "Dependency updates"
-  name: "dependencies"
 - color: 006b75
   description: "General updates"
   name: "update"
