@@ -1,34 +1,54 @@
-# Code Standards
+# 🚀 Code Standards
 
-This project uses the following code standards and specifications from:
-- [effective go](https://golang.org/doc/effective_go.html)
-- [go benchmarks](https://golang.org/pkg/testing/#hdr-Benchmarks)
-- [go examples](https://golang.org/pkg/testing/#hdr-Examples)
-- [go tests](https://golang.org/pkg/testing/)
-- [godoc](https://godoc.org/golang.org/x/tools/cmd/godoc)
-- [gofmt](https://golang.org/cmd/gofmt/)
-- [golangci-lint](https://golangci-lint.run/)
-- [report card](https://goreportcard.com/)
+Welcome to a modern Go codebase. This library follows best-in-class practices for clarity, performance, and maintainability. Our single source of truth is [AGENTS.md](./AGENTS.md). If anything here ever contradicts it, follow **AGENTS.md**.
 
-### *effective go* standards
-View the [effective go](https://golang.org/doc/effective_go.html) standards documentation.
+<br/>
 
-### *golangci-lint* specifications
-The package [golangci-lint](https://golangci-lint.run/usage/quick-start) runs several linters in one package/cmd.
+## 📄 Reference Material
 
-View the active linters in the [configuration file](../.golangci.yml).
+When in doubt, check the official docs:
 
-Install via macOS:
-```shell
-brew install golangci-lint
+* ✨ [Effective Go](https://golang.org/doc/effective_go.html)
+* ⚖️ [Go Benchmarks](https://golang.org/pkg/testing/#hdr-Benchmarks)
+* 📖 [Go Examples](https://golang.org/pkg/testing/#hdr-Examples)
+* ✅ [Go Testing Guide](https://golang.org/pkg/testing/)
+* 📃 [godoc](https://pkg.go.dev/golang.org/x/tools/cmd/godoc)
+* 🔧 [gofmt](https://golang.org/cmd/gofmt/)
+* 📊 [golangci-lint](https://golangci-lint.run/)
+* 📈 [Go Report Card](https://goreportcard.com/)
+
+<br/>
+
+## 🧰 AGENTS.md
+
+Everything from naming conventions to pull request etiquette lives in [AGENTS.md](./AGENTS.md). Read it. Bookmark it. Trust it.
+
+<br/>
+
+## 🎓 Effective Go
+
+We adhere to the patterns and philosophy in [Effective Go](https://golang.org/doc/effective_go.html). Stick to idiomatic code. Avoid cleverness when clarity wins.
+
+<br/>
+
+## 🔍 golangci-lint
+
+We lint all the things. Our active ruleset lives in [`.golangci.json`](../.golangci.json).
+
+### 🌎 macOS, Linux or Windows
+
+Running `make lint` will detect if it's installed. If not, it will attempt to automatically install it for you.
+
+```sh
+make lint
 ```
 
-Install via Linux and Windows:
-```shell
-# binary will be $(go env GOPATH)/bin/golangci-lint
-curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.31.0
-golangci-lint --version
-```
+<br/>
 
-### *godoc* specifications
-All code is written with documentation in mind. Follow the best practices with naming, examples and function descriptions.
+## 📑 Documentation
+
+All exported code must be documented. Use `godoc`-compatible comments. If your function needs an example, include it. If it doesn’t, question if it should be exported.
+
+<br/>
+
+Happy coding — keep it clean, idiomatic, and readable. ✨
