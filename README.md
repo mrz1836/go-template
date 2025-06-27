@@ -78,7 +78,7 @@
 <br/>
 
 ## 🗂️ Table of Contents
-* [About](#-about)
+* [What's Inside](#-whats-inside)
 * [Installation](#-installation)
 * [Documentation](#-documentation)
 * [Examples & Tests](#-examples--tests)
@@ -91,17 +91,20 @@
 
 <br/>
 
-## 📝 About
+## 🧩 What's Inside
 
 **go-template** is a plug-and-play scaffold that lets you skip the boilerplate and jump straight to building your Go library. Clone it, [rename a few placeholders](#-installation), and you instantly inherit a production-grade setup:
 
 <br/>
 
+- **📚 Go Best Practices & Examples**  
+  _Includes idiomatic Go patterns, table-driven tests, benchmarks, example functions, and fuzz tests—demonstrating how to write robust, maintainable, and production-grade Go code._
+
 - **⚡ Zero-config CI/CD**  
   _GitHub Actions run tests, upload coverage, and enforce linting on every push—so you never forget to run the checks._
 
 - **🛠️ One-command Makefile**  
-  _`make test`, `make release`, `make bench`, and more—common tasks stay muscle-memory simple._
+  _`make test`, `make lint`, `make bench`, and more—common tasks stay muscle-memory simple._
 
 - **🚢 Automated Releases**  
   _GoReleaser cuts signed, versioned artifacts the moment you push a tag—shipping new versions becomes a 10-second ritual._
@@ -110,13 +113,13 @@
   _[Dependabot](https://dependabot.com), [Nancy](https://github.com/sonatype-nexus-community/nancy), [govulncheck](https://pkg.go.dev/golang.org/x/vuln/cmd/govulncheck), [CodeQL](https://docs.github.com/en/github/finding-security-vulnerabilities-and-errors-in-your-code/about-code-scanning), [OpenSSF Scorecard](https://openssf.org), and [gitleaks](https://github.com/gitleaks/gitleaks) give early warnings before bad things reach production._
 
 - **🎨 Style & Quality Enforcement**  
-  _[gofumpt](https://github.com/mvdan/gofumpt) + [golangci-lint](https://github.com/golangci/golangci-lint) keeps the codebase clean and idiomatic—no bikeshedding required._
-
-- **🌍 Community-Ready Meta**  
-  _Issue/PR templates, CODEOWNERS, label sync, and a welcome bot show contributors exactly how to get involved._
+  _[golangci-lint](https://github.com/golangci/golangci-lint) + [gofumpt](https://github.com/mvdan/gofumpt) keeps the codebase clean and idiomatic—no bikeshedding required._
 
 - **🤖 AI-Friendly Policies**  
   _AGENTS.md, CLAUDE.md, cursorrules, and sweep.yaml ensure ChatGPT, Claude, Cursor & Sweep follow the same house rules._
+
+- **🌍 Community-Ready Meta**  
+  _Issue/PR templates, CODEOWNERS, CITATION, label sync, and a welcome bot to show contributors exactly how to get involved._
 
 <br/>
 
