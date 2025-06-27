@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you find go-template useful in your software or research, please cite this project using the following citation metadata. A citation helps support future development and encourages best practices in software reuse."
+title: "go-template"
+version: "0.3.0"
+url: "https://github.com/mrz1836/go-template"
+repository: "https://github.com/mrz1836/go-template"
+repository-code: "https://github.com/mrz1836/go-template"
+date-released: 2021-04-24
+license: "Apache-2.0"
+type: software
+authors:
+  - family-names: "Z"
+    given-names: "Mr"
+    name: "mrz1836"
+keywords:
+  - go
+  - go-module
+  - go-package
+  - golang
+  - starter-template
+  - boilerplate
+  - library-scaffold
+  - CI/CD
+  - GitHub Actions
+  - GoReleaser
+  - test-automation
+  - open-source
+
+abstract: "go-template is a production-ready starter scaffold for Go libraries that bundles opinionated project structure, module management, and fully automated CI/CD workflows. It integrates GitHub Actions, GoReleaser, comprehensive testing and linting, and security scanning so maintainers can focus on writing code instead of setup and infrastructure."
