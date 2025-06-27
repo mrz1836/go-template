@@ -95,6 +95,8 @@
 
 **go-template** is a plug-and-play scaffold that lets you skip the boilerplate and jump straight to building your Go library. Clone it, [rename a few placeholders](#-installation), and you instantly inherit a production-grade setup:
 
+<br/>
+
 - **⚡ Zero-config CI/CD**  
   _GitHub Actions run tests, upload coverage, and enforce linting on every push—so you never forget to run the checks._
 
@@ -115,6 +117,8 @@
 
 - **🤖 AI-Friendly Policies**  
   _AGENTS.md, CLAUDE.md, cursorrules, and sweep.yaml ensure ChatGPT, Claude, Cursor & Sweep follow the same house rules._
+
+<br/>
 
 ### 🚀 Quick Wins
 
