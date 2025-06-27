@@ -1,28 +1,53 @@
-# Support
+# 🛟 Support Guide
 
-> This project has a [code of conduct](./CODE_OF_CONDUCT.md).
-> By interacting with this repository, organization, or community you agree to abide by its terms.
+Need help with **go-template**? You're in the right place. Here’s how to get support, report issues, and stay aligned with project guidelines.
 
-Hi! :wave: We're excited that you're using this project, and we'd love to help. To help us help you, please read through the following guidelines.
+<br/>
 
-Please understand that the people involved with this project often do so for fun, next to their day job; you are not entitled to free customer service.
+## 💬 Questions & Discussion
 
-## Questions
+Before asking, check the existing threads:
 
-Help us help you!
+* 🔍 Search [Discussions](https://github.com/mrz1836/go-template/discussions)
+* 🆕 Can’t find what you need? Start a new topic and ask away!
 
-Spending time framing a question and adding support links or resources makes it much easier for us to help. It’s easy to fall into the trap of asking something too specific when you’re close to a problem. Then, those trying to help you out have to spend a lot of time asking additional questions to understand what you are hoping to achieve.
+<br/>
 
-Spending the extra time up front can help save everyone time in the long run.
+## 🐞 Reporting Issues
 
-* Try to define what you need help with:
-    * Is there something in particular you want to do?
-    * What problem are you encountering and what steps have you taken to try and fix it?
-    * Is there a concept you’re not understanding?
-* Have you tried checking out the documentation?
-* Check out the tips on [requesting support](./CONTRIBUTING.md) in the contributing guide
-* The more time you put into asking your question, the better we can help you
+Found a bug?
 
-## Contributions
+1. Check the [issue tracker](https://github.com/mrz1836/go-template/issues) to avoid duplicates.
+2. If it’s new, open an issue with:
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) on how to contribute.
+	* Clear steps to reproduce
+	* Expected vs. actual behavior
+	* Relevant code or inputs
+
+More detail = faster fixes ✅
+
+<br/>
+
+## 🔐 Security Vulnerabilities
+
+Security first:
+
+* **Do not** report vulnerabilities in public issues.
+* Follow our [Security Policy](SECURITY.md) for confidential disclosure.
+
+<br/>
+
+## 🧭 Project Standards
+
+Everything from commit rules to contributor expectations is in [AGENTS.md](./AGENTS.md). If you’re contributing or troubleshooting, **read it first**.
+
+<br/>
+
+## 📬 Private Contact
+
+For sensitive or non-public concerns, reach out to:
+📧 [go-template@mrz1818.com](mailto:go-template@mrz1818.com)
+
+<br/>
+
+Thanks for your interest and support — we’re here to help, and we appreciate your contributions. 🚀
