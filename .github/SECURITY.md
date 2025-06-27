@@ -1,34 +1,77 @@
-# Security Policy
+# 🔐 Security Policy
 
-## 🔐 Reporting Security Issues
+Security is a priority. We maintain a proactive stance to identify and fix vulnerabilities in **go-template**.
 
-> Please do not open issues that might have security implications!
->
-> It is critical that security related issues are reported privately to ensure we have time to address them before they become public.
+<br/>
 
-Vulnerabilities can be reported by getting in touch with the project stakeholder(s):
+## 🛠️ Supported & Maintained Versions
 
-- [project maintainers](mailto:mrz1818@pm.me)
+| Version | Status               |
+|---------|----------------------|
+| 1.x.x   | ✅ Supported & Active |
 
-Please include the requested information listed below (as much as you can provide) to help us better understand the nature and scope of the possible issue:
+<br/>
 
-- Type of issue (e.g. buffer overflow, SQL injection, cross-site scripting, etc.)
-- Full paths of source file(s) related to the manifestation of the issue
-- The location of the affected source code (tag/branch/commit or direct URL)
-- Any special configuration required to reproduce the issue
-- Environment (e.g. Linux / Windows / macOS)
-- Step-by-step instructions to reproduce the issue
-- Proof-of-concept or exploit code (if possible)
-- Impact of the issue, including how an attacker might exploit the issue
+## 📨 Reporting a Vulnerability
 
-This information will help us triage your report more quickly.
+If you’ve found a security issue, **please don’t open a public issue or PR**.
 
-## Supported & Maintained Versions
+Instead, send a private email to:
+📧 [go-template@mrz1818.com](mailto:go-template@mrz1818.com)
 
-| Version | Supported          |
-|---------|--------------------|
-| 0.x.x   | :white_check_mark: |
+Include the following:
 
-## Preferred Languages
+* 🕵️ Description of the issue and its impact
+* 🧪 Steps to reproduce or a working PoC
+* 🔧 Any known workarounds or mitigations
 
-We prefer all communications to be in English.
+We welcome responsible disclosures from researchers, vendors, users, and curious tinkerers alike.
+
+<br/>
+
+## 📅 What to Expect
+
+* 🧾 **Acknowledgment** within 72 hours
+* 📢 **Status updates** every 5 business days
+* ✅ **Resolution target** of 30 days (for confirmed vulnerabilities)
+
+Prefer encrypted comms? Let us know in your initial email—we’ll reply with our PGP public key. 
+All official security responses are signed with it.
+
+<br/>
+
+## 🧪 Security Tooling
+
+We regularly scan for known vulnerabilities using:
+
+* [`govulncheck`](https://pkg.go.dev/golang.org/x/vuln/cmd/govulncheck): Checks Go code and dependencies for known vulnerabilities using the Go vulnerability database.
+* [`ask nancy`](https://github.com/sonatype-nexus-community/nancy): As part of our CI (see `run-tests.yml`), we run [nancy](https://github.com/sonatype-nexus-community/nancy) to check Go dependencies for vulnerabilities against the OSS Index. This helps us catch issues in third-party packages early.
+
+Want to run these yourself?
+
+```sh
+make govulncheck
+# or run nancy via the CI workflow
+```
+
+This will check your local build for known issues in Go modules and dependencies.
+
+<br/>
+
+## 🛡️ Security Standards
+
+We follow the [OpenSSF](https://openssf.org) best practices to ensure this repository remains compliant with industry‑standard open source security guidelines.
+
+<br/>
+
+## 🛠️ GitHub Security Workflows
+
+To proactively protect this repository, we use several automated GitHub workflows:
+
+- **[CodeQL Analysis](./workflows/codeql-analysis.yml)**: Scans the codebase for security vulnerabilities and coding errors using GitHub's CodeQL engine on every push and pull request to the `master` branch.
+- **[Gitleaks Scan](./workflows/check-for-leaks.yml)**: Runs daily and on demand to detect secrets or sensitive data accidentally committed to the repository, helping prevent credential leaks.
+- **[OpenSSF Scorecard](./workflows/scorecard.yml)**: Periodically evaluates the repository against OpenSSF Scorecard checks, providing insights and recommendations for improving supply chain security and best practices.
+
+These workflows help us identify, remediate, and prevent security issues as early as possible in the development lifecycle. For more details, see the workflow files in the [`.github/workflows/`](https://github.com/mrz1818/go-template/tree/master/.github/workflows) directory.
+
+<br/>
