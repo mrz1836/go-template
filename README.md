@@ -93,23 +93,34 @@
 
 ## 📝 About
 
-**go-template** is a plug‑and‑play scaffold that lets you skip the boilerplate and jump straight to building your Go library. Clone it, [rename a few placeholders](#-installation), and you instantly inherit a production‑grade setup:
+**go-template** is a plug-and-play scaffold that lets you skip the boilerplate and jump straight to building your Go library. Clone it, [rename a few placeholders](#-installation), and you instantly inherit a production-grade setup:
 
-| ⚡ What You Get                                                                                               | 🎯 Why It Matters                                             |
-|--------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
-| **Zero‑config CI/CD** – GitHub Actions run tests, upload coverage, and enforce linting on every push         | You never forget to run the checks; the robot does it for you |
-| **One‑command Makefile** – `make test`, `make release`, `make bench`, and more                               | Common tasks stay muscle‑memory simple                        |
-| **Automated Releases** – GoReleaser cuts signed, versioned artifacts when you push a tag                     | Shipping new versions becomes a 10‑second ritual              |
-| **Security & Supply‑chain Guardrails** – Dependabot, Nancy, govulncheck, CodeQL, OpenSSF Scorecard, gitleaks | You get early warnings before bad things reach production     |
-| **Style & Quality Enforcement** – gofumpt + golangci‑lint                                                    | Your codebase stays clean and idiomatic without bikeshedding  |
-| **Community‑Ready Meta** – Issue/PR templates, CODEOWNERS, label sync, welcome bot                           | Contributors know exactly how to get involved                 |
-| **AI‑Friendly Policies** – AGENTS.md, CLAUDE.md, cursorrules, sweep.yaml                                     | ChatGPT, Claude, Cursor & Sweep follow the same house rules   |
+- **⚡ Zero-config CI/CD**  
+  _GitHub Actions run tests, upload coverage, and enforce linting on every push—so you never forget to run the checks._
+
+- **🛠️ One-command Makefile**  
+  _`make test`, `make release`, `make bench`, and more—common tasks stay muscle-memory simple._
+
+- **🚢 Automated Releases**  
+  _GoReleaser cuts signed, versioned artifacts the moment you push a tag—shipping new versions becomes a 10-second ritual._
+
+- **🛡️ Security & Supply-chain Guardrails**  
+  _Dependabot, Nancy, govulncheck, CodeQL, OpenSSF Scorecard, and gitleaks give early warnings before bad things reach production._
+
+- **🎨 Style & Quality Enforcement**  
+  _gofumpt + golangci-lint keeps the codebase clean and idiomatic—no bikeshedding required._
+
+- **🌍 Community-Ready Meta**  
+  _Issue/PR templates, CODEOWNERS, label sync, and a welcome bot show contributors exactly how to get involved._
+
+- **🤖 AI-Friendly Policies**  
+  _AGENTS.md, CLAUDE.md, cursorrules, and sweep.yaml ensure ChatGPT, Claude, Cursor & Sweep follow the same house rules._
 
 ### 🚀 Quick Wins
 
 * **Clone → Tag → Release**: Go from idea to a published version in under five minutes.
-* **Works Everywhere**: macOS, Linux, Windows, ARM64 – fully reproducible builds.
-* **Battery Included Examples**: ready‑to‑run demos, benchmarks, fuzz & race tests.
+* **Works Everywhere**: macOS, Linux, Windows (maybe lol), ARM64 – fully reproducible builds.
+* **Battery-Included Examples**: ready-to-run demos, benchmarks, fuzz and race tests.
 * **Flexible, Not Fragile**: swap or remove any piece without breaking the whole.
 
 > **Tip:** Run `make help` right after cloning to see every command the template unlocks.
