@@ -170,6 +170,8 @@ cd my-lib
 make install-template owner=my_org repo=my-lib
 ````
 
+<br/>
+
 **What that actually does**
 
 1. **Find & replace names**
@@ -187,7 +189,7 @@ make install-template owner=my_org repo=my-lib
 
 	* Remove the default social-share image so you can drop in your own
 
-> That’s it—open a diff, make sure you’re happy, commit, and push. 🎉
+> That’s it—open a diff, make sure you're happy, commit, and push. 🎉
 
 <br/>
 
@@ -208,7 +210,7 @@ Edit the highlighted files so they match your project:
 
 <br/>
 
-#### 🔔 Configure Release Announcements (Optional)
+#### (Optional) Configure Release Announcements
 
 | Channel                        | How to wire it up                                                                                                 |
 |--------------------------------|-------------------------------------------------------------------------------------------------------------------|
@@ -217,7 +219,8 @@ Edit the highlighted files so they match your project:
 
 <br/>
 
-> **Next step:** push your initial commit and run `make tag version=0.1.0` - the CI/CD pipeline will take it from there. 🚀
+#### Give it a spin!
+Push your initial commit and run `make tag version=0.1.0` - the CI/CD pipeline will take it from there. 🚀
 
 <br/>
 
