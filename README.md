@@ -164,23 +164,30 @@ cd my-lib
 
 <br/>
 
-#### 2) Run the one-liner to personalize everything
+#### 2) Personalize the template in one command
 
 ```bash
 make install-template owner=my_org repo=my-lib
-```
+````
 
-<br/>
+**What that actually does**
 
-This command will do the following:
+1. **Find & replace names**
 
-| Replaced / Deleted    | Replaced With                | Action   |
-|-----------------------|------------------------------|----------|
-| `mrz1836/go-template` | `my_org/my-lib`              | Replaced |
-| `go-template`         | `my-lib`                     | Replaced |
-| `mrz1836`             | `my_org`                     | Replaced |
-| Default share image   | *(deleted, ready for yours)* | Deleted  |
-| Installation makefile | *(temporary file)*           | Deleted  |
+	* `mrz1836/go-template` → `my_org/my-lib`
+	* `go-template` → `my-lib`
+	* `mrz1836` → `my_org`
+
+2. **Clean up after itself**
+
+	* Deletes the temporary install file `.make/temp.mk`
+	* Removes its own `include .make/temp.mk` line from the root `Makefile`
+
+3. **House-keeping**
+
+	* Remove the default social-share image so you can drop in your own
+
+> That’s it—open a diff, make sure you’re happy, commit, and push. 🎉
 
 <br/>
 
