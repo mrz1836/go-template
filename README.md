@@ -155,6 +155,8 @@ cd my-lib
 
 —or—click **Use this template** on [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template) and create a new repo.
 
+<br/>
+
 #### 2) Run the one-liner to personalize everything
 
 ```bash
@@ -170,9 +172,13 @@ This command will do the following:
 | `mrz1836`             | `myorg`                      |
 | Default share image   | *(deleted, ready for yours)* |
 
+<br/>
+
 #### 3) Drop in your own share graphic
 
 Replace `.github/IMAGES/go-share-image.png` with something on-brand and then add it to GitHub as the default share image for your repo.
+
+<br/>
 
 #### 4) Touch up metadata
 
@@ -184,6 +190,8 @@ Edit the highlighted files so they match your project:
 * `.github/SECURITY.md`
 
 ---
+
+<br/>
 
 ### 🔔 Optional Release Announcements
 
