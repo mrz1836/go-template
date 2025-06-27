@@ -91,6 +91,8 @@
 
 <br/>
 
+<!-- remove-this-section:start -->
+
 ## 🧩 What's Inside
 
 **go-template** is a plug-and-play scaffold that lets you skip the boilerplate and jump straight to building your Go library. Clone it, [rename a few placeholders](#-installation), and you instantly inherit a production-grade setup:
@@ -133,6 +135,8 @@
 > **Tip:** Run `make help` right after cloning to see every command the template unlocks.
 
 <br/>
+
+<!-- remove-this-section:end -->
 
 ## 📦 Installation
 
