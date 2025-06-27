@@ -146,7 +146,7 @@ go get -u github.com/mrz1836/go-template
 
 *(delete this section once your project is initialized)*
 
-#### [1] Clone or “Use this template”
+#### 1) Clone or “Use this template”
 
 ```bash
 git clone https://github.com/mrz1836/go-template.git my-lib
@@ -155,7 +155,7 @@ cd my-lib
 
 —or—click **Use this template** on [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template) and create a new repo.
 
-#### [2] Run the one-liner to personalize everything
+#### 2) Run the one-liner to personalize everything
 
 ```bash
 make install-template owner=myorg repo=my-lib
@@ -170,11 +170,11 @@ This command will do the following:
 | `mrz1836`             | `myorg`                      |
 | Default share image   | *(deleted, ready for yours)* |
 
-#### [3] Drop in your own share graphic
+#### 3) Drop in your own share graphic
 
-Replace `.github/IMAGES/go-share-image.png` with something on-brand.
+Replace `.github/IMAGES/go-share-image.png` with something on-brand and then add it to GitHub as the default share image for your repo.
 
-#### [4] Touch up metadata
+#### 4) Touch up metadata
 
 Edit the highlighted files so they match your project:
 
