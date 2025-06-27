@@ -107,10 +107,10 @@
   _GoReleaser cuts signed, versioned artifacts the moment you push a tag—shipping new versions becomes a 10-second ritual._
 
 - **🛡️ Security & Supply-chain Guardrails**  
-  _Dependabot, Nancy, govulncheck, CodeQL, OpenSSF Scorecard, and gitleaks give early warnings before bad things reach production._
+  _[Dependabot](https://dependabot.com), [Nancy](https://github.com/sonatype-nexus-community/nancy), [govulncheck](https://pkg.go.dev/golang.org/x/vuln/cmd/govulncheck), [CodeQL](https://docs.github.com/en/github/finding-security-vulnerabilities-and-errors-in-your-code/about-code-scanning), [OpenSSF Scorecard](https://openssf.org), and [gitleaks](https://github.com/gitleaks/gitleaks) give early warnings before bad things reach production._
 
 - **🎨 Style & Quality Enforcement**  
-  _gofumpt + golangci-lint keeps the codebase clean and idiomatic—no bikeshedding required._
+  _[gofumpt](https://github.com/mvdan/gofumpt) + [golangci-lint](https://github.com/golangci/golangci-lint) keeps the codebase clean and idiomatic—no bikeshedding required._
 
 - **🌍 Community-Ready Meta**  
   _Issue/PR templates, CODEOWNERS, label sync, and a welcome bot show contributors exactly how to get involved._
