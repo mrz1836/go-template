@@ -725,12 +725,6 @@ All contributors are expected to append entries here when making meaningful chan
 
 | Date       | Author   | Summary of Changes                                                             |
 |------------|----------|--------------------------------------------------------------------------------|
-| 2025-06-19 | @mrz1836 | Documented OpenSSF compliance in security guidance                             |
-| 2025-06-18 | @mrz1836 | Added requirement to pin GitHub Action versions                                |
-| 2025-06-17 | @mrz1836 | Documented Go Fuzz test guidance                                               |
-| 2025-06-16 | @mrz1836 | Adapted to fix this project go-template                                        |
-| 2025-06-04 | @mrz1836 | Documented citation and configuration files for contributors                   |
-| 2025-06-03 | @mrz1836 | Major rewrite: clarified commenting standards and merged scope/purpose         |
-| 2025-06-03 | @mrz1836 | Combined testing and development sections; improved formatting & test guidance |
-| 2025-06-03 | @mrz1836 | Enhanced dependency management practices and security scanning advice          |
+| 2025-06-27 | @mrz1836 | Adapted to fix this project go-template                                        |
+| 2025-06-26 | @mrz1836 | Documented citation and configuration files for contributors                   |
 > For minor edits (typos, formatting), this log update is optional. For all behavioral or structural changes, log entries are **required**.
