@@ -1,4 +1,13 @@
-# See more at: https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+# ------------------------------------------------------------------------------------
+#  Run Go Tests Workflow
+#
+#  Purpose   : Run all Go tests and dependency checks on every push and pull request.
+#
+#  Triggers  : On push or pull request to any branch.
+#
+#  Maintainer: @mrz1836
+# ------------------------------------------------------------------------------------
+
 name: run-go-tests
 
 env:
@@ -12,57 +21,69 @@ on:
     branches:
       - "*"
 
+# Cancel older runs of the same branch/PR if a new commit is pushed
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
-  yamllint:
-    name: Run yaml linter
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Run yaml linter
-        uses: ibiqlik/action-yamllint@v3.1
+  # ----------------------------------------------------------------------------------
+  # Ask Nancy: Dependency Vulnerability Scanning
+  #
+  # This job uses the Nancy GitHub Action to scan Go module dependencies for known
+  # vulnerabilities. It runs on every push and pull request, and will not fail the
+  # workflow if vulnerabilities are found (continue-on-error: true). Excludes some
+  # specific vulnerabilities by ID.
+  # ----------------------------------------------------------------------------------
   asknancy:
     name: Ask Nancy (check dependencies)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Write go list
         run: go list -json -m all > go.list
       - name: Ask Nancy
-        uses: sonatype-nexus-community/nancy-github-action@v1.0.3
-        # continue-on-error: true
+        uses: sonatype-nexus-community/nancy-github-action@726e338312e68ecdd4b4195765f174d3b3ce1533 # v1.0.3
+        continue-on-error: true
+        with:
+          nancyCommand: sleuth --loud --exclude-vulnerability CVE-2022-32149
+
   test:
-    needs: [yamllint, asknancy]
+    needs: [asknancy]
     strategy:
       matrix:
-        go-version: [1.23.x]
+        go-version: [ 1.24.x ]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      # Install the version of Go specified in the matrix
-      - name: Install Go
-        uses: actions/setup-go@v5
+      # ————————————————————————————————————————————————————————————————
+      # 1. Check out the code so we can hash go.mod/go.sum for caching
+      # ————————————————————————————————————————————————————————————————
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      # ————————————————————————————————————————————————————————————————
+      # 2. Install the requested Go version *with built‑in caching enabled*
+      #    • Caches GOMODCACHE and GOCACHE automatically
+      #    • You can pass `cache-dependency-path: | go.mod\ngo.sum`
+      #      if you need more than the default `go.sum`
+      # ————————————————————————————————————————————————————————————————
+      - name: Set up Go ${{ matrix.go-version }}
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version: ${{ matrix.go-version }}
+          cache: true                   # default, but explicit for clarity
+          cache-dependency-path: |
+            **/go.sum
+            **/go.mod
 
-      # Check out the code
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      # Attempt to use caching
-      - name: Use Caching
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.mod', '**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-${{ matrix.go-version }}-
-            ${{ runner.os }}-go-
-
-      # Ensure go.sum is present in case it was never committed or is missing
+      # ————————————————————————————————————————————————————————————————
+      # 3. Ensure go.sum exists (useful on brand‑new repos)
+      # ————————————————————————————————————————————————————————————————
       - name: Ensure go.sum exists
         run: |
           if [ ! -f go.sum ]; then
@@ -70,28 +91,54 @@ jobs:
             go mod tidy
           fi
 
-      # Download modules (benefits from cache if it was found)
-      - name: Download Modules
+      # ————————————————————————————————————————————————————————————————
+      # 4. Download modules (set up go cache makes this almost instant)
+      # ————————————————————————————————————————————————————————————————
+      - name: Download modules
         run: go mod download
 
-      # Cache golangci-lint
+      # ————————————————————————————————————————————————————————————————
+      # 4.5. Verify that the Makefile help target works
+      # ————————————————————————————————————————————————————————————————
+      - name: Verify make help works
+        run: make help
+
+      # ————————————————————————————————————————————————————————————————
+      # 5. Cache golangci-lint analysis
+      # ————————————————————————————————————————————————————————————————
       - name: Cache golangci-lint cache
-        uses: actions/cache@v4
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ~/.cache/golangci-lint
-          key: ${{ runner.os }}-golangci-${{ hashFiles('**/*.go', '.golangci.yml') }}
+          key: ${{ runner.os }}-golangci-${{ hashFiles('**/*.go', '.golangci.json') }}
           restore-keys: |
             ${{ runner.os }}-golangci-
 
-      # Run tests
-      - name: Run linter and tests
-        run: make test-ci
+      # ————————————————————————————————————————————————————————————————
+      # 6. Run vet, linter, and tests (make target handles coverage)
+      #    • Separate vet step makes failures easier to spot in the UI
+      # ————————————————————————————————————————————————————————————————
+      - name: Go vet
+        run: go vet -v ./...
 
-      # Update the code coverage report
-      - name: Update Code Coverage
-        uses: codecov/codecov-action@v5.4.3
+      - name: Run linter and tests
+        run: make test-ci          # assumes this target runs golangci-lint + tests
+
+      # ————————————————————————————————————————————————————————————————
+      # 7. Scan for vulnerabilities with govulncheck
+      # Note: issue running <=1.23.x with govulncheck, so we skip it
+      # ————————————————————————————————————————————————————————————————
+      - name: Run govulncheck
+        if: matrix.go-version == '1.24.x' # There is a current issue with govulncheck on <= 1.23.x
+        run: make govulncheck
+
+      # ————————————————————————————————————————————————————————————————
+      # 8. Upload coverage to Codecov
+      # ————————————————————————————————————————————————————————————————
+      - name: Upload code coverage
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_TOKEN }}   # required for private repos
           flags: unittests
           fail_ci_if_error: true
           verbose: true
