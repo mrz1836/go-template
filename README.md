@@ -136,7 +136,7 @@
 
 <br/>
 
-### 🛠️ Template Kick-Off Guide
+### 🛠️ Template Kick-Off Guide (3 Easy Steps)
 
 *(delete this section once your project is initialized)*
 
@@ -181,13 +181,7 @@ make install-template owner=my_org repo=my-lib
 
 <br/>
 
-#### 3) Drop in your own share graphic (optional)
-
-Replace `.github/IMAGES/go-share-image.png` with something on-brand and then [add it to GitHub as the default share image](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/customizing-your-repositorys-social-media-preview) for your repo.
-
-<br/>
-
-#### 4) Touch up metadata
+#### 3) Touch up metadata
 
 Edit the highlighted files so they match your project:
 
