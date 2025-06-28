@@ -428,8 +428,6 @@ make bench
 
 <br/>
 
-Performance benchmarks for the core functions in this library, executed on an Apple M1 Max (ARM64):
-
 ### Benchmark Results
 
 | Benchmark                           | Iterations | ns/op | B/op | allocs/op |
@@ -437,6 +435,7 @@ Performance benchmarks for the core functions in this library, executed on an Ap
 | [Greet](template_benchmark_test.go) | 21,179,739 | 56.59 |   40 |         2 |
 
 > These benchmarks reflect fast, allocation-free lookups for most retrieval functions, ensuring optimal performance in production environments.
+> Performance benchmarks for the core functions in this library, executed on an Apple M1 Max (ARM64).
 
 <br/>
 
