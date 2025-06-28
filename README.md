@@ -135,6 +135,12 @@
 > **Tip:** Run `make help` right after cloning to see every command the template unlocks.
 
 <br/>
+<br/>
+
+___
+
+<br/>
+<br/>
 
 ### 🛠️ Template Kick-Off Guide (3 Easy Steps)
 
@@ -190,7 +196,7 @@ Edit the highlighted files so they match your project:
 * [`LICENSE`](LICENSE)
   * Update the year and your name or organization
 * [`README.md`](README.md)
-  * Remove the "remove-this-section" block at the bottom
+  * Remove the "remove-this-section" block in this file
   * Modify the "About" section to describe your library
 * [`.github/SECURITY.md`](.github/SECURITY.md)
   * Update the security policy to match your project's needs
@@ -241,7 +247,7 @@ extra baggage.
 <summary><strong><code>Repository Features</code></strong></summary>
 <br/>
 
-This repository was created using [MrZ's `go-template`](https://github.com/mrz1836/go-template#about)
+This repository was created using [MrZ's `go-template`](https://github.com/mrz1836/go-template)
 
 ### 🚀 Built-in Superpowers
 
