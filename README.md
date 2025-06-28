@@ -145,8 +145,7 @@
 #### 1) Clone or "[Use this template](https://github.com/new?template_name=go-template&template_owner=mrz1836)"
 
 ```bash
-git clone https://github.com/mrz1836/go-template.git my-lib
-cd my-lib
+git clone https://github.com/mrz1836/go-template.git my-lib && cd my-lib
 ```
 
 ... or click **[Use this template](https://github.com/new?template_name=go-template&template_owner=mrz1836)** on GitHub and create a new repo.
@@ -201,15 +200,8 @@ Edit the highlighted files so they match your project:
   * Modify the "About" section to describe your library
 * [`.github/SECURITY.md`](.github/SECURITY.md)
   * Update the security policy to match your project's needs
-
-<br/>
-
-#### (Optional) Configure Release Announcements
-
-| Channel                        | How to wire it up                                                                                                 |
-|--------------------------------|-------------------------------------------------------------------------------------------------------------------|
-| **Slack**                      | 1. Create an [Incoming Webhook](https://api.slack.com/messaging/webhooks)<br>2. Add a repo secret `SLACK_WEBHOOK` |
-| **Discord / Twitter / Reddit** | Follow the steps in [GoReleaser docs](https://goreleaser.com/customization/announce/#discord)                     |
+* [`.goreleaser.yml`](.goreleaser.yml)
+  * Modify settings for Slack, Discord, Twitter, or Reddit if you want to announce releases
 
 <br/>
 
