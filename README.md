@@ -191,7 +191,7 @@ make install-template owner=my_org repo=my-lib
 Edit the highlighted files so they match your project:
 
 * [`AGENTS.md`](.github/AGENTS.md)
-  * Update the project name, description, and any other relevant details in the beginning of the file
+  * Update the project name, description, and any other relevant details at the beginning of the file
 * [`LICENSE`](LICENSE)
   * Update the year and your name or organization
 * [`README.md`](README.md)
@@ -252,10 +252,6 @@ extra baggage.
 <details>
 <summary><strong><code>Repository Features</code></strong></summary>
 <br/>
-
-This repository was created using [MrZ's `go-template`](https://github.com/mrz1836/go-template)
-
-### 🚀 Built-in Superpowers
 
 * **Continuous Integration on Autopilot** with [GitHub Actions](https://github.com/features/actions) – every push is built, tested, and reported in minutes.
 * **Pull‑Request Flow That Merges Itself** thanks to [auto‑merge](.github/workflows/auto-merge-on-approval.yml) and hands‑free [Dependabot auto‑merge](.github/workflows/dependabot-auto-merge.yml).
