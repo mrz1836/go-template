@@ -141,7 +141,7 @@ ___
 <br/>
 <br/>
 
-### 🛠️ Template Kick-Off Guide (3 Easy Steps)
+### 🛠 Template Kick-Off Guide (3 Easy Steps)
 
 *(delete this section once your project is initialized)*
 
