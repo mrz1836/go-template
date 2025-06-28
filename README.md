@@ -199,8 +199,12 @@ Edit the highlighted files so they match your project:
   * Modify the "About" section to describe your library
 * [`.github/SECURITY.md`](.github/SECURITY.md)
   * Update the security policy to match your project's needs
+* [`.github/FUNDING.yml`](.github/FUNDING.yml)
+  * If you want to accept funding, add your funding links here
 * [`.goreleaser.yml`](.goreleaser.yml)
   * Modify settings for Slack, Discord, Twitter, or Reddit if you want to announce releases
+* [`CODEOWNERS`](.github/CODEOWNERS)
+  * Adjust rules for code ownership if needed
 
 <br/>
 
@@ -235,17 +239,14 @@ go get -u github.com/mrz1836/go-template
 <br/>
 
 ## 📚 Documentation
-View the generated [documentation](https://pkg.go.dev/github.com/mrz1836/go-template?tab=doc)
 
-> **Heads up!** `go-template` is intentionally light on dependencies. The only
-external package it uses is the excellent `testify` suite—and that's just for
-our tests. You can drop this library into your projects without dragging along
-extra baggage.
+- **API reference** – Dive into the godocs at [pkg.go.dev/github.com/mrz1836/go-template](https://pkg.go.dev/github.com/mrz1836/go-template)
+- **Usage examples** – Browse practical patterns in the [examples/](examples) directory or view the [example.go](examples/example.go) file
+- **Benchmarks** – Check the latest numbers in the [benchmark results](#benchmark-results)
+- **Test suite** – Review both the [unit tests](template_test.go) and [fuzz tests](template_fuzz_test.go) (powered by `testify`)
 
-- Explore additional [usage examples](examples) for practical integration patterns
-- Review [benchmark results](#benchmark-results) to assess performance characteristics
-- Examine the comprehensive [test suite](template_test.go) for validation and coverage
-- Fuzz tests [are available](template_fuzz_test.go) to ensure robustness against unexpected inputs
+> **Good to know:** `go-template` ships with *zero* runtime dependencies.  
+> The only external package we use is `testify`—and that’s strictly for tests.
 
 <br/>
 
