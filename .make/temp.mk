@@ -66,4 +66,4 @@ install-template: ## Kick-start a fresh copy of go-template (run once!)
 	# --------------------------------------------------------------------
 	# 4. Success message
 	# --------------------------------------------------------------------
-	echo '✅ Done! Review the changes, add your own share image, and commit the initial version.'
+	echo '✅ Done! Review the changes, review all files, and commit the initial version.'
