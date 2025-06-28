@@ -240,13 +240,13 @@ go get -u github.com/mrz1836/go-template
 
 ## 📚 Documentation
 
-- **API reference** – Dive into the godocs at [pkg.go.dev/github.com/mrz1836/go-template](https://pkg.go.dev/github.com/mrz1836/go-template)
-- **Usage examples** – Browse practical patterns in the [examples/](examples) directory or view the [example.go](examples/example.go) file
+- **API Reference** – Dive into the godocs at [pkg.go.dev/github.com/mrz1836/go-template](https://pkg.go.dev/github.com/mrz1836/go-template)
+- **Usage Examples** – Browse practical patterns either the [examples directory](examples) or view the [example functions](template_example_test.go)
 - **Benchmarks** – Check the latest numbers in the [benchmark results](#benchmark-results)
-- **Test suite** – Review both the [unit tests](template_test.go) and [fuzz tests](template_fuzz_test.go) (powered by `testify`)
+- **Test Suite** – Review both the [unit tests](template_test.go) and [fuzz tests](template_fuzz_test.go) (powered by [`testify`](https://github.com/stretchr/testify))
 
 > **Good to know:** `go-template` ships with *zero* runtime dependencies.  
-> The only external package we use is `testify`—and that’s strictly for tests.
+> The only external package we use is `testify`—and that's strictly for tests.
 
 <br/>
 
