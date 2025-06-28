@@ -219,6 +219,13 @@ Push your initial commit and run `make tag version=0.1.0` - the CI/CD pipeline w
 <br/>
 
 <!-- remove-this-section:end -->
+<br/>
+<br/>
+
+___
+
+<br/>
+<br/>
 
 ## 📦 Installation
 
