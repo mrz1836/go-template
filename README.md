@@ -136,22 +136,11 @@
 
 <br/>
 
-<!-- remove-this-section:end -->
-
-## 📦 Installation
-
-**go-template** requires a [supported release of Go](https://golang.org/doc/devel/release.html#policy).
-```shell script
-go get -u github.com/mrz1836/go-template
-```
-
-<br/>
-
-<!-- remove-this-section:start -->
-
 ### 🛠️ Template Kick-Off Guide
 
 *(delete this section once your project is initialized)*
+
+<br/>
 
 #### 1) Clone or "[Use this template](https://github.com/new?template_name=go-template&template_owner=mrz1836)"
 
@@ -172,15 +161,15 @@ make install-template owner=my_org repo=my-lib
 
 <br/>
 
-**What that actually does**
+#### What does that command do?
 
-1. **Find & replace names**
+1. **Finds & replaces names**
 
 	* `mrz1836/go-template` → `my_org/my-lib`
 	* `go-template` → `my-lib`
 	* `mrz1836` → `my_org`
 
-2. **Clean up after itself**
+2. **Cleans up after itself**
 
 	* Deletes the temporary install file `.make/temp.mk`
 	* Removes its own `include .make/temp.mk` line from the root `Makefile`
@@ -204,9 +193,14 @@ Replace `.github/IMAGES/go-share-image.png` with something on-brand and then [ad
 Edit the highlighted files so they match your project:
 
 * [`AGENTS.md`](.github/AGENTS.md)
+  * Update the project name, description, and any other relevant details in the beginning of the file
 * [`LICENSE`](LICENSE)
+  * Update the year and your name or organization
 * [`README.md`](README.md)
+  * Remove the "remove-this-section" block at the bottom
+  * Modify the "About" section to describe your library
 * [`.github/SECURITY.md`](.github/SECURITY.md)
+  * Update the security policy to match your project's needs
 
 <br/>
 
@@ -225,6 +219,15 @@ Push your initial commit and run `make tag version=0.1.0` - the CI/CD pipeline w
 <br/>
 
 <!-- remove-this-section:end -->
+
+## 📦 Installation
+
+**go-template** requires a [supported release of Go](https://golang.org/doc/devel/release.html#policy).
+```shell script
+go get -u github.com/mrz1836/go-template
+```
+
+<br/>
 
 ## 📚 Documentation
 View the generated [documentation](https://pkg.go.dev/github.com/mrz1836/go-template?tab=doc)
