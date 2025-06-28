@@ -206,18 +206,25 @@ Edit the highlighted files so they match your project:
 <br/>
 
 #### Give it a spin!
-Push your initial commit and run `make tag version=0.1.0` - the CI/CD pipeline will take it from there. 🚀
+Push your initial commit and run `make tag version=0.1.0` and the CI/CD pipeline will take it from there. 🚀
+
 
 <br/>
+<br/>
 
-<!-- remove-this-section:end -->
-<br/>
-<br/>
+<p align="center">
+  <strong>Supercharged Boilerplate Readme</strong>
+</p>
+<p align="center" style="font-size:2em;">
+  ⬇️
+</p>
 
 ___
 
 <br/>
 <br/>
+
+<!-- remove-this-section:end -->
 
 ## 📦 Installation
 
