@@ -93,7 +93,8 @@
 
 ## 🧩 What's Inside
 <!-- remove-this-section:start -->
-**go-template** is a plug-and-play scaffold that lets you skip the boilerplate and jump straight to building your Go library. Clone it, [rename a few placeholders](#-installation), and you instantly inherit a production-grade setup:
+**go-template** is a plug-and-play scaffold that lets you skip the boilerplate and jump straight to building your Go library. 
+Clone it, [rename a few placeholders](#-template-kick-off-guide-3-easy-steps), and you instantly inherit a production-grade setup:
 
 <br/>
 
