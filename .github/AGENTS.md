@@ -399,6 +399,7 @@ Markdown files (e.g., `README.md`, `AGENTS.md`, `CONTRIBUTING.md`) are first-cla
 * Prefer `errors.New()` over `fmt.Errorf`
 * Use custom error types sparingly
 * Avoid returning ambiguous errors; provide context
+* Avoid using `panic` for expected errors; reserve it for unrecoverable situations
 * Use `errors.Unwrap()` to access underlying errors when needed
 * Use `errors.Join()` to combine multiple errors when appropriate
 

@@ -8,7 +8,7 @@
 # Detect GNU sed (gsed) on macOS; fall back to system sed elsewhere
 SED          := $(shell command -v gsed 2>/dev/null || command -v sed)
 
-ifeq ($(shell $(SED) --version 2>/dev/null | grep -c 'GNU'),1)
+ifneq ($(shell $(SED) --version 2>/dev/null | grep -c 'GNU'),0)
   SED_INPLACE := -i       # GNU sed: -i[EXT]
 else
   SED_INPLACE := -i ''    # BSD sed: -i '' …
