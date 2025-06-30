@@ -292,7 +292,6 @@ This glossary describes each tracked file in the repository and notes if it is r
 | [.gitignore](.gitignore)                                                                       | Files and directories Git should ignore         | Git            |
 | [.golangci.json](.golangci.json)                                                               | GolangCI-Lint configuration                     | GolangCI-Lint  |
 | [.goreleaser.yml](.goreleaser.yml)                                                             | GoReleaser configuration for release automation | GoReleaser     |
-| [.yamllint.yml](.yamllint.yml)                                                                 | YAML linting configuration                      | yamllint       |
 | [CITATION.cff](CITATION.cff)                                                                   | Citation metadata recognized by GitHub          | GitHub         |
 | [LICENSE](LICENSE)                                                                             | Project license                                 | Yours!         |
 | [Makefile](Makefile)                                                                           | Build and lint automation                       | Make           |
