@@ -19,14 +19,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
-permissions:
-  actions: read
+permissions: read-all
 
 jobs:
   cleanup:
     runs-on: ubuntu-latest
     permissions:
-      actions: write
+      actions: read
     steps:
       ## Install GitHub CLI for cache management
       - name: Install GitHub CLI
