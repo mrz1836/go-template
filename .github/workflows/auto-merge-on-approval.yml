@@ -2,9 +2,6 @@
 #  Auto Merge on Approval Workflow
 #
 #  Purpose: Automatically merge PRs once all approval and CI conditions pass.
-#           For first time contributors, we attempt to post a friendly welcome
-#           comment, but only when the default GITHUB_TOKEN has write access
-#           (i.e., not from forks).
 #
 #  Triggers: Pull‑request events, review submissions, and completed checks.
 #
@@ -27,13 +24,7 @@ name: auto-merge-on-approval
 on:
     pull_request:
         types:
-            - opened
-            - synchronize
-            - reopened
-            - ready_for_review
-            - labeled
-            - unlabeled
-            - edited
+          [opened, synchronize, reopened, ready_for_review, labeled, unlabeled, edited]
     pull_request_review:
         types: [submitted]
     check_suite:
@@ -48,14 +39,13 @@ concurrency:
 permissions:
     contents: read
     pull-requests: read
-    issues: read
 
 jobs:
     automerge:
-        runs-on: ubuntu-latest
         permissions:
-            pull-requests: write     # needed to merge PRs
-            issues: write            # needed to comment on PRs
+            pull-requests: write
+
+        runs-on: ubuntu-latest
 
         steps:
             - name: Attempt auto‑merge
@@ -63,60 +53,49 @@ jobs:
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
-                      const owner = context.repo.owner;
-                      const repo  = context.repo.repo;
+                      // core and github are already available in github-script
 
-                      // ------------------------------------------------------------
-                      // Helper – locate the PR, even for check_suite/status events
-                      // ------------------------------------------------------------
-                      async function findPullRequest() {
-                        if (context.payload.pull_request) {
-                          return context.payload.pull_request;
-                        }
-                        const sha = context.payload.check_suite?.head_sha || context.payload.sha;
-                        if (!sha) return null;
-                        const { data: prs } = await github.rest.pulls.list({
-                          owner,
-                          repo,
-                          head: `${owner}:${sha}`,
-                          state: 'open',
-                        });
-                        return prs[0] || null;
-                      }
-
-                      const pr = await findPullRequest();
+                      // ------------------------------------------------------------------
+                      // Locate the pull request (handles pull_request, check_suite, status)
+                      // ------------------------------------------------------------------
+                      const owner = context.payload.repository.owner.login;
+                      const repo = context.payload.repository.name;
+                      let pr = context.payload.pull_request;
                       if (!pr) {
-                        core.info('PR not found (may be closed); exiting.');
+                        // check_suite/status → find PR by HEAD SHA
+                        const sha = context.payload.check_suite?.head_sha || context.payload.sha;
+                        if (sha) {
+                          const { data: prs } = await github.rest.pulls.list({
+                            owner,
+                            repo,
+                            head:  `${owner}:${sha}`,
+                            state: 'open',
+                          });
+                          pr = prs[0];
+                        }
+                      }
+                      if (!pr) {
+                        core.info('PR not found (may be closed), skipping.');
                         return;
                       }
 
-                      const prNumber   = pr.number;
-                      const prAuthor   = pr.user.login;
-                      const isFromFork = pr.head.repo.full_name !== `${owner}/${repo}`;
+                      // ------------------------------------------------------------------
+                      // Skip PRs authored by bots (Dependabot / Codecov / etc.)
+                      // ------------------------------------------------------------------
+                      //const botLogins = [
+                      //  'dependabot[bot]',
+                      //  'dependabot-preview[bot]',
+                      //  'codecov[bot]',
+                      //];
+                      //if (botLogins.includes(pr.user.login)) {
+                      //  core.info(`Skipping auto‑merge for bot‑authored PR (#${pr.number})`);
+                      //  return;
+                      //}
 
-                      // ------------------------------------------------------------
-                      // Welcome comment for first‑time contributors (if possible)
-                      // ------------------------------------------------------------
-                      const firstTime = ['FIRST_TIMER', 'FIRST_TIME_CONTRIBUTOR'].includes(pr.author_association);
-                      if (firstTime && !isFromFork) {
-                        try {
-                          await github.rest.issues.createComment({
-                            owner,
-                            repo,
-                            issue_number: prNumber,
-                            body: `👋 **Welcome @${prAuthor}!** Thanks for your first contribution. A maintainer will review your PR shortly.`
-                          });
-                          core.info(`Posted welcome comment to PR #${prNumber}.`);
-                        } catch (error) {
-                          core.warning(`Unable to post welcome comment: ${error.message}`);
-                        }
-                      } else if (firstTime && isFromFork) {
-                        core.info('Skipping welcome comment for fork PR due to read‑only GITHUB_TOKEN.');
-                      }
-
-                      // ------------------------------------------------------------
+                      // ------------------------------------------------------------------
                       // Gather PR metadata
-                      // ------------------------------------------------------------
+                      // ------------------------------------------------------------------
+                      const prNumber = pr.number;
                       const title    = pr.title || '';
                       const labels   = pr.labels.map(l => l.name);
                       const isDraft  = pr.draft;
@@ -154,18 +133,18 @@ jobs:
                       const titleHasWip = /wip/i.test(title);
                       const hasWipLabel = labels.includes('work-in-progress');
 
-                      // ------------------------------------------------------------
-                      // Merge or log reasons why we cannot yet merge
-                      // ------------------------------------------------------------
-                      const canMerge = approvals >= 1 &&
-                                       requestedReviewers.length === 0 &&
-                                       changesRequested === 0 &&
-                                       checksPass &&
-                                       !titleHasWip &&
-                                       !hasWipLabel &&
-                                       !isDraft;
-
-                      if (canMerge) {
+                      // ------------------------------------------------------------------
+                      // Merge or explain why not
+                      // ------------------------------------------------------------------
+                      if (
+                        approvals >= 1 &&
+                        requestedReviewers.length === 0 &&
+                        changesRequested === 0 &&
+                        checksPass &&
+                        !titleHasWip &&
+                        !hasWipLabel &&
+                        !isDraft
+                      ) {
                         try {
                           await github.rest.pulls.merge({
                             owner,
@@ -173,16 +152,23 @@ jobs:
                             pull_number: prNumber,
                             merge_method: 'merge',
                           });
-                          core.info(`✅ Pull request #${prNumber} merged.`);
+                          console.log(`✅ Pull request #${prNumber} merged.`);
                         } catch (error) {
-                          core.warning(`❌ Failed to merge PR #${prNumber}: ${error.message}`);
+                          core.setFailed(`❌ Failed to merge PR #${prNumber}: ${error.message}`);
                         }
                       } else {
-                        if (approvals < 1)          core.info('ℹ️  Waiting for at least one approval.');
-                        if (requestedReviewers.length) core.info('ℹ️  Waiting for requested reviewers.');
-                        if (changesRequested)       core.info('ℹ️  Change requests still present.');
-                        if (!checksPass)            core.info('ℹ️  Required checks not yet successful.');
-                        if (titleHasWip)            core.info('ℹ️  Title contains "WIP".');
-                        if (hasWipLabel)            core.info('ℹ️  "work-in-progress" label present.');
-                        if (isDraft)                core.info('ℹ️  PR is a draft.');
+                        if (approvals < 1)           console.log('⏭  Less than 1 approval.');
+                        if (requestedReviewers.length)
+                                                     console.log('⏭  Still has requested reviewers.');
+                        if (changesRequested)        console.log('⏭   "Changes Requested" reviews present.');
+                        if (!checksPass) {
+                          const failed = requiredChecks.filter(name => {
+                            const run = checkRuns.find(c => c.name === name);
+                            return !(run && run.conclusion === 'success');
+                          });
+                          console.log(`⏭  Required checks failed: ${failed.join(', ')}`);
+                        }
+                        if (titleHasWip)             console.log('⏭  Title contains  "WIP".');
+                        if (hasWipLabel)             console.log('⏭  Has  "work-in-progress" label.');
+                        if (isDraft)                 console.log('⏭  PR is a draft.');
                       }
