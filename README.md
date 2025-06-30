@@ -293,6 +293,7 @@ This glossary describes each tracked file in the repository and notes if it is r
 | [.gitignore](.gitignore)                                                                       | Files and directories Git should ignore         | Git            |
 | [.golangci.json](.golangci.json)                                                               | GolangCI-Lint configuration                     | GolangCI-Lint  |
 | [.goreleaser.yml](.goreleaser.yml)                                                             | GoReleaser configuration for release automation | GoReleaser     |
+| [.pre-commit-config.yaml](.pre-commit-config.yaml)                                             | Pre-commit hooks configuration                  | Pre-commit     |
 | [CITATION.cff](CITATION.cff)                                                                   | Citation metadata recognized by GitHub          | GitHub         |
 | [LICENSE](LICENSE)                                                                             | Project license                                 | Yours!         |
 | [Makefile](Makefile)                                                                           | Build and lint automation                       | Make           |
@@ -337,6 +338,10 @@ This glossary describes each tracked file in the repository and notes if it is r
 | [.make/common.mk](.make/common.mk)                                                             | Shared make tasks                               | Make           |
 | [.make/go.mk](.make/go.mk)                                                                     | Go-specific make tasks                          | Make           |
 | [.make/temp.mk](.make/temp.mk)                                                                 | Temporary makefile for internal use             | Make           |
+| [.vscode/extensions.json](.vscode/extensions.json)                                             | Recommended VS Code extensions                  | VS Code        |
+| [.vscode/settings.json](.vscode/settings.json)                                                 | VS Code workspace settings                      | VS Code        |
+| [.vscode/tasks.json](.vscode/tasks.json)                                                       | VS Code tasks configuration                     | VS Code        |
+| [.vscode/launch.json](.vscode/launch.json)                                                     | VS Code debugging configuration                 | VS Code        |
 | [examples/example.go](examples/example.go)                                                     | Example usage of the library                    | None           |
 </details>
 
