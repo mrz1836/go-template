@@ -276,6 +276,7 @@ go get -u github.com/mrz1836/go-template
 * **Optional Release Broadcasts** to your community via [Slack](https://slack.com), [Discord](https://discord.com), or [Twitter](https://twitter.com) – plug in your webhook.
 * **AI Compliance Playbook** – machine‑readable guidelines ([AGENTS.md](.github/AGENTS.md), [CLAUDE.md](.github/CLAUDE.md), [.cursorrules](.cursorrules), [sweep.yaml](.github/sweep.yaml)) keep ChatGPT, Claude, Cursor & Sweep aligned with your repo’s rules.
 * **Pre-commit Hooks for Consistency** powered by [pre-commit](https://pre-commit.com) and the [.pre-commit-config.yaml](.pre-commit-config.yaml) file—run the same formatting, linting, and tests before every commit, just like CI.
+* **Automated Hook Updates** keep the [.pre-commit-config.yaml](.pre-commit-config.yaml) current via a weekly [workflow](.github/workflows/update-pre-commit-hooks.yml).
 * **DevContainers for Instant Onboarding** – Launch a ready-to-code environment in seconds with [VS Code DevContainers](https://containers.dev/) and the included [.devcontainer/devcontainer.json](.devcontainer/devcontainer.json) config.
 
 </details>
@@ -322,6 +323,7 @@ This glossary describes each tracked file in the repository and notes if it is r
 | [.github/workflows/scorecard.yml](.github/workflows/scorecard.yml)                             | OpenSSF Scorecard workflow                      | GitHub Actions   |
 | [.github/workflows/stale.yml](.github/workflows/stale.yml)                                     | Close stale issues and PRs                      | GitHub Actions   |
 | [.github/workflows/sync-labels.yml](.github/workflows/sync-labels.yml)                         | Sync repository labels                          | GitHub Actions   |
+| [.github/workflows/update-pre-commit-hooks.yml](.github/workflows/update-pre-commit-hooks.yml)                 | Automatically update pre-commit hooks           | GitHub Actions   |
 | [.gitignore](.gitignore)                                                                       | Files and directories Git should ignore         | Git              |
 | [.gitpod.yml](.gitpod.yml)                                                                     | Gitpod workspace configuration                  | Gitpod           |
 | [.golangci.json](.golangci.json)                                                               | GolangCI-Lint configuration                     | GolangCI-Lint    |
@@ -455,6 +457,7 @@ vet                   ## Run go vet
 | [scorecard.yml](.github/workflows/scorecard.yml)                             | Runs [OpenSSF](https://openssf.org/) Scorecard to assess supply chain security.                                        |
 | [stale.yml](.github/workflows/stale.yml)                                     | Warns about (and optionally closes) inactive issues and PRs on a schedule or manual trigger.                           |
 | [sync-labels.yml](.github/workflows/sync-labels.yml)                         | Keeps GitHub labels in sync with the declarative manifest at [`.github/labels.yml`](./.github/labels.yml).             |
+| [.github/workflows/update-pre-commit-hooks.yml](.github/workflows/update-pre-commit-hooks.yml)                 | Automatically update pre-commit hooks           | GitHub Actions   |
 
 </details>
 
