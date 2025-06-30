@@ -38,6 +38,10 @@
         "go.useLanguageServer": true,
         "go.toolsEnvVars": {
           "GOFLAGS": "-buildvcs=false"
+        },
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": true
         }
       },
       "extensions": [
