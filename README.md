@@ -472,7 +472,9 @@ This command ensures all dependencies are brought up to date in a single step, i
 
 </details>
 
-## 🔄 Pre-commit Hooks
+<details>
+<summary><strong><code>Pre-commit Hooks</code></strong></summary>
+<br/>
 
 Set up the optional [pre-commit](https://pre-commit.com) hooks to run the same formatting, linting, and tests defined in [AGENTS.md](.github/AGENTS.md) before every commit:
 
@@ -482,6 +484,8 @@ pre-commit install
 ```
 
 The hooks are configured in [.pre-commit-config.yaml](.pre-commit-config.yaml) and mirror the CI pipeline.
+
+</details>
 
 <br/>
 
