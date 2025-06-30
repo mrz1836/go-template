@@ -1,0 +1,35 @@
+# Gitpod workspace configuration for go-template
+# This file creates a repeatable cloud development environment.
+# It ensures dependencies are installed and the codebase is vetted
+# and tested on workspace start.
+
+image:
+  name: gitpod/workspace-full:1.0.0
+
+tasks:
+  - name: setup-and-test
+    init: |
+      echo "Downloading Go modules..."
+      go mod download
+      go mod tidy
+      # Install goimports if not present
+      if ! command -v goimports >/dev/null; then
+        go install golang.org/x/tools/cmd/goimports@latest
+      fi
+      go fmt ./...
+      goimports -w .
+      golangci-lint run
+      go vet ./...
+    command: |
+      go test ./...
+
+ports:
+  - port: 8080
+    onOpen: open-preview
+    description: Application
+
+vscode:
+  extensions:
+    - golang.go
+    - github.vscode-pull-request-github
+    - streetsidesoftware.code-spell-checker
