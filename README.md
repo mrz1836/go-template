@@ -323,7 +323,7 @@ This glossary describes each tracked file in the repository and notes if it is r
 | [.github/workflows/scorecard.yml](.github/workflows/scorecard.yml)                             | OpenSSF Scorecard workflow                      | GitHub Actions   |
 | [.github/workflows/stale.yml](.github/workflows/stale.yml)                                     | Close stale issues and PRs                      | GitHub Actions   |
 | [.github/workflows/sync-labels.yml](.github/workflows/sync-labels.yml)                         | Sync repository labels                          | GitHub Actions   |
-| [.github/workflows/update-pre-commit-hooks.yml](.github/workflows/update-pre-commit-hooks.yml)                 | Automatically update pre-commit hooks           | GitHub Actions   |
+| [.github/workflows/update-pre-commit-hooks.yml](.github/workflows/update-pre-commit-hooks.yml) | Automatically update pre-commit hooks           | GitHub Actions   |
 | [.gitignore](.gitignore)                                                                       | Files and directories Git should ignore         | Git              |
 | [.gitpod.yml](.gitpod.yml)                                                                     | Gitpod workspace configuration                  | Gitpod           |
 | [.golangci.json](.golangci.json)                                                               | GolangCI-Lint configuration                     | GolangCI-Lint    |
@@ -457,7 +457,7 @@ vet                   ## Run go vet
 | [scorecard.yml](.github/workflows/scorecard.yml)                             | Runs [OpenSSF](https://openssf.org/) Scorecard to assess supply chain security.                                        |
 | [stale.yml](.github/workflows/stale.yml)                                     | Warns about (and optionally closes) inactive issues and PRs on a schedule or manual trigger.                           |
 | [sync-labels.yml](.github/workflows/sync-labels.yml)                         | Keeps GitHub labels in sync with the declarative manifest at [`.github/labels.yml`](./.github/labels.yml).             |
-| [.github/workflows/update-pre-commit-hooks.yml](.github/workflows/update-pre-commit-hooks.yml)                 | Automatically update pre-commit hooks           | GitHub Actions   |
+| [update-pre-commit-hooks.yml](.github/workflows/update-pre-commit-hooks.yml) | Automatically update versions for [pre-commit](https://pre-commit.com/) hooks                                          |
 
 </details>
 
