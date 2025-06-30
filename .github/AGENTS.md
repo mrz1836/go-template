@@ -442,6 +442,27 @@ docs(README): improve installation instructions
 
 <br/><br/>
 
+### 📝 Pre-Commit Hooks (Optional)
+To ensure consistent commit messages, we use a pre-commit hook that checks the format before allowing a commit. The hook is defined in `.pre-commit-config.yaml` and can be installed with:
+
+```bash
+pre-commit install
+```
+
+If you don't have `pre-commit` installed, you can install it via Homebrew:
+```bash
+brew install pre-commit
+```
+
+Run the pre-commit hook manually with:
+```bash
+pre-commit run --all-files
+```
+
+> The pre-commit hook will automatically check your commit messages against the defined format and prevent commits that do not comply.
+
+<br/><br/>
+
 ### 🌱 Branch Naming
 
 | Purpose            | Prefix      | Example                            |
@@ -629,7 +650,6 @@ CI automatically runs on every PR to verify:
 * Linting (`golangci-lint run`)
 * Tests (`go test ./...`)
 * Fuzz tests (if applicable) (`make run-fuzz-tests`)
-* Pre‑commit hooks (`pre-commit install && pre-commit run --files <files>`) keep local commits aligned with CI
 * This codebase uses GitHub Actions; test workflows reside in `.github/workflows/run-tests.yml`
 * Pin each external GitHub Action to a **full commit SHA** (e.g., `actions/checkout@2f3b4a2e0e471e13e2ea2bc2a350e888c9cf9b75`) as recommended by GitHub's [security hardening guidance](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-pinned-actions). Dependabot will track and update these pinned versions automatically.
 
@@ -727,9 +747,8 @@ This section tracks notable updates to `AGENTS.md`, including the date, author, 
 All contributors are expected to append entries here when making meaningful changes to agent behavior, conventions, or policies.
 
 
-| Date       | Author   | Summary of Changes                                                             |
-|------------|----------|--------------------------------------------------------------------------------|
-| 2025-06-30 | @mrz1836 | Added pre-commit hook guidelines and config reference |
-| 2025-06-27 | @mrz1836 | Adapted to fix this project go-template                                        |
-| 2025-06-26 | @mrz1836 | Documented citation and configuration files for contributors                   |
+| Date       | Author   | Summary of Changes                                           |
+|------------|----------|--------------------------------------------------------------|
+| 2025-06-30 | @mrz1836 | Added pre-commit hook guidelines and config reference        |
+| 2025-06-27 | @mrz1836 | Adapted to fix this project go-template                      |
 > For minor edits (typos, formatting), this log update is optional. For all behavioral or structural changes, log entries are **required**.
