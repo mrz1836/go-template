@@ -1,0 +1,49 @@
+{
+  // Name shown in the UI for this container
+  "name": "go-template development container",
+
+  // Base image with Go preinstalled (Debian Bullseye variant)
+  "image": "mcr.microsoft.com/devcontainers/go:0-1.24-bullseye",
+
+  // Features install additional tools common for Go development
+  "features": {
+    // Installs Go toolchain and golangci-lint
+    "ghcr.io/devcontainers/features/go:1": {
+      "version": "1.24",
+      "golangciLintVersion": "latest"
+    },
+    // Git CLI with configuration helpers
+    "ghcr.io/devcontainers/features/git:1": {},
+    // GitHub CLI for interacting with GitHub
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    // Allow container to run Docker commands via host socket
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+  },
+
+  // Mount the Docker socket from the host
+  "mounts": [
+    "type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock"
+  ],
+
+  // Runs after the container is created
+  "postCreateCommand": "go mod download && go mod tidy",
+
+  // VS Code specific settings and extensions
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "go.useLanguageServer": true,
+        "go.toolsEnvVars": {
+          "GOFLAGS": "-buildvcs=false"
+        }
+      },
+      "extensions": [
+        "golang.Go",
+        "github.vscode-github-actions"
+      ]
+    }
+  },
+
+  // Run as the vscode user
+  "remoteUser": "vscode"
+}
