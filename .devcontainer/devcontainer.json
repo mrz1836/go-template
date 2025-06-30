@@ -21,6 +21,9 @@
   },
 
   // Mount the Docker socket from the host
+  // WARNING: Mounting the Docker socket grants elevated access to the host Docker daemon.
+  // This setup is intended for development purposes only and should not be used in production environments.
+  // Ensure the container runs as a non-root user to mitigate risks.
   "mounts": [
     "type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock"
   ],
