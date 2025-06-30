@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
 
 concurrency:
@@ -27,6 +27,9 @@ concurrency:
 jobs:
   update-hooks:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       # Checkout code
       - name: Checkout code
@@ -40,7 +43,7 @@ jobs:
 
       # Install pre-commit
       - name: Install pre-commit
-        run: pip install pre-commit
+        run: pip install pre-commit==3.7.0
 
       # Run pre-commit autoupdate
       - name: Run pre-commit autoupdate
