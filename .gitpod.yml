@@ -4,7 +4,7 @@
 # and tested on workspace start.
 
 image:
-  name: gitpod/workspace-full:latest
+  name: gitpod/workspace-full:1.0.0
 
 tasks:
   - name: setup-and-test
