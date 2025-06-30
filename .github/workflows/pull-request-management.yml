@@ -4,6 +4,10 @@
 #  Purpose: Automatically applies labels to pull requests based on branch name prefix,
 #           assigns a default user if none is assigned, and welcomes new contributors
 #           (excluding known bots/authors) with a friendly comment on PR creation.
+#           The workflow is hardened to gracefully handle forked PRs where the
+#           default `GITHUB_TOKEN` has limited permissions (no write access to the
+#           upstream repository’s issues or PRs). In those cases, the workflow
+#           skips assigning or commenting and only emits warnings.
 #
 #  Triggers: On PR open, synchronize, reopen, or ready for review.
 #
@@ -18,134 +22,136 @@
 name: pull-request-management
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    pull_request:
+        types: [opened, synchronize, reopened, ready_for_review]
 
 # Cancel older runs of the same PR if a new commit is pushed
 concurrency:
     group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
     cancel-in-progress: true
 
+# Minimal read permissions; write permissions are elevated only where needed
 permissions:
     contents: read
     issues: write
     pull-requests: write
 
 jobs:
-  apply-changes:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Add labels based on branch
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            // ──────────────────────────────────────────────────────────────
-            // 1. Label PRs by branch prefix
-            // ──────────────────────────────────────────────────────────────
-            const DEFAULT_ASSIGNEE = 'mrz1836'; // <-- Change this value to update the default assignee
-            const branch = context.payload.pull_request.head.ref;
-            const labels = [];
-            const labelMap = [
-              { regex: /^feat\//i, label: 'feature' },
-              { regex: /^(bug)?fix\//i, label: 'bug-P3' },
-              { regex: /^docs\//i, label: 'documentation' },
-              { regex: /^chore\//i, label: 'update' },
-              { regex: /^test\//i, label: 'test' },
-              { regex: /^refactor\//i, label: 'refactor' },
-              { regex: /^hotfix\//i, label: 'hot-fix' },
-              { regex: /^proto(type)?\//i, label: 'prototype' },
-              { regex: /^idea\//i, label: 'idea' },
-              { regex: /^question\//i, label: 'question' },
-            ];
-            for (const { regex, label } of labelMap) {
-              if (regex.test(branch)) {
-                labels.push(label);
-              }
-            }
-            if (labels.length > 0) {
-              try {
-                // Fetch existing labels on the PR
-                const { data: prLabels } = await github.rest.issues.listLabelsOnIssue({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: context.payload.pull_request.number,
-                });
-                const existing = prLabels.map(l => l.name);
-                // Only add labels that are not already present
-                const toAdd = labels.filter(l => !existing.includes(l));
-                if (toAdd.length > 0) {
-                  await github.rest.issues.addLabels({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    issue_number: context.payload.pull_request.number,
-                    labels: toAdd,
-                  });
-                }
-              } catch (error) {
-                if (core && typeof core.setFailed === 'function') {
-                  core.setFailed(`Failed to add labels: ${error.message}`);
-                } else {
-                  console.error('Failed to add labels:', error);
-                }
-              }
-            }
+    apply-changes:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Manage PR (labels, assignee, welcome)
+              uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      /* eslint-disable no-undef */
+                      const DEFAULT_ASSIGNEE = 'mrz1836'; // <-- change if needed
 
-            // ──────────────────────────────────────────────────────────────
-            // 2. Assign PR to default assignee if none is assigned
-            // ──────────────────────────────────────────────────────────────
-            try {
-              const assignees = context.payload.pull_request.assignees;
-              if (!assignees || assignees.length === 0) {
-                await github.rest.issues.addAssignees({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: context.payload.pull_request.number,
-                  assignees: [DEFAULT_ASSIGNEE],
-                });
-              }
-            } catch (error) {
-              const integrationMessage = 'Resource not accessible by integration';
-              const isIntegrationError = error.message.includes(integrationMessage);
-              const isFromFork = context.actor !== context.repo.owner;
+                      // Helpers -------------------------------------------------------
+                      const pr = context.payload.pull_request;
+                      const owner = context.repo.owner;
+                      const repo = context.repo.repo;
+                      const issue_number = pr.number;
 
-              if (isIntegrationError && isFromFork) {
-                console.warn(
-                  `Skipping assignee due to limited token permissions and possible fork. actor: ${context.actor}, repo.owner: ${context.repo.owner}`
-                );
-              } else if (isIntegrationError) {
-                  console.warn(
-                    `Skipping assignee due to limited token permissions. actor: ${context.actor}, repo.owner: ${context.repo.owner}`
-                  );
-              } else if (core && typeof core.setFailed === 'function') {
-                core.setFailed(
-                  `Failed to assign PR: ${error.message} (actor: ${context.actor}, repo.owner: ${context.repo.owner})`
-                );
-              } else {
-                console.error(
-                  `Failed to assign PR: ${error.message} (actor: ${context.actor}, repo.owner: ${context.repo.owner})`
-                );
-              }
-            }
+                      const isFromFork = pr.head.repo.owner.login !== owner;
+                      const isIntegrationError = (err) =>
+                        err.message && err.message.includes('Resource not accessible by integration');
 
-            // ──────────────────────────────────────────────────────────────
-            // 3. Welcome new contributors with a friendly comment
-            // ──────────────────────────────────────────────────────────────
-            const author = context.payload.pull_request.user.login;
-            const knownBots = ['dependabot[bot]', 'mergify[bot]', 'copilot[bot]', 'Copilot', DEFAULT_ASSIGNEE];
-            if (!knownBots.includes(author) && context.payload.action === 'opened') {
-              try {
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: context.payload.pull_request.number,
-                  body: `Welcome to our open-source project, @${author}! 💘`
-                });
-              } catch (error) {
-                if (core && typeof core.setFailed === 'function') {
-                  core.setFailed(`Failed to post welcome comment: ${error.message}`);
-                } else {
-                  console.error('Failed to post welcome comment:', error);
-                }
-              }
-            }
+                      // ──────────────────────────────────────────────────────────────
+                      // 1. Label PRs by branch prefix
+                      // ──────────────────────────────────────────────────────────────
+                      try {
+                        const branch = pr.head.ref;
+                        const labelsToApply = [];
+                        const labelMap = [
+                          { regex: /^feat\//i, label: 'feature' },
+                          { regex: /^(bug)?fix\//i, label: 'bug-P3' },
+                          { regex: /^docs\//i, label: 'documentation' },
+                          { regex: /^chore\//i, label: 'update' },
+                          { regex: /^test\//i, label: 'test' },
+                          { regex: /^refactor\//i, label: 'refactor' },
+                          { regex: /^hotfix\//i, label: 'hot-fix' },
+                          { regex: /^proto(type)?\//i, label: 'prototype' },
+                          { regex: /^idea\//i, label: 'idea' },
+                          { regex: /^question\//i, label: 'question' },
+                        ];
+
+                        for (const { regex, label } of labelMap) {
+                          if (regex.test(branch)) {
+                            labelsToApply.push(label);
+                          }
+                        }
+
+                        if (labelsToApply.length) {
+                          const { data: existing } = await github.rest.issues.listLabelsOnIssue({
+                            owner,
+                            repo,
+                            issue_number,
+                          });
+                          const have = existing.map((l) => l.name);
+                          const toAdd = labelsToApply.filter((l) => !have.includes(l));
+                          if (toAdd.length) {
+                            await github.rest.issues.addLabels({ owner, repo, issue_number, labels: toAdd });
+                            console.log(`Added labels: ${toAdd.join(', ')}`);
+                          }
+                        }
+                      } catch (error) {
+                        core.warning(`Label application failed: ${error.message}`);
+                      }
+
+                      // ──────────────────────────────────────────────────────────────
+                      // 2. Assign PR to default assignee if none is assigned
+                      // ──────────────────────────────────────────────────────────────
+                      try {
+                        if (!pr.assignees || pr.assignees.length === 0) {
+                          if (isFromFork) {
+                            console.warn(`Skipping assignee because PR is from fork and token lacks permission (actor: ${context.actor})`);
+                          } else {
+                            await github.rest.issues.addAssignees({
+                              owner,
+                              repo,
+                              issue_number,
+                              assignees: [DEFAULT_ASSIGNEE],
+                            });
+                            console.log(`Assigned PR to ${DEFAULT_ASSIGNEE}`);
+                          }
+                        }
+                      } catch (error) {
+                        if (isIntegrationError(error) && isFromFork) {
+                          console.warn('Skipping assignee due to integration permission limits on fork PR.');
+                        } else {
+                          core.setFailed(`Assigning PR failed: ${error.message}`);
+                        }
+                      }
+
+                      // ──────────────────────────────────────────────────────────────
+                      // 3. Welcome new contributors with a friendly comment
+                      // ──────────────────────────────────────────────────────────────
+                      try {
+                        const author = pr.user.login;
+                        const knownBots = ['dependabot[bot]', 'mergify[bot]', 'copilot[bot]', 'Copilot', DEFAULT_ASSIGNEE];
+                        const shouldWelcome = !knownBots.includes(author) && context.payload.action === 'opened';
+
+                        if (shouldWelcome) {
+                          if (isFromFork) {
+                            console.warn('Skipping welcome comment: PR is from fork and token lacks permission to comment.');
+                          } else {
+                            const welcomeBody = `\n👋  **Welcome, @${author}!**\n\nThanks for opening your first pull request in **${owner}/${repo}**.  \nA maintainer will review your contribution shortly.\n\n_If you have any questions feel free to reach out!_`;
+
+                            await github.rest.issues.createComment({
+                              owner,
+                              repo,
+                              issue_number,
+                              body: welcomeBody,
+                            });
+                            console.log('Posted welcome comment.');
+                          }
+                        }
+                      } catch (error) {
+                        if (isIntegrationError(error) && isFromFork) {
+                          console.warn('Skipping welcome comment due to integration permission limits on fork PR.');
+                        } else {
+                          core.setFailed(`Posting welcome comment failed: ${error.message}`);
+                        }
+                      }
