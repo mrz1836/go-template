@@ -1,51 +1,63 @@
-- color: 0075ca
+- name: "documentation"
   description: "Improvements or additions to documentation"
-  name: "documentation"
-- color: b23128
+  color: 0075ca
+- name: "bug-P1"
   description: "Highest rated bug or issue, affects all"
-  name: "bug-P1"
-- color: de3d32
+  color: b23128
+- name: "bug-P2"
   description: "Medium rated bug, affects a few"
-  name: "bug-P2"
-- color: f44336
+  color: de3d32
+- name: "bug-P3"
   description: "Lowest rated bug, affects nearly none or low-impact"
-  name: "bug-P3"
-- color: 0e8a16
+  color: f44336
+- name: "feature"
   description: "Any new significant addition"
-  name: "feature"
-- color: b60205
+  color: 0e8a16
+- name: "hot-fix"
   description: "Urgent or important fix/patch"
-  name: "hot-fix"
-- color: cccccc
+  color: b60205
+- name: "idea"
   description: "Any idea, suggestion"
-  name: "idea"
-- color: d4c5f9
+  color: cccccc
+- name: "prototype"
   description: "Experimental - can break!"
-  name: "prototype"
-- color: cc317c
+  color: d4c5f9
+- name: "question"
   description: "Any question or concern"
-  name: "question"
-- color: c2e0c6
+  color: cc317c
+- name: "test"
   description: "Unit tests, mocking, integration testing"
-  name: "test"
-- color: fbca04
+  color: c2e0c6
+- name: "ui-ux"
   description: "Anything GUI related"
-  name: "ui-ux"
-- color: 006b75
+  color: fbca04
+- name: "chore"
   description: "Simple dependency updates or version bumps"
-  name: "chore"
-- color: 006b75
+  color: 006b75
+- name: "update"
   description: "General updates"
-  name: "update"
-- color: FFA500
+  color: 006b75
+- name: "refactor"
   description: "Any significant refactoring"
-  name: "refactor"
-- color: FEF2C0
+  color: FFA500
+- name: "automerge"
   description: "Used for automatic merging"
-  name: "automerge"
-- color: FBCA04
+  color: FEF2C0
+- name: "work-in-progress"
   description: "Used for denoting a WIP, stops auto-merge"
-  name: "work-in-progress"
-- color: c2e0c6
+  color: FBCA04
+- name: "stale"
   description: "Old, unused, stale"
-  name: "stale"
+  color: c2e0c6
+- name: "gomod"
+  description: "Used for referencing Go Modules"
+  color: 006b75
+- name: "github-actions"
+  description: "Used for referencing GitHub Actions"
+  color: 006b75
+- name: "devcontainer"
+  description: "Used for referencing DevContainers"
+  color: 006b75
+- name: "docker"
+  description: "Used for referencing Docker"
+  color: 006b75
