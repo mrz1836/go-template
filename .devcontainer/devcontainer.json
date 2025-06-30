@@ -10,7 +10,7 @@
     // Installs Go toolchain and golangci-lint
     "ghcr.io/devcontainers/features/go:1": {
       "version": "1.24",
-      "golangciLintVersion": "latest"
+      "golangciLintVersion": "1.52.2"
     },
     // Git CLI with configuration helpers
     "ghcr.io/devcontainers/features/git:1": {},
