@@ -60,11 +60,9 @@ todo.md
 # Temporary directories in the project
 bin
 tmp
-.all-contributorsrc
-.gitpod.yml
 .golangci.yml
+.golangci.json
 .goreleaser.yml
-.yamllint.yml
 .editorconfig
 codecov.yml
 LICENSE
