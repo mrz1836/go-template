@@ -444,7 +444,7 @@ docs(README): improve installation instructions
 | Purpose            | Prefix      | Example                            |
 |--------------------|-------------|------------------------------------|
 | Bug Fix            | `fix/`      | `fix/code-off-by-one`              |
-| Chore / Meta       | `chore/`    | `chore/upgrade-go-1.23`            |
+| Chore / Meta       | `chore/`    | `chore/upgrade-go-1.24`            |
 | Documentation      | `docs/`     | `docs/agents-commenting-standards` |
 | Feature            | `feat/`     | `feat/pagination-api`              |
 | Hotfix (prod)      | `hotfix/`   | `hotfix/rollback-broken-deploy`    |
