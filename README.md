@@ -271,10 +271,11 @@ go get -u github.com/mrz1836/go-template
 * **Label Sync Magic**: your repo labels stay in lock‑step with [.github/labels.yml](.github/labels.yml).
 * **Friendly First PR Workflow** – newcomers get a warm welcome thanks to a dedicated [workflow](.github/workflows/pull-request-management.yml).
 * **Standards‑Compliant Docs** adhering to the [standard‑readme](https://github.com/RichardLitt/standard-readme/blob/master/spec.md) spec.
-* **Out‑of‑the‑Box VS Code Happiness** with a preconfigured [Go](https://code.visualstudio.com/docs/languages/go) workspace.
 * **Instant Cloud Workspaces** via [Gitpod](https://gitpod.io/) – spin up a fully configured dev environment with automatic linting and tests.
+* **Out‑of‑the‑Box VS Code Happiness** with a preconfigured [Go](https://code.visualstudio.com/docs/languages/go) workspace and [`.vscode`](.vscode) folder with all the right settings.
 * **Optional Release Broadcasts** to your community via [Slack](https://slack.com), [Discord](https://discord.com), or [Twitter](https://twitter.com) – plug in your webhook.
 * **AI Compliance Playbook** – machine‑readable guidelines ([AGENTS.md](.github/AGENTS.md), [CLAUDE.md](.github/CLAUDE.md), [.cursorrules](.cursorrules), [sweep.yaml](.github/sweep.yaml)) keep ChatGPT, Claude, Cursor & Sweep aligned with your repo’s rules.
+* **Pre-commit Hooks for Consistency** powered by [pre-commit](https://pre-commit.com) and the [.pre-commit-config.yaml](.pre-commit-config.yaml) file—run the same formatting, linting, and tests before every commit, just like CI.
 
 </details>
 
@@ -293,6 +294,7 @@ This glossary describes each tracked file in the repository and notes if it is r
 | [.gitignore](.gitignore)                                                                       | Files and directories Git should ignore         | Git            |
 | [.golangci.json](.golangci.json)                                                               | GolangCI-Lint configuration                     | GolangCI-Lint  |
 | [.goreleaser.yml](.goreleaser.yml)                                                             | GoReleaser configuration for release automation | GoReleaser     |
+| [.pre-commit-config.yaml](.pre-commit-config.yaml)                                             | Pre-commit hooks configuration                  | Pre-commit     |
 | [CITATION.cff](CITATION.cff)                                                                   | Citation metadata recognized by GitHub          | GitHub         |
 | [LICENSE](LICENSE)                                                                             | Project license                                 | Yours!         |
 | [Makefile](Makefile)                                                                           | Build and lint automation                       | Make           |
@@ -337,6 +339,10 @@ This glossary describes each tracked file in the repository and notes if it is r
 | [.make/common.mk](.make/common.mk)                                                             | Shared make tasks                               | Make           |
 | [.make/go.mk](.make/go.mk)                                                                     | Go-specific make tasks                          | Make           |
 | [.make/temp.mk](.make/temp.mk)                                                                 | Temporary makefile for internal use             | Make           |
+| [.vscode/extensions.json](.vscode/extensions.json)                                             | Recommended VS Code extensions                  | VS Code        |
+| [.vscode/settings.json](.vscode/settings.json)                                                 | VS Code workspace settings                      | VS Code        |
+| [.vscode/tasks.json](.vscode/tasks.json)                                                       | VS Code tasks configuration                     | VS Code        |
+| [.vscode/launch.json](.vscode/launch.json)                                                     | VS Code debugging configuration                 | VS Code        |
 | [examples/example.go](examples/example.go)                                                     | Example usage of the library                    | None           |
 </details>
 
@@ -461,6 +467,17 @@ make update
 This command ensures all dependencies are brought up to date in a single step, including Go modules and any tools managed by the Makefile. It is the recommended way to keep your development environment and CI in sync with the latest versions.
 
 </details>
+
+## 🔄 Pre-commit Hooks
+
+Set up the optional [pre-commit](https://pre-commit.com) hooks to run the same formatting, linting, and tests defined in [AGENTS.md](.github/AGENTS.md) before every commit:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+The hooks are configured in [.pre-commit-config.yaml](.pre-commit-config.yaml) and mirror the CI pipeline.
 
 <br/>
 
