@@ -17,8 +17,10 @@ coverage:
 # --------------
 # which folders/files to ignore
 ignore:
-    - "*/.make/.*"
-    - "*/.github/.*"
+    - ".devcontainer/**"
+    - ".github/**"
+    - ".make/**"
+    - ".vscode/**"
     - "examples/**"
 
 # Parsers
