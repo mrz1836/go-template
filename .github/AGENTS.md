@@ -626,6 +626,7 @@ CI automatically runs on every PR to verify:
 * Linting (`golangci-lint run`)
 * Tests (`go test ./...`)
 * Fuzz tests (if applicable) (`make run-fuzz-tests`)
+* Pre‑commit hooks (`pre-commit install && pre-commit run --files <files>`) keep local commits aligned with CI
 * This codebase uses GitHub Actions; test workflows reside in `.github/workflows/run-tests.yml`
 * Pin each external GitHub Action to a **full commit SHA** (e.g., `actions/checkout@2f3b4a2e0e471e13e2ea2bc2a350e888c9cf9b75`) as recommended by GitHub's [security hardening guidance](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-pinned-actions). Dependabot will track and update these pinned versions automatically.
 
@@ -725,6 +726,7 @@ All contributors are expected to append entries here when making meaningful chan
 
 | Date       | Author   | Summary of Changes                                                             |
 |------------|----------|--------------------------------------------------------------------------------|
+| 2025-06-30 | @mrz1836 | Added pre-commit hook guidelines and config reference |
 | 2025-06-27 | @mrz1836 | Adapted to fix this project go-template                                        |
 | 2025-06-26 | @mrz1836 | Documented citation and configuration files for contributors                   |
 > For minor edits (typos, formatting), this log update is optional. For all behavioral or structural changes, log entries are **required**.
