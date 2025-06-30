@@ -39,12 +39,14 @@ delivery and open-source collaboration from day one.
 <br/>
 
 ## 📁 Directory Structure
-| Directory   | Description                                             |
-|-------------|---------------------------------------------------------|
-| `.github/`  | Issue templates, workflows, and community documentation |
-| `.make/`    | Shared Makefile targets used by `Makefile`              |
-| `examples/` | Example program demonstrating package usage             |
-| `.` (root)  | Source files and tests for the `go-template` package    |
+| Directory        | Description                                                                       |
+|------------------|-----------------------------------------------------------------------------------|
+| `.github/`       | Issue templates, workflows, and community documentation                           |
+| `.devcontainer/` | VS Code dev container configuration for consistent local development environments |
+| `.vscode/`       | VS Code settings and extensions for development                                   |
+| `.make/`         | Shared Makefile targets used by `Makefile`                                        |
+| `examples/`      | Example program demonstrating package usage                                       |
+| `.` (root)       | Source files and tests for the `go-wire` package                                  |
 
 <br/>
 
