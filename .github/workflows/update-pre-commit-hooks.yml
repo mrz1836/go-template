@@ -46,7 +46,7 @@ jobs:
         uses: actions/cache@9b0c1fce7a93df8e3bb8926b0d6e9d89e92f20a7 # v3.0.11
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/.github/pip-requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
 
