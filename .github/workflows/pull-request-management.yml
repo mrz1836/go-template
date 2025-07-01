@@ -49,9 +49,9 @@ jobs:
                       const DEFAULT_ASSIGNEE = 'mrz1836'; // <-- change if needed
 
                       // Helpers -------------------------------------------------------
-                      const pr = context.payload.pull_request;
-                      const owner = context.repo.owner;
-                      const repo = context.repo.repo;
+                      const pr           = context.payload.pull_request;
+                      const owner        = context.repo.owner;
+                      const repo         = context.repo.repo;
                       const issue_number = pr.number;
 
                       const isFromFork = pr.head.repo.owner.login !== owner;
@@ -129,29 +129,46 @@ jobs:
                       // 3. Welcome new contributors with a friendly comment
                       // ──────────────────────────────────────────────────────────────
                       try {
-                        const author = pr.user.login;
-                        const knownBots = ['dependabot[bot]', 'mergify[bot]', 'copilot[bot]', 'Copilot', DEFAULT_ASSIGNEE];
-                        const shouldWelcome = !knownBots.includes(author) && context.payload.action === 'opened';
+                        const author      = pr.user.login;
+                        const isFirstTime = ['FIRST_TIMER', 'FIRST_TIME_CONTRIBUTOR'].includes(pr.author_association);
+
+                        const knownBots = [
+                          'dependabot[bot]',
+                          'mergify[bot]',
+                          'copilot[bot]',
+                          'Copilot',
+                          DEFAULT_ASSIGNEE,
+                        ];
+
+                        const shouldWelcome =
+                          isFirstTime &&
+                          !knownBots.includes(author) &&
+                          context.payload.action === 'opened';
 
                         if (shouldWelcome) {
                           if (isFromFork) {
                             console.warn('Skipping welcome comment: PR is from fork and token lacks permission to comment.');
                           } else {
-                            const welcomeBody = `\n👋  **Welcome, @${author}!**\n\nThanks for opening your first pull request in **${owner}/${repo}**.  \nA maintainer will review your contribution shortly.\n\n_If you have any questions feel free to reach out!_`;
+                            const body = `👋  **Welcome, @${author}!**
+
+                            Thanks for opening your first pull request in **${owner}/${repo}**.
+                            A maintainer will review your contribution shortly.
+
+                            _If you have any questions feel free to reach out!_`;
 
                             await github.rest.issues.createComment({
-                              owner,
-                              repo,
-                              issue_number,
-                              body: welcomeBody,
+                                owner,
+                                repo,
+                                issue_number,
+                                body,
                             });
                             console.log('Posted welcome comment.');
-                          }
                         }
-                      } catch (error) {
+                            }
+                            } catch (error) {
                         if (isIntegrationError(error) && isFromFork) {
-                          console.warn('Skipping welcome comment due to integration permission limits on fork PR.');
+                            console.warn('Skipping welcome comment due to integration permission limits on fork PR.');
                         } else {
-                          core.setFailed(`Posting welcome comment failed: ${error.message}`);
+                            core.setFailed(`Posting welcome comment failed: ${error.message}`);
                         }
                       }
