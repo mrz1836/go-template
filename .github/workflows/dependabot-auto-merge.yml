@@ -20,7 +20,7 @@ name: dependabot-auto-merge
 
 on:
     pull_request_target:
-        types: [opened, synchronize, reopened, ready_for_review, unlocked, edited]
+        types: [opened, synchronize, reopened, ready_for_review, unlocked, edited, review_requested, review_request_removed]
     pull_request_review:
         types: [submitted]
     check_suite:
@@ -143,40 +143,75 @@ jobs:
                       core.setOutput('is_major',  !isMinor && !isUnknown);
                       core.setOutput('is_unknown', isUnknown);
 
-
-
             # ---------------------------------------------------------------------
-            # 4a. Alert on major bump
+            # 4a. Alert on major bump – only if comment is not already present
             # ---------------------------------------------------------------------
             - name: Alert on major version bump
-              if: steps.bump.outputs.is_major == 'true'
+              if: |
+                  steps.bump.outputs.is_major == 'true' &&
+                  github.event_name == 'pull_request_target' &&
+                  (github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'ready_for_review')
               uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
-                      await github.rest.issues.createComment({
+                      const issue_number = Number('${{ steps.pr.outputs.number }}');
+                      const commentBody  = '⚠️ @mrz1836 – this is a **major** version bump and needs manual review.';
+
+                      // Check for existing identical comment
+                      const { data: comments } = await github.rest.issues.listComments({
                         owner: context.repo.owner,
                         repo:  context.repo.repo,
-                        issue_number: Number('${{ steps.pr.outputs.number }}'),
-                        body: '⚠️ @mrz1836 – this is a **major** version bump and needs manual review.'
+                        issue_number,
+                        per_page: 100
                       });
+
+                      if (comments.some(c => c.body.trim() === commentBody.trim())) {
+                        core.info('Major bump alert comment already exists – skipping.');
+                      } else {
+                        await github.rest.issues.createComment({
+                          owner: context.repo.owner,
+                          repo:  context.repo.repo,
+                          issue_number,
+                          body: commentBody
+                        });
+                      }
 
 
             # ---------------------------------------------------------------------
             # 4b. Alert when a version couldn’t be parsed (commit SHA → SHA)
+            #     – only if comment not already present
             # ---------------------------------------------------------------------
             - name: Alert on undetected version bump
-              if: steps.bump.outputs.is_unknown == 'true'
+              if: |
+                  steps.bump.outputs.is_unknown == 'true' &&
+                  github.event_name == 'pull_request_target' &&
+                  (github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'ready_for_review')
               uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
-                      await github.rest.issues.createComment({
+                      const issue_number = Number('${{ steps.pr.outputs.number }}');
+                      const commentBody  = '⚠️ @mrz1836 – Dependabot could not determine version semantics (SHA → SHA). Please review manually.';
+
+                      // Check for existing identical comment
+                      const { data: comments } = await github.rest.issues.listComments({
                         owner: context.repo.owner,
                         repo:  context.repo.repo,
-                        issue_number: Number('${{ steps.pr.outputs.number }}'),
-                        body: '⚠️ @mrz1836 – Dependabot could not determine version semantics (SHA → SHA). Please review manually.'
+                        issue_number,
+                        per_page: 100
                       });
+
+                      if (comments.some(c => c.body.trim() === commentBody.trim())) {
+                        core.info('Unknown bump alert comment already exists – skipping.');
+                      } else {
+                        await github.rest.issues.createComment({
+                          owner: context.repo.owner,
+                          repo:  context.repo.repo,
+                          issue_number,
+                          body: commentBody
+                        });
+                      }
 
 
             # -----------------------------------------------------------------------

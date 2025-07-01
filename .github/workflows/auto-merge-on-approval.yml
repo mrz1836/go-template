@@ -12,8 +12,9 @@
 #    • No requested reviewers remaining
 #    • No "Changes Requested" reviews
 #    • All required status checks pass:
-#        - test (1.24.x, ubuntu-latest) (min version)
-#        - Analyze (go)
+#        - test (1.24.x, ubuntu-24.04) (min version)
+#        - test (1.24.x, macos-15) (min version)
+#        - Analyze (go) (codeql analysis)
 #    • Title must not contain "WIP"
 #    • PR must not have the "work-in-progress" label
 #    • PR must not be a draft
@@ -24,7 +25,7 @@ name: auto-merge-on-approval
 on:
     pull_request:
         types:
-          [opened, synchronize, reopened, ready_for_review, labeled, unlabeled, edited]
+          [opened, synchronize, reopened, ready_for_review, labeled, unlabeled, edited, review_requested, review_request_removed]
     pull_request_review:
         types: [submitted]
     check_suite:
@@ -114,7 +115,8 @@ jobs:
 
                       // Required checks
                       const requiredChecks = [
-                        'test (1.24.x, ubuntu-latest)',
+                        'test (1.24.x, ubuntu-24.04)',
+                        'test (1.24.x, macos-15)',
                         'Analyze (go)',
                       ];
                       const sha = pr.head.sha;
