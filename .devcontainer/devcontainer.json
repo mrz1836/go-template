@@ -3,7 +3,7 @@
 	"name": "go-template dev container",
 	// Official Go 1.24 Bullseye image maintained by the Dev Containers team
 	"image": "mcr.microsoft.com/devcontainers/go:0-1.24-bullseye",
-	// Dev Container “features” – extra tooling installed declaratively
+	// Dev Container "features" – extra tooling installed declaratively
 	"features": {
 		// GitHub CLI for release automation / CODEOWNERS triage
 		"ghcr.io/devcontainers/features/github-cli:1": {},
@@ -19,7 +19,7 @@
 		"type=cache,target=/home/vscode/.cache/go-build",
 		"type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock"
 	],
-	// Drop all Linux caps and block “sudo bash” style privilege escalation
+	// Drop all Linux caps and block "sudo bash" style privilege escalation
 	"runArgs": [
 		"--cap-drop=ALL",
 		"--security-opt",
@@ -49,6 +49,6 @@
 		}
 		// GoLand reads the same settings automatically; no extra block needed
 	},
-	// Keep using the non-root “vscode” user created by the base image
+	// Keep using the non-root "vscode" user created by the base image
 	"remoteUser": "vscode"
 }
