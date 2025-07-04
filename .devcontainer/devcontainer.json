@@ -4,7 +4,7 @@
 	"features": {
 		"ghcr.io/devcontainers/features/github-cli:1": {},
 		"ghcr.io/devcontainers/features/golangci-lint:2": {
-			"version": "2.2.0"
+			"version": "2.2.1"
 		},
 		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
 	},
