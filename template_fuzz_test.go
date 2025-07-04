@@ -19,6 +19,7 @@ func FuzzGreet(f *testing.F) {
 	for _, tc := range seed {
 		f.Add(tc)
 	}
+
 	f.Fuzz(func(t *testing.T, input string) {
 		out := template.Greet(input)
 		require.GreaterOrEqualf(t, len(out), 6, "output too short: %q", out)
