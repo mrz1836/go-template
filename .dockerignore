@@ -54,16 +54,20 @@ __pycache__/
 .LSOverride
 ._*
 
-# Custom repo notes
-todo.md
-
 # Temporary directories in the project
 bin
 tmp
-.golangci.yml
-.golangci.json
-.goreleaser.yml
+
+# Project files not needed in the container
+.cursorrules
 .editorconfig
-codecov.yml
+.github
+.gitpod.yml
+.golangci.json
+.golangci.yml
+.goreleaser.yml
+.pre-commit-config.yaml
+.vscode
 LICENSE
 README.md
+codecov.yml
