@@ -14,7 +14,7 @@
     <tr>
       <td valign="top" align="left">
         <a href="https://github.com/mrz1836/go-template/releases">
-          <img src="https://img.shields.io/github/release-pre/mrz1836/go-template?logo=github&style=flat" alt="Latest Release">
+          <img src="https://img.shields.io/github/release-pre/mrz1836/go-template?logo=github&style=flat&v=1" alt="Latest Release">
         </a><br/>
         <a href="https://github.com/mrz1836/go-template/actions">
           <img src="https://img.shields.io/github/actions/workflow/status/mrz1836/go-template/run-tests.yml?branch=master&logo=github&style=flat" alt="Build Status">
