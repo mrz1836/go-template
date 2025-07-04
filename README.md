@@ -265,7 +265,7 @@ go get -u github.com/mrz1836/go-template
 * **Security Posture by Default** with [CodeQL](https://docs.github.com/en/github/finding-security-vulnerabilities-and-errors-in-your-code/about-code-scanning), [OpenSSF Scorecard](https://openssf.org), and secret‑leak detection via [gitleaks](https://github.com/gitleaks/gitleaks).
 * **Automatic Syndication** to [pkg.go.dev](https://pkg.go.dev/) on every release for instant godoc visibility.
 * **Polished Community Experience** using rich templates for [Issues & PRs](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository).
-* **All the Right Meta Files** (`LICENSE`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SUPPORT.md`, `SECURITY.md`) pre‑filled and ready.
+* **All the Right Meta Files** (`LICENSE`, `CITATION.cff`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SUPPORT.md`, `SECURITY.md`) pre‑filled and ready.
 * **Code Ownership** clarified through a [CODEOWNERS](.github/CODEOWNERS) file, keeping reviews fast and focused.
 * **Zero‑Noise Dev Environments** with tuned editor settings (`.editorconfig`) plus curated *ignore* files for [VS Code](.editorconfig), [Docker](.dockerignore), and [Git](.gitignore).
 * **Label Sync Magic**: your repo labels stay in lock‑step with [.github/labels.yml](.github/labels.yml).
@@ -310,6 +310,7 @@ This glossary describes each tracked file in the repository and notes if it is r
 | [.github/dependabot.yml](.github/dependabot.yml)                                               | Dependabot configuration                        | GitHub           |
 | [.github/labels.yml](.github/labels.yml)                                                       | Repository label definitions                    | GitHub           |
 | [.github/pull_request_template.md](.github/pull_request_template.md)                           | Pull request description template               | GitHub           |
+| [.github/pip-requirements.txt](.github/pip-requirements.txt)                                   | Python requirements for pre-commit hooks        | GitHub           |
 | [.github/sweep.yaml](.github/sweep.yaml)                                                       | Sweep AI configuration                          | Sweep AI         |
 | [.github/workflows/auto-merge-on-approval.yml](.github/workflows/auto-merge-on-approval.yml)   | Workflow for automatic merges                   | GitHub Actions   |
 | [.github/workflows/check-for-leaks.yml](.github/workflows/check-for-leaks.yml)                 | Secret leak detection workflow                  | GitHub Actions   |
@@ -371,7 +372,7 @@ To generate a snapshot (non-versioned) release for testing purposes, run:
 make release-snap
 ```
 
-Before tagging a new version, update the release metadata in the `CITATION.cff` file:
+Before tagging a new version, update the release metadata (version) in the `CITATION.cff` file:
 
 ```bash
 make citation version=0.2.1
