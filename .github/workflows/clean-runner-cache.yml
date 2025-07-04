@@ -12,7 +12,7 @@ name: clean-runner-cache
 
 on:
   pull_request:
-    types: [closed]
+    types: [ closed ]
 
 # Cancel older runs of the same PR if a new commit is pushed
 concurrency:

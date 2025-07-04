@@ -24,9 +24,9 @@ name: sync-labels
 #######################################################################################
 on:
   push:
-    branches: [master]           # Update if your default branch is "main"
+    branches: [ master ]    # Update if your default branch is "main"
     paths:
-      - .github/labels.yml       # Runs *only* when this file changes
+      - .github/labels.yml  # Runs *only* when this file changes
 
 #######################################################################################
 # GLOBAL PERMISSIONS

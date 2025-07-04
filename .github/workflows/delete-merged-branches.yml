@@ -12,15 +12,15 @@ name: delete-merged-branches
 
 on:
   pull_request:
-    types: [closed]
+    types: [ closed ]
 
 # Cancel older runs of the same PR if a new commit is pushed
 concurrency:
-    group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
-    cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 permissions:
-    contents: read
+  contents: read
 
 jobs:
   cleanup:

@@ -1,46 +1,45 @@
 {
 	// Human-readable name that shows up in both VS Code and GoLand
 	"name": "go-template dev container",
-
 	// Official Go 1.24 Bullseye image maintained by the Dev Containers team
 	"image": "mcr.microsoft.com/devcontainers/go:0-1.24-bullseye",
-
 	// Dev Container “features” – extra tooling installed declaratively
 	"features": {
 		// GitHub CLI for release automation / CODEOWNERS triage
 		"ghcr.io/devcontainers/features/github-cli:1": {},
-
 		// golangci-lint (matches your repo's Makefile / CI)
-		"ghcr.io/devcontainers/features/golangci-lint:2": { "version": "2.2.0" },
-
+		"ghcr.io/devcontainers/features/golangci-lint:2": {
+			"version": "2.2.0"
+		},
 		// Secure Docker-outside-of-Docker so you can build/publish images from inside the container
 		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
 	},
-
 	// Handy mounts (build cache + host Docker socket)
 	"mounts": [
 		"type=cache,target=/home/vscode/.cache/go-build",
 		"type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock"
 	],
-
 	// Drop all Linux caps and block “sudo bash” style privilege escalation
 	"runArgs": [
 		"--cap-drop=ALL",
-		"--security-opt", "no-new-privileges:true"
+		"--security-opt",
+		"no-new-privileges:true"
 	],
-
 	// Recommended post-create sanity check: vet and full test suite
 	"postCreateCommand": "go vet ./... && go test ./...",
-
 	// IDE-specific tweaks
 	"customizations": {
 		"vscode": {
 			"settings": {
 				"go.useLanguageServer": true,
 				"go.lintTool": "golangci-lint",
-				"go.toolsEnvVars": { "GOFLAGS": "-buildvcs=false" },
+				"go.toolsEnvVars": {
+					"GOFLAGS": "-buildvcs=false"
+				},
 				"editor.formatOnSave": true,
-				"editor.codeActionsOnSave": { "source.organizeImports": true }
+				"editor.codeActionsOnSave": {
+					"source.organizeImports": true
+				}
 			},
 			"extensions": [
 				"golang.Go",
@@ -50,7 +49,6 @@
 		}
 		// GoLand reads the same settings automatically; no extra block needed
 	},
-
 	// Keep using the non-root “vscode” user created by the base image
 	"remoteUser": "vscode"
 }
