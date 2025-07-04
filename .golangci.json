@@ -1,25 +1,29 @@
 {
+	"version": "2",
 	"formatters": {
 		"enable": [
-			"gofmt"
+			"gofmt",
+			"gofumpt"
 		],
 		"exclusions": {
 			"generated": "lax",
 			"paths": [
 				".*\\.my\\.go$",
 				"lib/bad.go",
-				".github",
 				".make",
+				".devcontainer",
+				".vscode",
 				"dist",
 				"third_party$",
-				"builtin$",
-				"examples$"
+				"builtin$"
 			]
 		},
 		"settings": {
 			"gci": {
 				"sections": [
-					"prefix(github.com/org/project)"
+					"standard",
+					"default",
+					"prefix(github.com/mrz1836/go-template)"
 				]
 			},
 			"gofmt": {
@@ -30,49 +34,38 @@
 			},
 			"goimports": {
 				"local-prefixes": [
-					"github.com/org/project"
+					"github.com/mrz1836/go-template"
 				]
 			}
 		}
 	},
-	"issues": {
-		"max-issues-per-linter": 0,
-		"max-same-issues": 0,
-		"new": false,
-		"new-from-rev": "",
-		"uniq-by-line": true
-	},
 	"linters": {
-		"disable": [
-			"gochecknoglobals",
-			"gocritic",
-			"godot"
-		],
 		"enable": [
+			"arangolint",
 			"asasalint",
 			"asciicheck",
-			"err113",
 			"bidichk",
 			"bodyclose",
 			"containedctx",
 			"contextcheck",
 			"copyloopvar",
 			"dogsled",
-			"recvcheck",
-			"godox",
-			"nilnil",
-			"nilnesserr",
-			"gomoddirectives",
 			"durationcheck",
+			"embeddedstructfieldcheck",
+			"err113",
 			"errchkjson",
 			"errname",
 			"errorlint",
 			"exhaustive",
 			"forbidigo",
+			"funcorder",
 			"gocheckcompilerdirectives",
+			"gochecknoglobals",
 			"gochecknoinits",
 			"gochecksumtype",
+			"godox",
 			"goheader",
+			"gomoddirectives",
 			"gosec",
 			"gosmopolitan",
 			"inamedparam",
@@ -82,6 +75,8 @@
 			"misspell",
 			"musttag",
 			"nilerr",
+			"nilnesserr",
+			"nilnil",
 			"noctx",
 			"nolintlint",
 			"nosprintfhostport",
@@ -89,6 +84,7 @@
 			"predeclared",
 			"protogetter",
 			"reassign",
+			"recvcheck",
 			"revive",
 			"rowserrcheck",
 			"spancheck",
@@ -97,52 +93,20 @@
 			"unconvert",
 			"unparam",
 			"wastedassign",
+			"wsl_v5",
 			"zerologlint"
 		],
-		"exclusions": {
-			"generated": "lax",
-			"paths": [
-				".*\\.my\\.go$",
-				"lib/bad.go",
-				".github",
-				".make",
-				"dist",
-				"third_party$",
-				"builtin$",
-				"examples$"
-			],
-			"rules": [
-				{
-					"linters": [
-						"gocyclo"
-					],
-					"path": "_test\\.go"
-				},
-				{
-					"linters": [
-						"testifylint"
-					],
-					"text": "suite-subtest-run: use ts.Run to run subtest"
-				},
-				{
-					"linters": [
-						"scopelint"
-					],
-					"text": "Using the variable on range scope"
-				},
-				{
-					"linters": [
-						"lll"
-					],
-					"source": "^//go:generate "
-				},
-				{
-					"path": "(.+)\\.go$",
-					"text": "abcdef"
-				}
-			]
-		},
+		"disable": [
+			"gocritic",
+			"godot"
+		],
 		"settings": {
+			"funcorder": {
+				"constructor-after-struct": true
+			},
+			"revive": {
+				"config": ".revive.toml"
+			},
 			"dogsled": {
 				"max-blank-identifiers": 2
 			},
@@ -163,25 +127,6 @@
 				"min-len": 3,
 				"min-occurrences": 10
 			},
-			"gocritic": {
-				"disabled-checks": [
-					"regexpMust"
-				],
-				"disabled-tags": [
-					"experimental"
-				],
-				"enabled-tags": [
-					"performance"
-				],
-				"settings": {
-					"captLocal": {
-						"paramsOnly": true
-					},
-					"rangeValCopy": {
-						"sizeThreshold": 32
-					}
-				}
-			},
 			"gocyclo": {
 				"min-complexity": 10
 			},
@@ -189,16 +134,16 @@
 				"keywords": [
 					"NOTE",
 					"OPTIMIZE",
-					"HACK"
+					"HACK",
+					"ATTN",
+					"ATTENTION"
 				]
 			},
 			"govet": {
-				"disable-all": false,
 				"enable": [
 					"atomicalign",
 					"shadow"
 				],
-				"enable-all": false,
 				"settings": {
 					"printf": {
 						"funcs": [
@@ -215,11 +160,11 @@
 				"tab-width": 1
 			},
 			"misspell": {
+				"locale": "US",
 				"ignore-rules": [
 					"bsv",
 					"bitcoin"
-				],
-				"locale": "US"
+				]
 			},
 			"nakedret": {
 				"max-func-lines": 30
@@ -237,32 +182,22 @@
 				"range-loops": true,
 				"simple": true
 			},
-			"rowserrcheck": {
-				"packages": [
-					"github.com/jmoiron/sqlx"
-				]
-			},
-			"testpackage": {
-				"skip-regexp": "(export|internal)_test\\.go"
-			},
 			"unparam": {
 				"check-exported": false
-			},
-			"whitespace": {
-				"multi-func": false,
-				"multi-if": false
 			},
 			"wsl": {
 				"allow-assign-and-call": true,
 				"allow-cuddle-declarations": true,
 				"allow-multiline-assign": true,
-				"allow-separated-leading-comment": false,
-				"allow-trailing-comment": false,
-				"force-case-trailing-whitespace": 0,
-				"force-err-cuddling": false,
 				"strict-append": true
 			}
 		}
+	},
+	"run": {
+		"allow-parallel-runners": true,
+		"concurrency": 8,
+		"issues-exit-code": 1,
+		"tests": true
 	},
 	"output": {
 		"formats": {
@@ -271,28 +206,22 @@
 				"print-issued-lines": true,
 				"print-linter-name": true
 			}
-		},
-		"path-prefix": ""
-	},
-	"run": {
-		"allow-parallel-runners": false,
-		"build-tags": [
-			"mytag"
-		],
-		"concurrency": 4,
-		"issues-exit-code": 1,
-		"tests": true
+		}
 	},
 	"severity": {
-		"default": "error",
+		"default": "warning",
 		"rules": [
 			{
 				"linters": [
-					"dupl"
+					"dupl",
+					"misspell",
+					"makezero"
 				],
 				"severity": "info"
 			}
 		]
 	},
-	"version": "2"
+	"issues": {
+		"uniq-by-line": true
+	}
 }
