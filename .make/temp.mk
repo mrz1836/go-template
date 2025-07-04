@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# .make/temp.mk  –  One-shot “install-template” helper
+# .make/temp.mk  –  One-shot "install-template" helper
 # ---------------------------------------------------------------------------
 # This file removes itself after first use and erases its own include line
 # from the project-root Makefile, so you never see it again. 🎩✨
@@ -18,9 +18,9 @@ endif
 install-template: ## Kick-start a fresh copy of go-template (run once!)
 	@set -e; \
 	# --------------------------------------------------------------------
-	# 0. Self-destruct prerequisites
+	# 1. Self-destruct prerequisites
 	# --------------------------------------------------------------------
-	echo "🧹 Cleaning up temp boot-strapper…"; \
+	echo "🧹 Cleaning up temp boot-strapper..."; \
 	if [ -f .make/temp.mk ]; then \
 	  rm .make/temp.mk; \
 	  echo "   • Removed .make/temp.mk"; \
@@ -31,7 +31,7 @@ install-template: ## Kick-start a fresh copy of go-template (run once!)
 	fi; \
 	\
 	# --------------------------------------------------------------------
-	# 1. Validate CLI input
+	# 2. Validate CLI input
 	# --------------------------------------------------------------------
 	if [ -z "$(owner)" ]; then \
 	  echo '✋ Supply \"owner\" (e.g. owner=my_org)'; exit 1; \
@@ -41,7 +41,7 @@ install-template: ## Kick-start a fresh copy of go-template (run once!)
 	fi; \
 	\
 	# --------------------------------------------------------------------
-	# 2. Global search-and-replace
+	# 3. Global search-and-replace
 	# --------------------------------------------------------------------
 	echo "🔧 Initializing template for $(owner)/$(repo)…"; \
 	find . \
@@ -56,7 +56,7 @@ install-template: ## Kick-start a fresh copy of go-template (run once!)
 	    -e 's#mrz1836#$(owner)#g'; \
 	\
 	# --------------------------------------------------------------------
-	# 3. Remove default share image (optional)
+	# 4. Remove default share image (optional)
 	# --------------------------------------------------------------------
 	if [ -f .github/IMAGES/go-share-image.png ]; then \
 	  rm .github/IMAGES/go-share-image.png; \
@@ -64,6 +64,6 @@ install-template: ## Kick-start a fresh copy of go-template (run once!)
 	fi; \
 	\
 	# --------------------------------------------------------------------
-	# 4. Success message
+	# 5. Success message
 	# --------------------------------------------------------------------
 	echo '✅ Done! Review the changes, review all files, and commit the initial version.'
