@@ -1,6 +1,6 @@
 gha_enabled: true
 branch: master
-blocked_dirs: []
+blocked_dirs: [ ]
 draft: false
 description: |
   go-template is a production-ready starter scaffold for Go libraries that bundles opinionated project structure, module management, and fully automated CI/CD workflows.
