@@ -71,6 +71,7 @@ To proactively protect this repository, we use several automated GitHub workflow
 - **[CodeQL Analysis](./workflows/codeql-analysis.yml)**: Scans the codebase for security vulnerabilities and coding errors using GitHub's CodeQL engine on every push and pull request to the `master` branch.
 - **[Gitleaks Scan](./workflows/check-for-leaks.yml)**: Runs daily and on demand to detect secrets or sensitive data accidentally committed to the repository, helping prevent credential leaks.
 - **[OpenSSF Scorecard](./workflows/scorecard.yml)**: Periodically evaluates the repository against OpenSSF Scorecard checks, providing insights and recommendations for improving supply chain security and best practices.
+- **[OSSAR Scan](./workflows/ossar.yml)**: Runs the Open Source Static Analysis Runner to detect vulnerabilities using a suite of community tools.
 
 These workflows help us identify, remediate, and prevent security issues as early as possible in the development lifecycle. For more details, see the workflow files in the [`.github/workflows/`](https://github.com/mrz1836/go-template/tree/master/.github/workflows) directory.
 

@@ -694,10 +694,12 @@ Dependency hygiene is critical for security, reproducibility, and developer expe
   govulncheck ./...
 ```
 
-* Run via make command: 
+* Run via make command:
 ```bash
   make govulncheck
 ```
+
+* Run [OSSAR](https://github.com/github/ossar-action) to perform additional static analysis security checks (see `.github/workflows/ossar.yml`).
 
 * Address critical advisories before merging changes into `master`
 
