@@ -50,7 +50,6 @@
 			"contextcheck",
 			"copyloopvar",
 			"dogsled",
-			"dogsled",
 			"durationcheck",
 			"embeddedstructfieldcheck",
 			"err113",
