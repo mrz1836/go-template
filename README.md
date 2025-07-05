@@ -22,6 +22,9 @@
 		<a href="https://github.com/mrz1836/go-template/actions">
           <img src="https://github.com/mrz1836/go-template/actions/workflows/codeql-analysis.yml/badge.svg?style=flat" alt="CodeQL">
         </a><br/>
+		<a href="https://github.com/mrz1836/go-template/actions">
+          <img src="https://github.com/mrz1836/go-template/actions/workflows/ossar.yml/badge.svg?style=flat" alt="Ossar">
+        </a><br/>
         <a href="https://github.com/mrz1836/go-template/commits/master">
 		  <img src="https://img.shields.io/github/last-commit/mrz1836/go-template?style=flat&logo=clockify&logoColor=white" alt="Last commit">
 		</a>
