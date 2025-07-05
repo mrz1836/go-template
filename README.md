@@ -114,7 +114,7 @@ Clone it, [rename a few placeholders](#-template-kick-off-guide-3-easy-steps), a
   _[GoReleaser](https://goreleaser.com/) cuts signed, versioned artifacts the moment you push a tag—shipping new versions becomes a 10-second ritual._
 
 - **🛡️ Security & Supply-chain Guardrails**  
-  _[Dependabot](https://dependabot.com), [Nancy](https://github.com/sonatype-nexus-community/nancy), [govulncheck](https://pkg.go.dev/golang.org/x/vuln/cmd/govulncheck), [CodeQL](https://docs.github.com/en/github/finding-security-vulnerabilities-and-errors-in-your-code/about-code-scanning), [OpenSSF Scorecard](https://openssf.org), and [gitleaks](https://github.com/gitleaks/gitleaks) give early warnings before bad things reach production._
+  _[Dependabot](https://dependabot.com), [Nancy](https://github.com/sonatype-nexus-community/nancy), [govulncheck](https://pkg.go.dev/golang.org/x/vuln/cmd/govulncheck), [CodeQL](https://docs.github.com/en/github/finding-security-vulnerabilities-and-errors-in-your-code/about-code-scanning), [OpenSSF Scorecard](https://openssf.org), [OSSAR](https://github.com/github/ossar-action), and [gitleaks](https://github.com/gitleaks/gitleaks) give early warnings before bad things reach production._
 
 - **🎨 Style & Quality Enforcement**  
   _[golangci-lint](https://github.com/golangci/golangci-lint) + [gofumpt](https://github.com/mvdan/gofumpt) keeps the codebase clean and idiomatic—no bikeshedding required._
