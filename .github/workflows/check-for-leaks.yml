@@ -38,7 +38,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_NOTIFY_USER_LIST: '@mrz1836'
           GITLEAKS_ENABLE_COMMENTS: 'true'
-          GITLEAKS_CONFIG: '.github/.gitleaks.toml'
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: 'true'
           GITLEAKS_ENABLE_SUMMARY: 'true'
           GITLEAKS_VERSION: '8.27.2' # Specify the version of gitleaks to use
