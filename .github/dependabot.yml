@@ -81,7 +81,7 @@ updates:
   # 3. DevContainer (devcontainer.json : base image + features)
   # ──────────────────────────────────────────────────────────────
   - package-ecosystem: "devcontainers"
-    directory: "/.devcontainer"
+    directory: "/"
     target-branch: "master"
     schedule:
       interval: "weekly"
