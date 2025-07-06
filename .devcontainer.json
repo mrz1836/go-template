@@ -3,9 +3,7 @@
 	"image": "mcr.microsoft.com/devcontainers/go:0-1.24-bullseye",
 	"features": {
 		"ghcr.io/devcontainers/features/github-cli:1": {},
-		"ghcr.io/devcontainers/features/golangci-lint:2": {
-			"version": "2.2.1"
-		},
+		"ghcr.io/devcontainers/features/golangci-lint:0": {},
 		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
 	},
 	"mounts": [
