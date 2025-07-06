@@ -1,21 +1,26 @@
 {
 	"name": "go-template dev container",
 	"image": "mcr.microsoft.com/devcontainers/go:0-1.24-bullseye",
+
 	"features": {
 		"ghcr.io/devcontainers/features/github-cli:1": {},
-		"ghcr.io/devcontainers/features/golangci-lint:0": {},
+		"ghcr.io/devcontainers/features/golangci-lint:1": {},
 		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
 	},
+
 	"mounts": [
 		"type=cache,target=/home/vscode/.cache/go-build",
 		"type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock"
 	],
+
 	"runArgs": [
 		"--cap-drop=ALL",
 		"--security-opt",
 		"no-new-privileges:true"
 	],
+
 	"postCreateCommand": "go vet ./... && go test ./...",
+
 	"customizations": {
 		"vscode": {
 			"settings": {
@@ -36,5 +41,6 @@
 			]
 		}
 	},
+
 	"remoteUser": "vscode"
 }

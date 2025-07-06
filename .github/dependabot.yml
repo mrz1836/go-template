@@ -86,7 +86,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "09:20"
+      time: "09:25"
       timezone: "America/New_York"
     allow:
       - dependency-type: "direct"
