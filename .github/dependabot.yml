@@ -95,7 +95,7 @@ updates:
         patterns: [ "*" ]
     open-pull-requests-limit: 5
     assignees: [ "mrz1836" ]
-    labels: [ "chore", "dependencies" ]
+    labels: [ "chore", "dependencies", "devcontainer" ]
     commit-message:
       prefix: "chore(deps)"
       include: "scope"
