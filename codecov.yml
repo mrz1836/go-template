@@ -17,7 +17,6 @@ coverage:
 # --------------
 # which folders/files to ignore
 ignore:
-  - ".devcontainer/**"
   - ".github/**"
   - ".make/**"
   - ".vscode/**"
