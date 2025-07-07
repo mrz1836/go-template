@@ -72,7 +72,7 @@ jobs:
                 { regex: /^feat\//i, labels: ['feature'] },
                 { regex: /^hotfix\//i, labels: ['hot-fix'] },
                 { regex: /^idea\//i, labels: ['idea'] },
-                { regex: /^proto(type)?\//i, labels: ['prototype','idea] },
+                { regex: /^proto(type)?\//i, labels: ['prototype','idea'] },
                 { regex: /^question\//i, labels: ['question'] },
                 { regex: /^refactor\//i, labels: ['refactor'] },
                 { regex: /^test\//i, labels: ['test'] },
