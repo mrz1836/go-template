@@ -25,14 +25,20 @@ repos:
       - id: check-merge-conflict
 
   # ------------------------- Go toolchain -----------------------------
-  - repo: https://github.com/dnephin/pre-commit-golang
-    rev: v1.5.2
+  - repo: https://github.com/TekWizely/pre-commit-golang
+    rev: v1.0.0-rc.1
     hooks:
       - id: go-fmt
-      - id: go-imports
       - id: go-vet
+      - id: go-lint
+      - id: go-imports
+      - id: go-cyclo
+        args: ["-over=15"]
+      - id: validate-toml
+      - id: no-go-testing
       - id: golangci-lint
-        args: [ "--config=.golangci.json --verbose" ]
+      - id: go-unit-tests
+      - id: go-mod-tidy
 
   # ------------------------ Security scans ---------------------------
   - repo: https://github.com/zricethezav/gitleaks
