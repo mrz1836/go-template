@@ -26,6 +26,9 @@ on:
   pull_request:
     types:
       [ opened, synchronize, reopened, ready_for_review, labeled, unlabeled, edited, review_requested, review_request_removed ]
+  workflow_run:
+    workflows: [ "update-pre-commit-hooks" ]
+    types: [ completed ]
   pull_request_review:
     types: [ submitted ]
   check_suite:
