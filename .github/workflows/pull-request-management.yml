@@ -23,7 +23,7 @@ name: pull-request-management
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [ opened, synchronize, reopened, ready_for_review ]
 
 # Cancel older runs of the same PR if a new commit is pushed
 concurrency:
@@ -65,21 +65,22 @@ jobs:
               const branch = pr.head.ref;
               const labelsToApply = [];
               const labelMap = [
-                { regex: /^feat\//i, label: 'feature' },
-                { regex: /^(bug)?fix\//i, label: 'bug-P3' },
-                { regex: /^docs\//i, label: 'documentation' },
-                { regex: /^chore\//i, label: 'update' },
-                { regex: /^test\//i, label: 'test' },
-                { regex: /^refactor\//i, label: 'refactor' },
-                { regex: /^hotfix\//i, label: 'hot-fix' },
-                { regex: /^proto(type)?\//i, label: 'prototype' },
-                { regex: /^idea\//i, label: 'idea' },
-                { regex: /^question\//i, label: 'question' },
+                { regex: /^(bug)?fix\//i, labels: ['bug-P3'] },
+                { regex: /^chore\//i, labels: ['chore','update'] },
+                { regex: /^deps\//i, labels: ['chore','dependencies'] },
+                { regex: /^docs\//i, labels: ['documentation','update'] },
+                { regex: /^feat\//i, labels: ['feature'] },
+                { regex: /^hotfix\//i, labels: ['hot-fix'] },
+                { regex: /^idea\//i, labels: ['idea'] },
+                { regex: /^proto(type)?\//i, labels: ['prototype','idea] },
+                { regex: /^question\//i, labels: ['question'] },
+                { regex: /^refactor\//i, labels: ['refactor'] },
+                { regex: /^test\//i, labels: ['test'] },
               ];
 
-              for (const { regex, label } of labelMap) {
+              for (const { regex, labels } of labelMap) {
                 if (regex.test(branch)) {
-                  labelsToApply.push(label);
+                labelsToApply.push(...labels);
                 }
               }
 
