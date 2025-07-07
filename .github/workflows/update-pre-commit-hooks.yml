@@ -32,24 +32,30 @@ jobs:
       pull-requests: write
 
     steps:
-      # Checkout full history so we can push a branch
+      # -- 1. Checkout full history so we can push a branch -------------------
       - name: Checkout code
         uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
         with:
           fetch-depth: 0
 
-      # Ensure every HTTPS fetch to github.com is authenticated
+      # -- 2. Configure git for authenticated fetches ------------------------
       - name: Configure git for GitHub authentication
         run: |
           git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
-      # Set up Python
+      # -- 3. Set commit author identity (fixes 'please tell me who you are')
+      - name: Set git author
+        run: |
+          git config --global user.name  "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      # -- 4. Set up Python ---------------------------------------------------
       - name: Set up Python
         uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
         with:
           python-version: '3.x'
 
-      # Cache pip deps
+      # -- 5. Cache pip dependencies -----------------------------------------
       - name: Cache pip dependencies
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
@@ -58,11 +64,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      # Install pre-commit
+      # -- 6. Install pre-commit ---------------------------------------------
       - name: Install pre-commit
         run: pip install --require-hashes -r .github/pip-requirements.txt
 
-      # Run autoupdate + migrate; commit only if something changed
+      # -- 7. Run autoupdate (with --freeze) and commit if something changed --
       - name: Run pre-commit autoupdate
         id: update
         run: |
@@ -74,7 +80,7 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      # Open a PR if the previous step committed changes
+      # -- 8. Open a PR only when changes were committed ----------------------
       - name: Create pull request
         if: steps.update.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
