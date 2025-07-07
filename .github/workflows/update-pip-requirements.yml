@@ -51,10 +51,14 @@ jobs:
       - name: Update requirements file
         run: python .github/scripts/update_pip_requirements.py
 
+      - name: Configure git for PAT
+        run: |
+          git config --global url."https://x-access-token:${{ secrets.GH_PAT_TOKEN }}@github.com/".insteadOf "https://github.com/"
+
       - name: Create pull request
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
         with:
           commit-message: 'chore: update pip requirements'
-          title: 'chore: update pip requirements'
+          title: 'chore(deps): update pip requirements'
           body: 'This PR updates the Python dependencies in `.github/pip-requirements.txt`. '
           branch: 'chore/update-pip-requirements'
