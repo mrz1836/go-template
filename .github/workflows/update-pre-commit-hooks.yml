@@ -41,7 +41,7 @@ jobs:
       # -- 2. Configure git for authenticated fetches ------------------------
       - name: Configure git for GitHub authentication
         run: |
-          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+          git config --global url."https://x-access-token:${{ secrets.GH_PAT_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
       # -- 3. Set commit author identity (fixes 'please tell me who you are')
       - name: Set git author
@@ -80,13 +80,29 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      # -- 8. Open a PR only when changes were committed ----------------------
+      # -- 8. Check if there are changes to commit -----------------------------
+      - name: Configure git for PAT
+        run: |
+          git config --global url."https://x-access-token:${{ secrets.GH_PAT_TOKEN }}@github.com/".insteadOf "https://github.com/"
+
+      # -- 9. Push changes if there are any --------------------------------------
       - name: Create pull request
         if: steps.update.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
         with:
+          token: ${{ secrets.GH_PAT_TOKEN }}
           commit-message: "chore: update pre-commit hooks"
-          title: "chore: update pre-commit hooks"
+          title: "chore(deps): update pre-commit hooks"
           body: |
-            Automated weekly update of all pre-commit hooks.
+            This automated pull request updates all pre-commit hooks to their latest versions as of this week.
+
+            **What’s changed:**
+            - All hooks in `.pre-commit-config.yaml` have been updated using `pre-commit autoupdate --freeze`.
+            - The configuration has been migrated if needed.
+
+            **Why this matters:**
+            - Keeps code quality tools up-to-date.
+            - Ensures compatibility and security with the latest hook releases.
+
+            **No manual action is required** unless you notice issues with the updated hooks. Please review and merge if everything looks good.
           branch: "chore/update-pre-commit-hooks"
