@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------
-#  Pre‑commit Configuration for go-template
+#  Pre‑commit Configuration for the local repository
 #
 #  Purpose: Enforce code quality, security, and COMMENTING RULES defined
 #           in .github/AGENTS.md before any commit reaches the repository.
