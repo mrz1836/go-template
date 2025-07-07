@@ -24,9 +24,6 @@ name: pull-request-management
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
-  workflow_run:
-    workflows: ["update-pre-commit-hooks"]
-    types: [completed]
 
 # Cancel older runs of the same PR if a new commit is pushed
 concurrency:
