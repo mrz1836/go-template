@@ -52,7 +52,7 @@ jobs:
 
       # Install pre-commit
       - name: Install pre-commit
-        run: pip install --require-hashes -r requirements.txt
+        run: pip install --require-hashes -r .github/pip-requirements.txt
 
       # Run pre-commit autoupdate
       - name: Run pre-commit autoupdate
