@@ -96,7 +96,7 @@ jobs:
           body: |
             This automated pull request updates all pre-commit hooks to their latest versions as of this week.
 
-            **What’s changed:**
+            **What's changed:**
             - All hooks in `.pre-commit-config.yaml` have been updated using `pre-commit autoupdate --freeze`.
             - The configuration has been migrated if needed.
 
