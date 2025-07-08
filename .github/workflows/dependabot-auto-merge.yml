@@ -4,28 +4,24 @@
 #  Purpose: Automatically merge Dependabot **minor / patch** updates once all
 #           required checks pass.  Major updates only get an alert comment.
 #
-#  Triggers: Pull‑request events, review submissions, and completed checks.
+#  Triggers: Pull request events for better reliability and immediate response
 #
 #  Maintainer: @mrz1836
 #
 #  Rules for Auto‑Merge:
-#    • PR must be opened by Dependabot and found by this workflow
-#    • All required status checks must pass
+#    • PR must be opened by Dependabot (detected via official metadata)
+#    • All required status checks must pass (enforced by branch protection)
 #    • Only minor and patch updates are auto-merged
-#    • Major updates will only receive an alert comment
-#    • PR must have the 'automerge' label
+#    • Major updates receive alert comments and require manual review
+#    • Uses GitHub's native auto-merge feature for better integration
+#    • Development dependencies get more permissive auto-merge rules
 # ------------------------------------------------------------------------------
 
 name: dependabot-auto-merge
 
 on:
-  pull_request_target:
-    types: [ opened, synchronize, reopened, ready_for_review, unlocked, edited, review_requested, review_request_removed ]
-  pull_request_review:
-    types: [ submitted ]
-  check_suite:
-    types: [ completed ]
-  status: { }          # completed status checks
+  pull_request:
+    types: [ opened, synchronize, reopened, ready_for_review ]
 
 permissions:
   contents: read
@@ -36,227 +32,240 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  automerge:
+  auto-merge:
     runs-on: ubuntu-latest
+
     permissions:
       pull-requests: write
       contents: write
 
+    # Only run on Dependabot PRs
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+
     steps:
       # -----------------------------------------------------------------------
-      # 1. Locate the pull request for this event
+      # 1. Get official Dependabot metadata
       # -----------------------------------------------------------------------
-      - name: Locate pull request
-        id: pr
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { repo, owner } = context.repo;
-
-            let pr = context.payload.pull_request;
-
-            // If triggered by check_suite / status, look up the PR by SHA
-            if (!pr) {
-              const sha =
-                context.payload.check_suite?.head_sha ??
-                context.payload.check_run?.head_sha ??
-                context.payload.sha ??
-                context.payload.after;
-
-              if (sha) {
-                const { data: prs } =
-                  await github.rest.repos.listPullRequestsAssociatedWithCommit({
-                    owner,
-                    repo,
-                    commit_sha: sha,
-                  });
-                pr = prs.find(p => p.state === 'open');
-              }
-            }
-
-            if (!pr) {
-              core.info('No open PR found – skipping.');
-              core.setOutput('found', 'false');
-              return;
-            }
-
-            core.setOutput('found',  'true');
-            core.setOutput('number', pr.number);
-            core.setOutput('actor',  pr.user.login);
-            core.setOutput('title',  pr.title.replace(/\n/g, ' '));
-
 
       # -----------------------------------------------------------------------
-      # 1a. Exit when no PR was found
+      # 2. Log dependency information for debugging
       # -----------------------------------------------------------------------
-      - name: Exit when no PR found
-        if: steps.pr.outputs.found != 'true'
-        run: echo "PR not found – exiting."
-
-      # -----------------------------------------------------------------------
-      # 2. Make sure the PR was opened by Dependabot
-      # -----------------------------------------------------------------------
-      - name: Validate Dependabot author
-        id: author
-        if: steps.pr.outputs.found == 'true'
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const actor = '${{ steps.pr.outputs.actor }}';
-            const allowed = ['dependabot[bot]', 'dependabot-preview[bot]'].includes(actor);
-            core.setOutput('allowed', allowed);
-            if (!allowed) core.info(`PR opened by ${actor} – skipping automerge.`);
-
+      - name: Log dependency details
+        run: |
+          echo "Dependency name: ${{ steps.metadata.outputs.dependency-names }}"
+          echo "Update type: ${{ steps.metadata.outputs.update-type }}"
+          echo "Dependency type: ${{ steps.metadata.outputs.dependency-type }}"
+          echo "Package ecosystem: ${{ steps.metadata.outputs.package-ecosystem }}"
+          echo "New version: ${{ steps.metadata.outputs.new-version }}"
+          echo "Previous version: ${{ steps.metadata.outputs.previous-version }}"
 
       # -----------------------------------------------------------------------
-      # 2a. Exit when PR was not opened by Dependabot
+      # 3. Alert on major version updates - with duplicate prevention
       # -----------------------------------------------------------------------
-      - name: Exit for non-Dependabot PR
-        if: steps.author.outputs.allowed != 'true'
-        run: echo "Not a Dependabot PR – exiting."
-
-      # ---------------------------------------------------------------------
-      # 3. Detect minor / major / unknown bump
-      # ---------------------------------------------------------------------
-      - name: Check version bump
-        id: bump
-        if: steps.author.outputs.allowed == 'true'
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          script: |
-            const title = '${{ steps.pr.outputs.title }}';
-
-            // Matches "from 1.2.3 to 1.3.0", "from v4 to v4.0.1", etc.
-            const match = title.match(/from\s+v?(\d+)(?:\.\d+)*\s+to\s+v?(\d+)/i);
-            let isMinor   = false;
-            let isUnknown = false;
-
-            if (!match) {
-              isUnknown = true;            // SHA bumps or unparsable versions
-            } else {
-              isMinor = match[1] === match[2];
-            }
-
-            core.setOutput('is_minor',   isMinor);
-            core.setOutput('is_major',  !isMinor && !isUnknown);
-            core.setOutput('is_unknown', isUnknown);
-
-      # ---------------------------------------------------------------------
-      # 4a. Alert on major bump – only if comment is not already present
-      # ---------------------------------------------------------------------
       - name: Alert on major version bump
-        if: |
-          steps.bump.outputs.is_major == 'true' &&
-          github.event_name == 'pull_request_target' &&
-          (github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'ready_for_review')
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        if: steps.metadata.outputs.update-type == 'version-update:semver-major'
+        uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const issue_number = Number('${{ steps.pr.outputs.number }}');
-            const commentBody  = '⚠️ @mrz1836 – this is a **major** version bump and needs manual review.';
+            const issueNumber = context.issue.number;
+            const dependency = '${{ steps.metadata.outputs.dependency-names }}';
+            const newVersion = '${{ steps.metadata.outputs.new-version }}';
+            const previousVersion = '${{ steps.metadata.outputs.previous-version }}';
 
-            // Check for existing identical comment
+            const commentBody = `⚠️ @mrz1836 – **Major version update detected**
+
+            **Dependency:** \`${dependency}\`
+            **Version:** \`${previousVersion}\` → \`${newVersion}\`
+            **Type:** ${{ steps.metadata.outputs.dependency-type }}
+
+            This requires manual review for potential breaking changes.`;
+
+            // Check for existing alert comment
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
-              repo:  context.repo.repo,
-              issue_number,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
               per_page: 100
             });
 
-            if (comments.some(c => c.body.trim() === commentBody.trim())) {
-              core.info('Major bump alert comment already exists – skipping.');
-            } else {
+            const alertExists = comments.some(comment =>
+              comment.body.includes('Major version update detected') &&
+              comment.body.includes(dependency)
+            );
+
+            if (!alertExists) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
-                repo:  context.repo.repo,
-                issue_number,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
                 body: commentBody
               });
+
+              // Add label for tracking
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                labels: ['requires-manual-review']
+              });
+            } else {
+              console.log('Major version alert already exists, skipping duplicate comment');
             }
 
+      # -----------------------------------------------------------------------
+      # 4. Auto-approve and merge patch updates (safest)
+      # -----------------------------------------------------------------------
+      - name: Auto-approve and merge patch updates
+        if: steps.metadata.outputs.update-type == 'version-update:semver-patch'
+        run: |
+          echo "Processing patch update for ${{ steps.metadata.outputs.dependency-names }}"
+          gh pr review --approve "$PR_URL" --body "✅ Auto-approving patch update: ${{ steps.metadata.outputs.previous-version }} → ${{ steps.metadata.outputs.new-version }}"
+          gh pr merge --auto --squash "$PR_URL"
+          echo "✅ Enabled auto-merge for patch update"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
 
-      # ---------------------------------------------------------------------
-      # 4b. Alert when a version couldn’t be parsed (commit SHA → SHA)
-      #     – only if comment not already present
-      # ---------------------------------------------------------------------
-      - name: Alert on undetected version bump
+      # -----------------------------------------------------------------------
+      # 5. Auto-approve and merge minor updates for development dependencies
+      # -----------------------------------------------------------------------
+      - name: Auto-approve minor updates for dev dependencies
         if: |
-          steps.bump.outputs.is_unknown == 'true' &&
-          github.event_name == 'pull_request_target' &&
-          (github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'ready_for_review')
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const issue_number = Number('${{ steps.pr.outputs.number }}');
-            const commentBody  = '⚠️ @mrz1836 – Dependabot could not determine version semantics (SHA → SHA). Please review manually.';
+          steps.metadata.outputs.update-type == 'version-update:semver-minor' &&
+          steps.metadata.outputs.dependency-type == 'direct:development'
+        run: |
+          echo "Processing minor development dependency update"
+          gh pr review --approve "$PR_URL" --body "✅ Auto-approving minor development dependency update: ${{ steps.metadata.outputs.previous-version }} → ${{ steps.metadata.outputs.new-version }}"
+          gh pr merge --auto --squash "$PR_URL"
+          echo "✅ Enabled auto-merge for minor dev dependency"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
 
-            // Check for existing identical comment
+      # -----------------------------------------------------------------------
+      # 6. Alert on minor production dependency updates
+      # -----------------------------------------------------------------------
+      - name: Alert on minor production dependency updates
+        if: |
+          steps.metadata.outputs.update-type == 'version-update:semver-minor' &&
+          steps.metadata.outputs.dependency-type == 'direct:production'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_PAT_TOKEN }}
+          script: |
+            const issueNumber = context.issue.number;
+            const dependency = '${{ steps.metadata.outputs.dependency-names }}';
+            const newVersion = '${{ steps.metadata.outputs.new-version }}';
+            const previousVersion = '${{ steps.metadata.outputs.previous-version }}';
+
+            const commentBody = `🔍 @mrz1836 – **Minor production dependency update**
+
+            **Dependency:** \`${dependency}\`
+            **Version:** \`${previousVersion}\` → \`${newVersion}\`
+            **Type:** Production dependency
+
+            Please review for potential feature changes or compatibility issues.`;
+
+            // Check for existing comment
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
-              repo:  context.repo.repo,
-              issue_number,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
               per_page: 100
             });
 
-            if (comments.some(c => c.body.trim() === commentBody.trim())) {
-              core.info('Unknown bump alert comment already exists – skipping.');
-            } else {
+            const commentExists = comments.some(comment =>
+              comment.body.includes('Minor production dependency update') &&
+              comment.body.includes(dependency)
+            );
+
+            if (!commentExists) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
-                repo:  context.repo.repo,
-                issue_number,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
                 body: commentBody
               });
+
+              //await github.rest.issues.addLabels({
+              //  owner: context.repo.owner,
+              //  repo: context.repo.repo,
+              //  issue_number: issueNumber,
+              //  labels: ['requires-manual-review']
+              //});
             }
 
+      # -----------------------------------------------------------------------
+      # 7. Handle security updates with elevated auto-merge
+      # -----------------------------------------------------------------------
+      - name: Auto-approve security updates
+        if: |
+          contains(join(github.event.pull_request.labels.*.name, ','), 'security') ||
+          contains(github.event.pull_request.title, 'security') ||
+          contains(github.event.pull_request.body, 'security')
+        run: |
+          echo "Security update detected - auto-approving regardless of semver level"
+          gh pr review --approve "$PR_URL" --body "🔒 Auto-approving security update for ${{ steps.metadata.outputs.dependency-names }}"
+
+          # Only auto-merge security patches and minors, not majors
+          if [[ "${{ steps.metadata.outputs.update-type }}" == "version-update:semver-patch" ]] || \
+             [[ "${{ steps.metadata.outputs.update-type }}" == "version-update:semver-minor" ]]; then
+            gh pr merge --auto --squash "$PR_URL"
+            echo "🔒 Enabled auto-merge for security update"
+          else
+            echo "🔒 Security major update requires manual merge"
+            gh pr comment "$PR_URL" --body "🔒 **Security major update** - Auto-approved but requires manual merge due to potential breaking changes."
+          fi
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
 
       # -----------------------------------------------------------------------
-      # 5. Auto-approve minor / patch bumps
+      # 8. Add tracking labels for all auto-merged PRs
       # -----------------------------------------------------------------------
-      - name: Auto-approve minor update
-        if: steps.bump.outputs.is_minor == 'true'
-        uses: hmarr/auto-approve-action@f0939ea97e9205ef24d872e76833fa908a770363 # v4.0.0
+      - name: Add auto-merge labels
+        if: |
+          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          pull-request-number: ${{ steps.pr.outputs.number }}   # ← NEW
-          review-message: Automatically approving Dependabot minor/patch update
-
-      # -----------------------------------------------------------------------
-      # 6. Add the required `automerge` label (used by pascalgn/automerge)
-      # -----------------------------------------------------------------------
-      - name: Add automerge label
-        if: steps.bump.outputs.is_minor == 'true'
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GH_PAT_TOKEN }}
           script: |
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
-              repo:  context.repo.repo,
-              issue_number: Number('${{ steps.pr.outputs.number }}'),
-              labels: ['automerge']
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['automerge', 'dependabot']
             });
 
-
-
       # -----------------------------------------------------------------------
-      # 7. Auto-merge when checks are green
+      # 9. Report final status
       # -----------------------------------------------------------------------
-      - name: Auto-merge minor update
-        if: steps.bump.outputs.is_minor == 'true'
-        uses: pascalgn/automerge-action@7961b8b5eec56cc088c140b56d864285eabd3f67 # v0.16.4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MERGE_LABELS: "automerge"   # must match label we just added
-          MERGE_METHOD: squash
-          MERGE_COMMIT_MESSAGE: pull-request-title
-          MERGE_RETRIES: "30"      # up to ~30 minutes
-          MERGE_RETRY_SLEEP: "60000"
+      - name: Report processing status
+        run: |
+          echo "=== Dependabot Auto-Merge Summary ==="
+          echo "Dependency: ${{ steps.metadata.outputs.dependency-names }}"
+          echo "Update type: ${{ steps.metadata.outputs.update-type }}"
+          echo "Dependency type: ${{ steps.metadata.outputs.dependency-type }}"
+          echo "Previous version: ${{ steps.metadata.outputs.previous-version }}"
+          echo "New version: ${{ steps.metadata.outputs.new-version }}"
 
-      - name: Not eligible for auto-merge
-        if: steps.bump.outputs.is_minor != 'true' && steps.author.outputs.allowed == 'true'
-        run: echo "Skipping auto-merge because update is not minor/patch."
+          if [[ "${{ steps.metadata.outputs.update-type }}" == "version-update:semver-patch" ]]; then
+            echo "✅ Action: Auto-merged (patch update)"
+          elif [[ "${{ steps.metadata.outputs.update-type }}" == "version-update:semver-minor" ]] && \
+               [[ "${{ steps.metadata.outputs.dependency-type }}" == "direct:development" ]]; then
+            echo "✅ Action: Auto-merged (minor dev dependency)"
+          elif [[ "${{ steps.metadata.outputs.update-type }}" == "version-update:semver-minor" ]] && \
+               [[ "${{ steps.metadata.outputs.dependency-type }}" == "direct:production" ]]; then
+            echo "🔍 Action: Requires manual review (minor production dependency)"
+          elif [[ "${{ steps.metadata.outputs.update-type }}" == "version-update:semver-major" ]]; then
+            echo "⚠️ Action: Requires manual review (major update)"
+          else
+            echo "❓ Action: Unknown update type, manual review recommended"
+          fi
