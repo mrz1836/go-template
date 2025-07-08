@@ -256,3 +256,7 @@ jobs:
           MERGE_COMMIT_MESSAGE: pull-request-title
           MERGE_RETRIES: "30"      # up to ~30 minutes
           MERGE_RETRY_SLEEP: "60000"
+
+      - name: Not eligible for auto-merge
+        if: steps.bump.outputs.is_minor != 'true' && steps.author.outputs.allowed == 'true'
+        run: echo "Skipping auto-merge because update is not minor/patch."
