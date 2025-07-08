@@ -83,7 +83,7 @@ jobs:
               { pattern: /\b(test|testing|spec|coverage|unit.test|integration.test)\b/i, labels: ['test'] },
               { pattern: /\b(security|vulnerability|CVE|exploit|patch)\b/i, labels: ['security'] },
               { pattern: /\b(performance|perf|optimization|optimize|speed|slow)\b/i, labels: ['performance'] },
-              { pattern: /\b(breaking.change|breaking|major|incompatible)\b/i, labels: ['breaking-change'] },
+              { pattern: /\b(breaking.change|breaking|major|incompatible)\b/i, labels: ['requires-manual-review'] },
               { pattern: /\b(wip|work.in.progress|draft|incomplete)\b/i, labels: ['work-in-progress'] },
             ];
 
