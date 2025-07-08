@@ -11,15 +11,15 @@
 name: release
 
 env:
-  GO111MODULE: on        # explicit, though modern Go enables this by default
+  GO111MODULE: on
 
 on:
   push:
     tags:
-      - 'v*'             # run only on tags that start with "v"
+      - 'v*'
 
 permissions:
-  contents: read         # restrict default token to read-only
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -58,7 +58,7 @@ jobs:
       - name: GoReleaser config check
         uses: goreleaser/goreleaser-action@9c156ee8a17a598857849441385a2041ef570552 # v6.3.0
         with:
-          version: v2.10.2         # pin exact or at least major
+          version: v2.10.2       # pin exact or at least major (6/20/2025)
           args: check
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

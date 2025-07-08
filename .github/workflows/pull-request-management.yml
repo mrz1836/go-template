@@ -13,7 +13,7 @@ name: pull-request-management
 
 on:
   pull_request:
-    types: [opened, reopened, ready_for_review]
+    types: [ opened, reopened, ready_for_review ]
 
 permissions:
   contents: read
@@ -27,10 +27,10 @@ env:
 
 jobs:
   # ---------------------------------------------------------------------------
-  # Job 1: Apply labels based on branch prefix
+  # Job 1: Apply labels based on branch prefix AND PR title keywords
   # ---------------------------------------------------------------------------
   apply-labels:
-    name: Apply Branch-Based Labels
+    name: Apply Branch & Title Based Labels
     runs-on: ubuntu-latest
 
     permissions:
@@ -41,16 +41,20 @@ jobs:
       !contains(fromJSON('["dependabot[bot]", "mergify[bot]", "copilot[bot]"]'), github.event.pull_request.user.login)
 
     steps:
-      - name: Apply labels based on branch prefix
+      - name: Apply labels based on branch prefix and PR title
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           github-token: ${{ secrets.GH_PAT_TOKEN }}
           script: |
             const branch = context.payload.pull_request.head.ref;
+            const prTitle = context.payload.pull_request.title;
             const prNumber = context.payload.pull_request.number;
 
-            // Define label mappings
-            const labelRules = [
+            console.log(`Processing branch: ${branch}`);
+            console.log(`Processing PR title: ${prTitle}`);
+
+            // Branch-based label rules (prefix matching)
+            const branchRules = [
               { pattern: /^(bug)?fix\//i, labels: ['bug-P3'] },
               { pattern: /^chore\//i, labels: ['chore', 'update'] },
               { pattern: /^deps\//i, labels: ['chore', 'dependencies'] },
@@ -64,21 +68,54 @@ jobs:
               { pattern: /^test\//i, labels: ['test'] },
             ];
 
-            console.log(`Processing branch: ${branch}`);
+            // Title-based label rules (keyword matching)
+            const titleRules = [
+              { pattern: /\b(fix|bug|error|issue|problem|broken)\b/i, labels: ['bug-P3'] },
+              { pattern: /\b(chore|cleanup|maintenance|housekeeping)\b/i, labels: ['chore', 'update'] },
+              { pattern: /\b(deps?|dependencies|dependency|upgrade|update.*deps?)\b/i, labels: ['chore', 'dependencies'] },
+              { pattern: /\b(docs?|documentation|readme|guide|manual)\b/i, labels: ['documentation', 'update'] },
+              { pattern: /\b(feat|feature|add|new|implement|enhancement)\b/i, labels: ['feature'] },
+              { pattern: /\b(hotfix|urgent|critical|emergency)\b/i, labels: ['hot-fix'] },
+              { pattern: /\b(idea|proposal|suggestion|concept)\b/i, labels: ['idea'] },
+              { pattern: /\b(prototype|proto|draft|experiment|poc|proof.of.concept)\b/i, labels: ['prototype', 'idea'] },
+              { pattern: /\b(question|help|how.to|unclear|clarification)\b/i, labels: ['question'] },
+              { pattern: /\b(refactor|restructure|reorganize|cleanup|improve)\b/i, labels: ['refactor'] },
+              { pattern: /\b(test|testing|spec|coverage|unit.test|integration.test)\b/i, labels: ['test'] },
+              { pattern: /\b(security|vulnerability|CVE|exploit|patch)\b/i, labels: ['security'] },
+              { pattern: /\b(performance|perf|optimization|optimize|speed|slow)\b/i, labels: ['performance'] },
+              { pattern: /\b(breaking.change|breaking|major|incompatible)\b/i, labels: ['requires-manual-review'] },
+              { pattern: /\b(wip|work.in.progress|draft|incomplete)\b/i, labels: ['work-in-progress'] },
+            ];
 
-            // Find matching labels
-            const labelsToAdd = [];
-            for (const rule of labelRules) {
+            // Collect labels from both branch and title
+            const labelsToAdd = new Set(); // Use Set to avoid duplicates
+
+            // Check branch patterns
+            console.log('--- Checking branch patterns ---');
+            for (const rule of branchRules) {
               if (rule.pattern.test(branch)) {
-                labelsToAdd.push(...rule.labels);
-                console.log(`Matched pattern ${rule.pattern} -> adding labels: ${rule.labels.join(', ')}`);
+                rule.labels.forEach(label => labelsToAdd.add(label));
+                console.log(`Branch matched ${rule.pattern} -> adding: ${rule.labels.join(', ')}`);
               }
             }
 
-            if (labelsToAdd.length === 0) {
-              console.log('No branch patterns matched, skipping label application');
+            // Check title patterns
+            console.log('--- Checking title patterns ---');
+            for (const rule of titleRules) {
+              if (rule.pattern.test(prTitle)) {
+                rule.labels.forEach(label => labelsToAdd.add(label));
+                console.log(`Title matched ${rule.pattern} -> adding: ${rule.labels.join(', ')}`);
+              }
+            }
+
+            const finalLabels = Array.from(labelsToAdd);
+
+            if (finalLabels.length === 0) {
+              console.log('No patterns matched in branch or title, skipping label application');
               return;
             }
+
+            console.log(`--- Total labels to apply: ${finalLabels.join(', ')} ---`);
 
             // Get existing labels to avoid duplicates
             try {
@@ -89,7 +126,7 @@ jobs:
               });
 
               const existingLabelNames = existingLabels.map(label => label.name);
-              const newLabels = labelsToAdd.filter(label => !existingLabelNames.includes(label));
+              const newLabels = finalLabels.filter(label => !existingLabelNames.includes(label));
 
               if (newLabels.length > 0) {
                 await github.rest.issues.addLabels({
@@ -98,9 +135,14 @@ jobs:
                   issue_number: prNumber,
                   labels: newLabels,
                 });
-                console.log(`✅ Added labels: ${newLabels.join(', ')}`);
+                console.log(`✅ Added new labels: ${newLabels.join(', ')}`);
+
+                if (existingLabelNames.length > 0) {
+                  console.log(`ℹ️ Labels already present: ${existingLabelNames.join(', ')}`);
+                }
               } else {
-                console.log('All labels already present, no changes needed');
+                console.log('All matching labels already present, no changes needed');
+                console.log(`ℹ️ Existing labels: ${existingLabelNames.join(', ')}`);
               }
             } catch (error) {
               console.error(`❌ Failed to apply labels: ${error.message}`);
