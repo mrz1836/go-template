@@ -90,12 +90,12 @@ jobs:
         run: go vet -v ./...
 
   # ----------------------------------------------------------------------------------
-  # Testmake: Verify Makefile Help Target and makefiles compile
+  # Testmake: Verify makefile help target and makefiles compile
   #
   # This job verifies that the Makefile compiles correctly and that the help target works.
   # ----------------------------------------------------------------------------------
   testmake:
-    name: Verify Makefile compiles and help works
+    name: Verify makefile (test compilation and help target)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
