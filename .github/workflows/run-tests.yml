@@ -71,8 +71,44 @@ jobs:
       - name: Run govulncheck
         run: make govulncheck
 
+  # ----------------------------------------------------------------------------------
+  # Go Vet: Static Analysis
+  #
+  # This job runs go vet to perform static analysis on the code.
+  # ----------------------------------------------------------------------------------
+  govet:
+    name: Go vet (static analysis)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Set up Go
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
+        with:
+          go-version: 1.24.x
+      - name: Go vet
+        run: go vet -v ./...
+
+  # ----------------------------------------------------------------------------------
+  # Testmake: Verify Makefile Help Target and makefiles compile
+  #
+  # This job verifies that the Makefile compiles correctly and that the help target works.
+  # ----------------------------------------------------------------------------------
+  testmake:
+    name: Verify Makefile compiles and help works
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Set up Go
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
+        with:
+          go-version: 1.24.x
+      - name: Verify make help works
+        run: make help
+
   test:
-    needs: [ asknancy, govulncheck ]
+    needs: [ asknancy, govulncheck, govet, testmake ]
     strategy:
       matrix:
         go-version: [ 1.24.x ]
@@ -80,28 +116,25 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       # ————————————————————————————————————————————————————————————————
-      # 1. Check out the code so we can hash go.mod/go.sum for caching
+      # 1. Check out the code
       # ————————————————————————————————————————————————————————————————
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       # ————————————————————————————————————————————————————————————————
-      # 2. Install the requested Go version *with built‑in caching enabled*
-      #    • Caches GOMODCACHE and GOCACHE automatically
-      #    • You can pass `cache-dependency-path: | go.mod\ngo.sum`
-      #      if you need more than the default `go.sum`
+      # 2. Install the requested Go version (with built‑in caching enabled)
       # ————————————————————————————————————————————————————————————————
       - name: Set up Go ${{ matrix.go-version }}
         uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version: ${{ matrix.go-version }}
-          cache: true                   # default, but explicit for clarity
+          cache: true
           cache-dependency-path: |
             **/go.sum
             **/go.mod
 
       # ————————————————————————————————————————————————————————————————
-      # 3. Ensure go.sum exists (useful on brand‑new repos)
+      # 3. Ensure go.sum exists
       # ————————————————————————————————————————————————————————————————
       - name: Ensure go.sum exists
         run: |
@@ -111,42 +144,19 @@ jobs:
           fi
 
       # ————————————————————————————————————————————————————————————————
-      # 4. Download modules (set up go cache makes this almost instant)
+      # 4. Download modules
       # ————————————————————————————————————————————————————————————————
       - name: Download modules
         run: go mod download
 
       # ————————————————————————————————————————————————————————————————
-      # 4.5. Verify that the Makefile help target works (testing makefiles)
-      # ————————————————————————————————————————————————————————————————
-      - name: Verify make help works
-        run: make help
-
-      # ————————————————————————————————————————————————————————————————
-      # 5. Cache golangci-lint analysis
-      # ————————————————————————————————————————————————————————————————
-      - name: Cache golangci-lint cache
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-        with:
-          path: ~/.cache/golangci-lint
-          key: ${{ runner.os }}-golangci-${{ hashFiles('**/*.go', '.golangci.json') }}
-          restore-keys: |
-            ${{ runner.os }}-golangci-
-
-      # ————————————————————————————————————————————————————————————————
-      # 6. Run vet first to catch any obvious issues
-      # ————————————————————————————————————————————————————————————————
-      - name: Go vet
-        run: go vet -v ./...
-
-      # ————————————————————————————————————————————————————————————————
-      # 7. Run linter and tests
+      # 5. Run linter and tests
       # ————————————————————————————————————————————————————————————————
       - name: Run linter and tests
         run: make test-ci
 
       # ————————————————————————————————————————————————————————————————
-      # 8. Upload coverage to Codecov
+      # 6. Upload coverage to Codecov
       # ————————————————————————————————————————————————————————————————
       - name: Upload code coverage
         uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
