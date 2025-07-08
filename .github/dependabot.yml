@@ -48,11 +48,6 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-    ignore:
-      - dependency-name: "golang.org/x/mod"
-        versions: [ "<0.15.0" ]
-      - dependency-name: "github.com/aws/aws-sdk-go"
-        versions: [ "<1.50.0" ]
 
   # ──────────────────────────────────────────────────────────────
   # 2. GitHub Actions Workflows
