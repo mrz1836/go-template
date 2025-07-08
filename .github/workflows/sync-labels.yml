@@ -21,7 +21,7 @@ on:
   push:
     branches: [ master ]
     paths:
-      - .github/labels.yml # Runs *only* when this file changes
+      - .github/labels.yml  # Runs *only* when this file changes
   workflow_dispatch:       # Allow manual triggering
     inputs:
       dry_run:
@@ -55,9 +55,10 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       # ————————————————————————————————————————————————————————————————
-      # 2. Validate labels file exists and is valid YAML
+      # 2. Validate and parse labels file
       # ————————————————————————————————————————————————————————————————
-      - name: 📋 Validate labels file
+      - name: 📋 Validate and parse labels file
+        id: parse_labels
         run: |
           if [ ! -f "${{ env.LABELS_FILE }}" ]; then
             echo "❌ Labels file not found: ${{ env.LABELS_FILE }}"
@@ -68,24 +69,66 @@ jobs:
           echo "File size: $(wc -c < "${{ env.LABELS_FILE }}") bytes"
           echo "Label count: $(grep -c '^- name:' "${{ env.LABELS_FILE }}" || echo 0)"
 
-          # Basic YAML syntax validation
-          python3 -c "
+          # Parse YAML and convert to JSON for github-script
+          python3 << 'EOF'
           import yaml
+          import json
           import sys
+          import os
+
           try:
               with open('${{ env.LABELS_FILE }}', 'r') as f:
                   labels = yaml.safe_load(f)
+
               if not isinstance(labels, list):
                   print('❌ Labels file must contain a YAML list')
                   sys.exit(1)
+
               print(f'✅ Valid YAML with {len(labels)} labels defined')
+
+              # Validate all labels
+              validation_errors = []
+              for i, label in enumerate(labels):
+                  if not label.get('name'):
+                      validation_errors.append(f'Label {i + 1}: missing "name" field')
+
+                  color = label.get('color', '')
+                  if not color:
+                      validation_errors.append(f'Label "{label.get("name", "unknown")}": missing "color" field')
+                  else:
+                      # Normalize and validate color
+                      normalized_color = color.replace('#', '').lower()
+                      if not (len(normalized_color) == 6 and all(c in '0123456789abcdef' for c in normalized_color)):
+                          validation_errors.append(f'Label "{label.get("name", "unknown")}": invalid color "{color}" (must be 6-digit hex)')
+
+                  if not label.get('description'):
+                      validation_errors.append(f'Label "{label.get("name", "unknown")}": missing "description" field')
+
+              if validation_errors:
+                  print('\n❌ Validation Errors:')
+                  for error in validation_errors:
+                      print(f'  - {error}')
+                  sys.exit(1)
+
+              print('✅ All labels in manifest are valid')
+
+              # Convert to JSON and output for github-script
+              labels_json = json.dumps(labels)
+
+              # Write to GitHub output (escape for shell)
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write(f'labels_json<<EOF\n{labels_json}\nEOF\n')
+                  f.write(f'labels_count={len(labels)}\n')
+
+              print(f'✅ Parsed {len(labels)} labels successfully')
+
           except yaml.YAMLError as e:
               print(f'❌ Invalid YAML: {e}')
               sys.exit(1)
           except Exception as e:
-              print(f'❌ Error reading file: {e}')
+              print(f'❌ Error processing file: {e}')
               sys.exit(1)
-          "
+          EOF
 
       # ————————————————————————————————————————————————————————————————
       # 3. Sync labels using native GitHub API
@@ -95,15 +138,13 @@ jobs:
         with:
           github-token: ${{ secrets.GH_PAT_TOKEN }}
           script: |
-            const fs = require('fs');
-            const yaml = require('js-yaml');
-
             // Configuration
-            const labelsFile = '${{ env.LABELS_FILE }}';
             const isDryRun = '${{ github.event.inputs.dry_run }}' === 'true';
+            const labelsJson = '${{ steps.parse_labels.outputs.labels_json }}';
+            const labelsCount = '${{ steps.parse_labels.outputs.labels_count }}';
 
             console.log('=== Label Sync Configuration ===');
-            console.log(`Labels file: ${labelsFile}`);
+            console.log(`Labels count: ${labelsCount}`);
             console.log(`Dry run mode: ${isDryRun ? 'ENABLED (no changes will be made)' : 'DISABLED (changes will be applied)'}`);
             console.log(`Repository: ${context.repo.owner}/${context.repo.repo}`);
 
@@ -113,45 +154,12 @@ jobs:
               return color.replace('#', '').toLowerCase();
             }
 
-            // Helper function to validate color
-            function isValidColor(color) {
-              const normalized = normalizeColor(color);
-              return /^[0-9a-f]{6}$/i.test(normalized);
-            }
-
             try {
-              // Read and parse labels file
-              console.log('\n=== Reading Labels Manifest ===');
-              const fileContent = fs.readFileSync(labelsFile, 'utf8');
-              const desiredLabels = yaml.load(fileContent);
+              // Parse labels from JSON
+              console.log('\n=== Processing Labels Manifest ===');
+              const desiredLabels = JSON.parse(labelsJson);
 
-              if (!Array.isArray(desiredLabels)) {
-                throw new Error('Labels file must contain a YAML array');
-              }
-
-              console.log(`Found ${desiredLabels.length} labels in manifest`);
-
-              // Validate all labels in manifest
-              const validationErrors = [];
-              desiredLabels.forEach((label, index) => {
-                if (!label.name) {
-                  validationErrors.push(`Label ${index + 1}: missing 'name' field`);
-                }
-                if (!label.color || !isValidColor(label.color)) {
-                  validationErrors.push(`Label "${label.name}": invalid or missing color (must be 6-digit hex)`);
-                }
-                if (!label.description) {
-                  validationErrors.push(`Label "${label.name}": missing 'description' field`);
-                }
-              });
-
-              if (validationErrors.length > 0) {
-                console.log('\n❌ Validation Errors:');
-                validationErrors.forEach(error => console.log(`  - ${error}`));
-                throw new Error(`Found ${validationErrors.length} validation errors in labels manifest`);
-              }
-
-              console.log('✅ All labels in manifest are valid');
+              console.log(`Processing ${desiredLabels.length} labels from manifest`);
 
               // Get current repository labels
               console.log('\n=== Fetching Current Repository Labels ===');
@@ -341,15 +349,13 @@ jobs:
         with:
           github-token: ${{ secrets.GH_PAT_TOKEN }}
           script: |
-            const fs = require('fs');
-            const yaml = require('js-yaml');
+            const labelsJson = '${{ steps.parse_labels.outputs.labels_json }}';
 
             console.log('=== Verifying Label Sync Results ===');
 
             try {
-              // Read desired labels
-              const fileContent = fs.readFileSync('${{ env.LABELS_FILE }}', 'utf8');
-              const desiredLabels = yaml.load(fileContent);
+              // Parse desired labels from JSON
+              const desiredLabels = JSON.parse(labelsJson);
 
               // Get current labels after sync
               const { data: currentLabels } = await github.rest.issues.listLabelsForRepo({
