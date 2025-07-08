@@ -1,83 +1,413 @@
 # ------------------------------------------------------------------------------------
 #  Sync-Labels Workflow
 #
-#  Purpose: Keeps GitHub labels in sync with the declarative manifest at
-#           `.github/labels.yml`.  Any push that modifies that file on the
-#           default branch will trigger a reconciliation.
+#  Purpose: Keeps GitHub labels in sync with the declarative manifest at `.github/labels.yml`
 #
-#  Docs: - Action → https://github.com/micnncim/action-label-syncer
-#        - Exporter → https://github.com/micnncim/label-exporter
+#  Triggers: Only when `.github/labels.yml` is modified on the default branch.
 #
 #  Maintainer: @mrz1836
+#
 # ------------------------------------------------------------------------------------
 
 name: sync-labels
 
-#######################################################################################
+# ############################################################################
 # EVENT TRIGGERS
 #
 # • Only fires when `.github/labels.yml` is changed on the default branch.
 #   This avoids unnecessary CI runs when the rest of the repo changes.
-#
-#   NOTE: If you rename the default branch (e.g., to "main"), update both the
-#   `branches:` filter here and the DEFAULT_BRANCH env var below.
-#######################################################################################
+# ############################################################################
 on:
   push:
-    branches: [ master ]    # Update if your default branch is "main"
+    branches: [ master ]
     paths:
-      - .github/labels.yml  # Runs *only* when this file changes
+      - .github/labels.yml # Runs *only* when this file changes
+  workflow_dispatch:       # Allow manual triggering
+    inputs:
+      dry_run:
+        description: 'Dry run mode (show changes without applying them)'
+        type: boolean
+        default: false
+        required: false
 
-#######################################################################################
-# GLOBAL PERMISSIONS
-#
-# • Label management requires write access to the Issues scope.
-# • We keep everything else read-only for the least privilege.
-#######################################################################################
 permissions:
   contents: read
-  issues: write
+
+concurrency:
+  group: sync-labels-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  LABELS_FILE: .github/labels.yml
 
 jobs:
   sync-labels:
-    # -------------------------------------------------------------------------------
-    #  RUNTIME
-    #
-    # • ubuntu-latest maps to the latest LTS runner image.
-    # -------------------------------------------------------------------------------
     runs-on: ubuntu-latest
-
-    # -------------------------------------------------------------------------------
-    #  CONCURRENCY
-    #
-    # • Cancel any in-flight label-sync job for the same branch.  This prevents
-    #   collisions if multiple commits land in quick succession.
-    # -------------------------------------------------------------------------------
-    concurrency:
-      group: sync-labels-${{ github.ref }}
-      cancel-in-progress: true
+    permissions:
+      contents: read
+      issues: write    # Required for label management
 
     steps:
-      # ---------------------------------------------------------------------------
-      # 1) Checkout repository
-      #
-      # • We only need the single commit that triggered the workflow, so the default
-      #   shallow clone (fetch-depth: 1) is fine.
-      # ---------------------------------------------------------------------------
-      - name: 🚚  Checkout code
+      # ————————————————————————————————————————————————————————————————
+      # 1. Checkout repository
+      # ————————————————————————————————————————————————————————————————
+      - name: 🚚 Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      # ---------------------------------------------------------------------------
-      # 2) Synchronize labels
-      #
-      # • The action compares the current repo labels against the manifest and
-      #   creates/updates/deletes as necessary.
-      #
-      # • GITHUB_TOKEN is required, so the action can call the Labels API.
-      # ---------------------------------------------------------------------------
-      - name: 🏷️  Sync labels from manifest
-        uses: micnncim/action-label-syncer@3abd5ab72fda571e69fffd97bd4e0033dd5f495c
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # ————————————————————————————————————————————————————————————————
+      # 2. Validate labels file exists and is valid YAML
+      # ————————————————————————————————————————————————————————————————
+      - name: 📋 Validate labels file
+        run: |
+          if [ ! -f "${{ env.LABELS_FILE }}" ]; then
+            echo "❌ Labels file not found: ${{ env.LABELS_FILE }}"
+            exit 1
+          fi
+
+          echo "✅ Labels file found: ${{ env.LABELS_FILE }}"
+          echo "File size: $(wc -c < "${{ env.LABELS_FILE }}") bytes"
+          echo "Label count: $(grep -c '^- name:' "${{ env.LABELS_FILE }}" || echo 0)"
+
+          # Basic YAML syntax validation
+          python3 -c "
+          import yaml
+          import sys
+          try:
+              with open('${{ env.LABELS_FILE }}', 'r') as f:
+                  labels = yaml.safe_load(f)
+              if not isinstance(labels, list):
+                  print('❌ Labels file must contain a YAML list')
+                  sys.exit(1)
+              print(f'✅ Valid YAML with {len(labels)} labels defined')
+          except yaml.YAMLError as e:
+              print(f'❌ Invalid YAML: {e}')
+              sys.exit(1)
+          except Exception as e:
+              print(f'❌ Error reading file: {e}')
+              sys.exit(1)
+          "
+
+      # ————————————————————————————————————————————————————————————————
+      # 3. Sync labels using native GitHub API
+      # ————————————————————————————————————————————————————————————————
+      - name: 🏷️ Sync labels from manifest
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
-          manifest: .github/labels.yml      # Path to the label manifest
+          github-token: ${{ secrets.GH_PAT_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const yaml = require('js-yaml');
+
+            // Configuration
+            const labelsFile = '${{ env.LABELS_FILE }}';
+            const isDryRun = '${{ github.event.inputs.dry_run }}' === 'true';
+
+            console.log('=== Label Sync Configuration ===');
+            console.log(`Labels file: ${labelsFile}`);
+            console.log(`Dry run mode: ${isDryRun ? 'ENABLED (no changes will be made)' : 'DISABLED (changes will be applied)'}`);
+            console.log(`Repository: ${context.repo.owner}/${context.repo.repo}`);
+
+            // Helper function to normalize color (remove # and ensure lowercase)
+            function normalizeColor(color) {
+              if (!color) return '';
+              return color.replace('#', '').toLowerCase();
+            }
+
+            // Helper function to validate color
+            function isValidColor(color) {
+              const normalized = normalizeColor(color);
+              return /^[0-9a-f]{6}$/i.test(normalized);
+            }
+
+            try {
+              // Read and parse labels file
+              console.log('\n=== Reading Labels Manifest ===');
+              const fileContent = fs.readFileSync(labelsFile, 'utf8');
+              const desiredLabels = yaml.load(fileContent);
+
+              if (!Array.isArray(desiredLabels)) {
+                throw new Error('Labels file must contain a YAML array');
+              }
+
+              console.log(`Found ${desiredLabels.length} labels in manifest`);
+
+              // Validate all labels in manifest
+              const validationErrors = [];
+              desiredLabels.forEach((label, index) => {
+                if (!label.name) {
+                  validationErrors.push(`Label ${index + 1}: missing 'name' field`);
+                }
+                if (!label.color || !isValidColor(label.color)) {
+                  validationErrors.push(`Label "${label.name}": invalid or missing color (must be 6-digit hex)`);
+                }
+                if (!label.description) {
+                  validationErrors.push(`Label "${label.name}": missing 'description' field`);
+                }
+              });
+
+              if (validationErrors.length > 0) {
+                console.log('\n❌ Validation Errors:');
+                validationErrors.forEach(error => console.log(`  - ${error}`));
+                throw new Error(`Found ${validationErrors.length} validation errors in labels manifest`);
+              }
+
+              console.log('✅ All labels in manifest are valid');
+
+              // Get current repository labels
+              console.log('\n=== Fetching Current Repository Labels ===');
+              const { data: currentLabels } = await github.rest.issues.listLabelsForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                per_page: 100
+              });
+
+              console.log(`Found ${currentLabels.length} existing labels in repository`);
+
+              // Create maps for easier comparison
+              const desiredMap = new Map();
+              desiredLabels.forEach(label => {
+                desiredMap.set(label.name, {
+                  name: label.name,
+                  description: label.description || '',
+                  color: normalizeColor(label.color)
+                });
+              });
+
+              const currentMap = new Map();
+              currentLabels.forEach(label => {
+                currentMap.set(label.name, {
+                  name: label.name,
+                  description: label.description || '',
+                  color: normalizeColor(label.color)
+                });
+              });
+
+              // Determine what actions need to be taken
+              const toCreate = [];
+              const toUpdate = [];
+              const toDelete = [];
+
+              // Check for labels to create or update
+              for (const [name, desired] of desiredMap) {
+                if (!currentMap.has(name)) {
+                  toCreate.push(desired);
+                } else {
+                  const current = currentMap.get(name);
+                  if (current.description !== desired.description || current.color !== desired.color) {
+                    toUpdate.push({ current, desired });
+                  }
+                }
+              }
+
+              // Check for labels to delete (labels that exist but aren't in manifest)
+              // NOTE: Be careful with this - you might want to disable deletion
+              // Uncomment the next block if you want to delete labels not in manifest
+              /*
+              for (const [name, current] of currentMap) {
+                if (!desiredMap.has(name)) {
+                  toDelete.push(current);
+                }
+              }
+              */
+
+              // Report planned actions
+              console.log('\n=== Planned Actions ===');
+              console.log(`Labels to create: ${toCreate.length}`);
+              console.log(`Labels to update: ${toUpdate.length}`);
+              console.log(`Labels to delete: ${toDelete.length}`);
+
+              if (toCreate.length === 0 && toUpdate.length === 0 && toDelete.length === 0) {
+                console.log('✅ No changes needed - labels are already in sync!');
+                return;
+              }
+
+              // Show detailed changes
+              if (toCreate.length > 0) {
+                console.log('\n📝 Labels to CREATE:');
+                toCreate.forEach(label => {
+                  console.log(`  + "${label.name}" (${label.color}) - ${label.description}`);
+                });
+              }
+
+              if (toUpdate.length > 0) {
+                console.log('\n📝 Labels to UPDATE:');
+                toUpdate.forEach(({ current, desired }) => {
+                  console.log(`  ~ "${desired.name}"`);
+                  if (current.color !== desired.color) {
+                    console.log(`    Color: ${current.color} → ${desired.color}`);
+                  }
+                  if (current.description !== desired.description) {
+                    console.log(`    Description: "${current.description}" → "${desired.description}"`);
+                  }
+                });
+              }
+
+              if (toDelete.length > 0) {
+                console.log('\n📝 Labels to DELETE:');
+                toDelete.forEach(label => {
+                  console.log(`  - "${label.name}" (${label.color}) - ${label.description}`);
+                });
+              }
+
+              if (isDryRun) {
+                console.log('\n🔍 DRY RUN MODE - No changes will be applied');
+                console.log('Remove dry_run parameter or set to false to apply changes');
+                return;
+              }
+
+              // Apply changes
+              console.log('\n=== Applying Changes ===');
+              let successCount = 0;
+              let errorCount = 0;
+
+              // Create new labels
+              for (const label of toCreate) {
+                try {
+                  await github.rest.issues.createLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    name: label.name,
+                    description: label.description,
+                    color: label.color
+                  });
+                  console.log(`✅ Created label: "${label.name}"`);
+                  successCount++;
+                } catch (error) {
+                  console.log(`❌ Failed to create label "${label.name}": ${error.message}`);
+                  errorCount++;
+                }
+              }
+
+              // Update existing labels
+              for (const { current, desired } of toUpdate) {
+                try {
+                  await github.rest.issues.updateLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    name: current.name,
+                    new_name: desired.name,
+                    description: desired.description,
+                    color: desired.color
+                  });
+                  console.log(`✅ Updated label: "${desired.name}"`);
+                  successCount++;
+                } catch (error) {
+                  console.log(`❌ Failed to update label "${desired.name}": ${error.message}`);
+                  errorCount++;
+                }
+              }
+
+              // Delete labels (if enabled)
+              for (const label of toDelete) {
+                try {
+                  await github.rest.issues.deleteLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    name: label.name
+                  });
+                  console.log(`✅ Deleted label: "${label.name}"`);
+                  successCount++;
+                } catch (error) {
+                  console.log(`❌ Failed to delete label "${label.name}": ${error.message}`);
+                  errorCount++;
+                }
+              }
+
+              // Final summary
+              console.log('\n=== Sync Complete ===');
+              console.log(`✅ Successful operations: ${successCount}`);
+              console.log(`❌ Failed operations: ${errorCount}`);
+              console.log(`📊 Total changes: ${successCount + errorCount}`);
+
+              if (errorCount > 0) {
+                console.log('\n⚠️ Some operations failed. Check the logs above for details.');
+                // Don't fail the workflow for partial failures
+                // throw new Error(`${errorCount} label operations failed`);
+              } else if (successCount > 0) {
+                console.log('\n🎉 All label synchronization operations completed successfully!');
+              }
+
+            } catch (error) {
+              console.error(`\n❌ Label sync failed: ${error.message}`);
+              throw error;
+            }
+
+      # ————————————————————————————————————————————————————————————————
+      # 4. Verify sync results (optional)
+      # ————————————————————————————————————————————————————————————————
+      - name: 🔍 Verify sync results
+        if: github.event.inputs.dry_run != 'true'
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ secrets.GH_PAT_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const yaml = require('js-yaml');
+
+            console.log('=== Verifying Label Sync Results ===');
+
+            try {
+              // Read desired labels
+              const fileContent = fs.readFileSync('${{ env.LABELS_FILE }}', 'utf8');
+              const desiredLabels = yaml.load(fileContent);
+
+              // Get current labels after sync
+              const { data: currentLabels } = await github.rest.issues.listLabelsForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                per_page: 100
+              });
+
+              const currentMap = new Map();
+              currentLabels.forEach(label => {
+                currentMap.set(label.name, label);
+              });
+
+              let missingCount = 0;
+              let mismatchCount = 0;
+
+              // Check if all desired labels exist and match
+              for (const desired of desiredLabels) {
+                const current = currentMap.get(desired.name);
+                if (!current) {
+                  console.log(`❌ Missing label: "${desired.name}"`);
+                  missingCount++;
+                } else {
+                  const normalizedDesiredColor = desired.color.replace('#', '').toLowerCase();
+                  const normalizedCurrentColor = current.color.toLowerCase();
+
+                  if (normalizedCurrentColor !== normalizedDesiredColor ||
+                      current.description !== desired.description) {
+                    console.log(`⚠️ Label mismatch: "${desired.name}"`);
+                    if (normalizedCurrentColor !== normalizedDesiredColor) {
+                      console.log(`  Color: expected ${normalizedDesiredColor}, got ${normalizedCurrentColor}`);
+                    }
+                    if (current.description !== desired.description) {
+                      console.log(`  Description: expected "${desired.description}", got "${current.description}"`);
+                    }
+                    mismatchCount++;
+                  }
+                }
+              }
+
+              if (missingCount === 0 && mismatchCount === 0) {
+                console.log('✅ Verification passed - all labels are correctly synchronized!');
+              } else {
+                console.log(`⚠️ Verification found issues: ${missingCount} missing, ${mismatchCount} mismatched`);
+              }
+
+            } catch (error) {
+              console.error(`❌ Verification failed: ${error.message}`);
+              // Don't fail the workflow for verification issues
+            }
+
+      # ————————————————————————————————————————————————————————————————
+      # 5. Final status report
+      # ————————————————————————————————————————————————————————————————
+      - name: 📊 Report final status
+        run: |
+          echo "=== Label Sync Workflow Complete ==="
+          echo "🕐 Completed: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "📁 Labels file: ${{ env.LABELS_FILE }}"
+          echo "🔧 Mode: ${{ github.event.inputs.dry_run == 'true' && 'DRY RUN' || 'LIVE' }}"
+          echo "📊 Check the job logs above for detailed operation results"
