@@ -107,11 +107,12 @@ Code must be cleanly formatted and pass all linters before being committed.
 ```bash
 go fmt ./...
 goimports -w .
+gofumpt -w ./...
 golangci-lint run
 go vet ./...
 ```
 
-> Refer to `.golangci.json` for the full set of enabled linters.
+> Refer to `.golangci.json` for the full set of enabled linters and formatters.
 
 Editors should honor `.editorconfig` for indentation and whitespace rules, and
 Git respects `.gitattributes` to enforce consistent line endings across
@@ -123,15 +124,17 @@ platforms.
 
 We use the `testify` suite for unit tests. All tests must follow these conventions:
 
-* Name tests using the pattern: `TestFunctionName_ScenarioDescription`
+* Name tests using the pattern: `TestFunctionNameScenarioDescription` (no underscores) (PascalCase)
+* Use `testify` when possible, do not use `testing` directly
 * Use `testify/assert` for general assertions
 * Use `testify/require` for:
     * All error or nil checks
     * Any test where failure should halt execution
     * Any test where a pointer or complex structure is required to be used after the check
 * Use `require.InDelta` or `require.InEpsilon` for floating-point comparisons
-* Prefer **table-driven tests** for clarity and reusability
+* Prefer **table-driven tests** for clarity and reusability, always have a name for each test case
 * Use subtests (`t.Run`) to isolate and describe scenarios
+* If the test is in a test suite, always use the test suite instead of `t` directly
 * **Optionally use** `t.Parallel()` , but try and avoid it unless testing for concurrency issues
 * Avoid flaky, timing-sensitive, or non-deterministic tests
 
@@ -582,9 +585,8 @@ We follow **Semantic Versioning (✧ SemVer)**:
 | Step | Command                         | Purpose                                                                                            |
 |------|---------------------------------|----------------------------------------------------------------------------------------------------|
 | 1    | `make release-snap`             | Build & upload a **snapshot** (pre‑release) for quick CI validation.                               |
-| 2    | `make tag version=X.Y.Z`        | Create and push a signed Git tag. Triggers GitHub Actions.                                         |
+| 2    | `make tag version=X.Y.Z`        | Create and push a signed Git tag. Triggers GitHub Actions to package the release                   |
 | 3    | GitHub Actions                  | CI runs `goreleaser release` on the tag; artifacts and changelog are published to GitHub Releases. |
-| 4    | `make release` (optional local) | Manually invoke the production release if needed.                                                  |
 
 > **Note for AI Agents:** Do not create or push tags automatically. Only the repository [codeowners](CODEOWNERS) are authorized to tag and publish official releases.
 
@@ -645,7 +647,7 @@ Current labels are located in `.github/labels.yml` and automatically synced into
 
 CI automatically runs on every PR to verify:
 
-* Formatting (`go fmt` and `goimports`)
+* Formatting (`go fmt` and `goimports` and `gofumpt`)
 * Linting (`golangci-lint run`)
 * Tests (`go test ./...`)
 * Fuzz tests (if applicable) (`make run-fuzz-tests`)
@@ -696,6 +698,12 @@ Dependency hygiene is critical for security, reproducibility, and developer expe
 * Run via make command:
 ```bash
   make govulncheck
+```
+
+* Run [gitleaks](https://github.com/gitleaks/gitleaks) before committing code to detect hardcoded secrets or sensitive data in the repository:
+```bash
+brew install gitleaks
+gitleaks detect --source . --log-opts="--all" --verbose
 ```
 
 * Run [OSSAR](https://github.com/github/ossar-action) to perform additional static analysis security checks (see `.github/workflows/ossar.yml`).
@@ -750,6 +758,7 @@ All contributors are expected to append entries here when making meaningful chan
 
 | Date       | Author   | Summary of Changes                                    |
 |------------|----------|-------------------------------------------------------|
+| 2025-07-07 | @mrz1836 | Minor mods in formatting, linting, gitleaks           |
 | 2025-06-30 | @mrz1836 | Added pre-commit hook guidelines and config reference |
 | 2025-06-27 | @mrz1836 | Adapted to fix this project                           |
 > For minor edits (typos, formatting), this log update is optional. For all behavioral or structural changes, log entries are **required**.
