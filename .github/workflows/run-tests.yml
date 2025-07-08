@@ -14,12 +14,14 @@ env:
   GO111MODULE: on
 
 on:
-  pull_request:
-    branches:
-      - "*"
   push:
     branches:
-      - "*"
+      - master         # Only test pushes to default branch
+    tags:
+      - 'v*'           # Optional: Run tests on versioned tags
+  pull_request:        # Run tests on all PRs (regardless of target)
+    branches:
+      - '**'
 
 # Cancel older runs of the same branch/PR if a new commit is pushed
 concurrency:
@@ -33,14 +35,11 @@ jobs:
   # ----------------------------------------------------------------------------------
   # Ask Nancy: Dependency Vulnerability Scanning
   #
-  # This job uses the Nancy GitHub Action to scan Go module dependencies for known
-  # vulnerabilities. It runs on every push and pull request, and will not fail the
-  # workflow if vulnerabilities are found (continue-on-error: true). Excludes some
-  # specific vulnerabilities by ID.
+  # This job uses the Nancy GitHub Action to scan Go module dependencies for known vulnerabilities.
   # ----------------------------------------------------------------------------------
   asknancy:
     name: Ask Nancy (check dependencies)
-    runs-on: ubuntu-latest # Use the latest Ubuntu LTS version since we have Nancy pinned to it
+    runs-on: ubuntu-24.04 # Pinned to the latest LTS version (Change to `ubuntu-latest` if you want to use the latest version)
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -48,12 +47,32 @@ jobs:
         run: go list -json -m all > go.list
       - name: Ask Nancy
         uses: sonatype-nexus-community/nancy-github-action@726e338312e68ecdd4b4195765f174d3b3ce1533 # v1.0.3
-        continue-on-error: true
+        continue-on-error: false # Fail the job if vulnerabilities are found
         with:
           nancyCommand: sleuth --loud --exclude-vulnerability CVE-2022-32149
 
+  # ----------------------------------------------------------------------------------
+  # GoVulnCheck: Go Vulnerability Check
+  #
+  # This job uses govulncheck to scan the codebase for known vulnerabilities
+  # ----------------------------------------------------------------------------------
+  govulncheck:
+    name: Run govulncheck (Go vulnerability check)
+    runs-on: ubuntu-24.04 # Pinned to the latest LTS version (Change to `ubuntu-latest` if you want to use the latest version)
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Set up Go
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
+        with:
+          go-version: 1.24.x
+      - name: Install govulncheck
+        run: make govulncheck-install
+      - name: Run govulncheck
+        run: make govulncheck
+
   test:
-    needs: [ asknancy ]
+    needs: [ asknancy, govulncheck ]
     strategy:
       matrix:
         go-version: [ 1.24.x ]
@@ -98,7 +117,7 @@ jobs:
         run: go mod download
 
       # ————————————————————————————————————————————————————————————————
-      # 4.5. Verify that the Makefile help target works
+      # 4.5. Verify that the Makefile help target works (testing makefiles)
       # ————————————————————————————————————————————————————————————————
       - name: Verify make help works
         run: make help
@@ -115,20 +134,16 @@ jobs:
             ${{ runner.os }}-golangci-
 
       # ————————————————————————————————————————————————————————————————
-      # 6. Run vet, linter, and tests (make target handles coverage)
-      #    • Separate vet step makes failures easier to spot in the UI
+      # 6. Run vet first to catch any obvious issues
       # ————————————————————————————————————————————————————————————————
       - name: Go vet
         run: go vet -v ./...
 
+      # ————————————————————————————————————————————————————————————————
+      # 7. Run linter and tests
+      # ————————————————————————————————————————————————————————————————
       - name: Run linter and tests
-        run: make test-ci          # assumes this target runs golangci-lint + tests
-
-      # ————————————————————————————————————————————————————————————————
-      # 7. Scan for vulnerabilities with govulncheck
-      # ————————————————————————————————————————————————————————————————
-      - name: Run govulncheck
-        run: make govulncheck
+        run: make test-ci
 
       # ————————————————————————————————————————————————————————————————
       # 8. Upload coverage to Codecov
