@@ -40,6 +40,12 @@ coverage: ## Show test coverage
 	@echo "Generating coverage report..."
 	@go test -coverprofile=coverage.out ./... $(TAGS) && go tool cover -func=coverage.out
 
+.PHONY: fumpt
+fumpt: ## Run fumpt to format Go code
+	@echo "Running fumpt..."
+	@go install mvdan.cc/gofumpt@latest
+	@gofumpt -w -extra .
+
 .PHONY: generate
 generate: ## Run go generate in the base of the repo
 	@echo "Running go generate..."

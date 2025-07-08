@@ -412,6 +412,7 @@ citation              ## Update version in CITATION.cff (use version=X.Y.Z)
 clean-mods            ## Remove all the Go mod cache
 coverage              ## Show test coverage
 diff                  ## Show git diff and fail if uncommitted changes exist
+fumpt                 ## Run fumpt to format Go code
 generate              ## Run go generate in the base of the repo
 godocs                ## Trigger GoDocs tag sync
 govulncheck-install   ## Install govulncheck
