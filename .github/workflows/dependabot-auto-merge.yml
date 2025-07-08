@@ -252,7 +252,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MERGE_LABELS: "automerge"   # must match label we just added
-          MERGE_METHOD: merge
+          MERGE_METHOD: squash
           MERGE_COMMIT_MESSAGE: pull-request-title
           MERGE_RETRIES: "30"      # up to ~30 minutes
           MERGE_RETRY_SLEEP: "60000"
