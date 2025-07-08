@@ -1,176 +1,208 @@
 # ------------------------------------------------------------------------------
-#  Auto Merge on Approval Workflow
+#  Auto-Enable Merge on Approval Workflow
 #
-#  Purpose: Automatically merge PRs once all approval and CI conditions pass.
+#  Purpose: Automatically ENABLE auto-merge for PRs when approval and
+#           readiness conditions are met, then let GitHub handle the actual merge
 #
-#  Triggers: Pull‑request events, review submissions, and completed checks.
+#  Triggers: Pull‑request events and review submissions
 #
 #  Maintainer: @mrz1836
 #
-#  Rules for Auto‑Merge:
+#  Rules for Auto‑Merge Enablement:
 #    • ≥1 approval review
 #    • No requested reviewers remaining
 #    • No "Changes Requested" reviews
-#    • All required status checks pass:
-#        - test (1.24.x, ubuntu-24.04) (min version)
-#        - test (1.24.x, macos-15) (min version)
-#        - Analyze (go) (codeql analysis)
-#    • Title must not contain "WIP"
-#    • PR must not have the "work-in-progress" label
-#    • PR must not be a draft
+#    • PR ready for review (not draft, no WIP indicators)
+#    • NOT authored by bots (handled by separate Dependabot workflow)
+#    • Uses GitHub's native auto-merge (waits for ALL status checks automatically)
 # ------------------------------------------------------------------------------
 
-name: auto-merge-on-approval
+name: auto-enable-merge-on-approval
 
 on:
-  pull_request:
-    types:
-      [ opened, synchronize, reopened, ready_for_review, labeled, unlabeled, edited, review_requested, review_request_removed ]
   pull_request_review:
-    types: [ submitted ]
-  check_suite:
-    types: [ completed ]
-  status: { }
-
-# Cancel older runs of the same PR if a new commit is pushed
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+    types: [submitted]
+  pull_request:
+    types: [ready_for_review, review_request_removed]
 
 permissions:
   contents: read
   pull-requests: read
 
-jobs:
-  automerge:
-    permissions:
-      pull-requests: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
+jobs:
+  auto-enable-merge:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+      pull-requests: write
+
+    # Skip bot PRs - they have their own workflow
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
+
     steps:
-      - name: Attempt auto‑merge
+      # -----------------------------------------------------------------------
+      # 1. Get PR information and validate conditions
+      # -----------------------------------------------------------------------
+      - name: Check PR conditions and enable auto-merge
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GH_PAT_TOKEN }}
           script: |
-            // core and github are already available in github-script
+            const { owner, repo } = context.repo;
+            const prNumber = context.payload.pull_request.number;
+
+            // Get fresh PR data
+            const { data: pr } = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: prNumber,
+            });
+
+            console.log(`Checking auto-merge conditions for PR #${prNumber}: "${pr.title}"`);
 
             // ------------------------------------------------------------------
-            // Locate the pull request (handles pull_request, check_suite, status)
+            // Check basic PR conditions
             // ------------------------------------------------------------------
-            const owner = context.payload.repository.owner.login;
-            const repo = context.payload.repository.name;
-            let pr = context.payload.pull_request;
-            if (!pr) {
-              // check_suite/status → find PR by HEAD SHA
-              const sha = context.payload.check_suite?.head_sha || context.payload.sha;
-              if (sha) {
-                const { data: prs } = await github.rest.pulls.list({
-                  owner,
-                  repo,
-                  head:  `${owner}:${sha}`,
-                  state: 'open',
-                });
-                pr = prs[0];
-              }
+            const isDraft = pr.draft;
+            const title = pr.title || '';
+            const labels = pr.labels.map(l => l.name);
+            const titleHasWip = /\b(wip|work.in.progress)\b/i.test(title);
+            const hasWipLabel = labels.includes('work-in-progress');
+
+            if (isDraft) {
+              console.log('⏭️ PR is draft - skipping auto-merge');
+              return;
             }
-            if (!pr) {
-              core.info('PR not found (may be closed), skipping.');
+
+            if (titleHasWip || hasWipLabel) {
+              console.log('⏭️ PR has WIP indicators - skipping auto-merge');
               return;
             }
 
             // ------------------------------------------------------------------
-            // Skip PRs authored by bots (Dependabot / Codecov / etc.)
+            // Check review conditions
             // ------------------------------------------------------------------
-            //const botLogins = [
-            //  'dependabot[bot]',
-            //  'dependabot-preview[bot]',
-            //  'codecov[bot]',
-            //];
-            //if (botLogins.includes(pr.user.login)) {
-            //  core.info(`Skipping auto‑merge for bot‑authored PR (#${pr.number})`);
-            //  return;
-            //}
-
-            // ------------------------------------------------------------------
-            // Gather PR metadata
-            // ------------------------------------------------------------------
-            const prNumber = pr.number;
-            const title    = pr.title || '';
-            const labels   = pr.labels.map(l => l.name);
-            const isDraft  = pr.draft;
-
-            // Reviews
             const { data: reviews } = await github.rest.pulls.listReviews({
               owner,
               repo,
               pull_number: prNumber,
             });
-            const approvals        = reviews.filter(r => r.state === 'APPROVED').length;
-            const changesRequested = reviews.filter(r => r.state === 'CHANGES_REQUESTED').length;
 
-            // Requested reviewers
-            const requestedReviewers = pr.requested_reviewers || [];
-
-            // Required checks
-            const requiredChecks = [
-              'test (1.24.x, ubuntu-24.04)',
-              'test (1.24.x, macos-15)',
-              'Analyze (go)',
-            ];
-            const sha = pr.head.sha;
-            const { data: checks } = await github.rest.checks.listForRef({
-              owner,
-              repo,
-              ref: sha,
-            });
-            const checkRuns = checks.check_runs || [];
-            const checksPass = requiredChecks.every(name => {
-              const run = checkRuns.find(c => c.name === name);
-              return run && run.conclusion === 'success';
+            // Get latest review per user (GitHub API returns all reviews)
+            const latestReviews = {};
+            reviews.forEach(review => {
+              const userId = review.user.id;
+              if (!latestReviews[userId] || review.submitted_at > latestReviews[userId].submitted_at) {
+                latestReviews[userId] = review;
+              }
             });
 
-            // WIP indicators
-            const titleHasWip = /wip/i.test(title);
-            const hasWipLabel = labels.includes('work-in-progress');
+            const currentReviews = Object.values(latestReviews);
+            const approvals = currentReviews.filter(r => r.state === 'APPROVED').length;
+            const changesRequested = currentReviews.filter(r => r.state === 'CHANGES_REQUESTED').length;
+            const requestedReviewers = (pr.requested_reviewers || []).length;
+
+            console.log(`Reviews: ${approvals} approvals, ${changesRequested} changes requested, ${requestedReviewers} pending`);
 
             // ------------------------------------------------------------------
-            // Merge or explain why not
+            // Check if auto-merge should be enabled
             // ------------------------------------------------------------------
-            if (
+            const shouldEnableAutoMerge = (
               approvals >= 1 &&
-              requestedReviewers.length === 0 &&
               changesRequested === 0 &&
-              checksPass &&
-              !titleHasWip &&
-              !hasWipLabel &&
-              !isDraft
-            ) {
-              try {
-                await github.rest.pulls.merge({
-                  owner,
-                  repo,
-                  pull_number: prNumber,
-                  merge_method: 'merge',
-                });
-                console.log(`✅ Pull request #${prNumber} merged.`);
-              } catch (error) {
-                core.setFailed(`❌ Failed to merge PR #${prNumber}: ${error.message}`);
+              requestedReviewers === 0
+            );
+
+            if (!shouldEnableAutoMerge) {
+              if (approvals < 1) console.log('⏭️ Needs at least 1 approval');
+              if (changesRequested > 0) console.log('⏭️ Has "Changes Requested" reviews');
+              if (requestedReviewers > 0) console.log('⏭️ Has pending reviewer requests');
+              return;
+            }
+
+            // ------------------------------------------------------------------
+            // Enable auto-merge using GitHub CLI
+            // ------------------------------------------------------------------
+            try {
+              // Check if auto-merge is already enabled
+              if (pr.auto_merge) {
+                console.log('✅ Auto-merge already enabled');
+                return;
               }
-            } else {
-              if (approvals < 1)           console.log('⏭  Less than 1 approval.');
-              if (requestedReviewers.length)
-                                           console.log('⏭  Still has requested reviewers.');
-              if (changesRequested)        console.log('⏭   "Changes Requested" reviews present.');
-              if (!checksPass) {
-                const failed = requiredChecks.filter(name => {
-                  const run = checkRuns.find(c => c.name === name);
-                  return !(run && run.conclusion === 'success');
-                });
-                console.log(`⏭  Required checks failed: ${failed.join(', ')}`);
-              }
-              if (titleHasWip)             console.log('⏭  Title contains  "WIP".');
-              if (hasWipLabel)             console.log('⏭  Has  "work-in-progress" label.');
-              if (isDraft)                 console.log('⏭  PR is a draft.');
+
+              // Enable auto-merge (GitHub will wait for all required status checks)
+              const { execSync } = require('child_process');
+              const prUrl = pr.html_url;
+
+              execSync(`gh pr merge --auto --squash "${prUrl}"`, {
+                env: {
+                  ...process.env,
+                  GH_TOKEN: process.env.GITHUB_TOKEN
+                },
+                stdio: 'inherit'
+              });
+
+              console.log('✅ Auto-merge enabled! PR will merge when all status checks pass.');
+
+              // Add a comment to notify
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: prNumber,
+                body: `🤖 **Auto-merge enabled**\n\nThis PR will automatically merge when all required status checks pass.`
+              });
+
+            } catch (error) {
+              console.error('❌ Failed to enable auto-merge:', error.message);
+
+              // Comment on failure
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: prNumber,
+                body: `⚠️ **Auto-merge failed**\n\nCould not enable auto-merge: ${error.message}`
+              });
+            }
+
+      # -----------------------------------------------------------------------
+      # 2. Disable auto-merge if conditions change
+      # -----------------------------------------------------------------------
+      - name: Disable auto-merge if conditions no longer met
+        if: github.event.action == 'submitted' && github.event.review.state == 'CHANGES_REQUESTED'
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ secrets.GH_PAT_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const prNumber = context.payload.pull_request.number;
+
+            try {
+              const { execSync } = require('child_process');
+              const prUrl = context.payload.pull_request.html_url;
+
+              // Disable auto-merge
+              execSync(`gh pr merge --disable-auto "${prUrl}"`, {
+                env: {
+                  ...process.env,
+                  GH_TOKEN: process.env.GITHUB_TOKEN
+                },
+                stdio: 'inherit'
+              });
+
+              console.log('🛑 Auto-merge disabled due to "Changes Requested" review');
+
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: prNumber,
+                body: `🛑 **Auto-merge disabled**\n\nChanges were requested in a review. Auto-merge will be re-enabled when conditions are met again.`
+              });
+
+            } catch (error) {
+              console.log('ℹ️ Could not disable auto-merge (may not have been enabled):', error.message);
             }
