@@ -1,12 +1,12 @@
 # ------------------------------------------------------------------------------------
 #  Stale Check Workflow
 #
-#  Purpose: Warn about (and optionally close) inactive issues and PRs.
-#           Runs every weekday at 08:32 UTC and can be triggered manually.
+#  Purpose: Warn about and close inactive issues and PRs
 #
-#  Triggers  : Scheduled (Mon-Fri at 08:32 UTC) and manual dispatch.
+#  Triggers: Scheduled (Mon-Fri at 08:32 UTC) and manual dispatch.
 #
 #  Maintainer: @mrz1836
+#
 # ------------------------------------------------------------------------------------
 
 name: stale-check
@@ -15,48 +15,377 @@ on:
   schedule:
     # ┌─ min  ─┬─ hour ─┬─ dom ─┬─ mon ─┬─ dow ─┐
     - cron: '32 8 * * 1-5'         # Mon‑Fri at 08:32 UTC
-  workflow_dispatch:               # allow a manual run
+  workflow_dispatch:               # Allow manual triggering
 
+# ----------------------------------------------------------------------------
+# Minimal top-level permissions
+# ----------------------------------------------------------------------------
 permissions:
-  # Both scopes are required even if you only stale one object type.
-  # See https://github.com/actions/stale/issues/840
-  issues: write
-  pull-requests: write
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# ----------------------------------------------------------------------------
+# Configuration - easily adjustable
+# ----------------------------------------------------------------------------
+env:
+  DAYS_BEFORE_STALE: 60
+  DAYS_BEFORE_CLOSE: 14
+  STALE_LABEL: stale
+  EXEMPT_ISSUE_LABELS: work-in-progress,security,requires-manual-review
+  EXEMPT_PR_LABELS: work-in-progress,security,requires-manual-review
+  OPERATIONS_PER_RUN: 300
 
 jobs:
-  stale:
+  # ---------------------------------------------------------------------------
+  # Main job: Process stale issues and PRs
+  # ---------------------------------------------------------------------------
+  stale-check:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
 
     steps:
-      - name: Close stale issues & PRs
-        uses: actions/stale@5bef64f19d7facfb25b37b414482c7164d639639 # v9.1.0
+      # ————————————————————————————————————————————————————————————————
+      # 1. Calculate cutoff dates for stale detection
+      # ————————————————————————————————————————————————————————————————
+      - name: Calculate cutoff dates
+        id: dates
+        run: |
+          # Calculate dates for stale marking and closing
+          stale_date=$(date -d "${{ env.DAYS_BEFORE_STALE }} days ago" --iso-8601)
+          close_date=$(date -d "$(( ${{ env.DAYS_BEFORE_STALE }} + ${{ env.DAYS_BEFORE_CLOSE }} )) days ago" --iso-8601)
+
+          echo "stale_cutoff=${stale_date}" >> $GITHUB_OUTPUT
+          echo "close_cutoff=${close_date}" >> $GITHUB_OUTPUT
+
+          echo "=== Stale Check Configuration ==="
+          echo "Stale cutoff date: ${stale_date} (${DAYS_BEFORE_STALE} days ago)"
+          echo "Close cutoff date: ${close_date} ($(( ${DAYS_BEFORE_STALE} + ${DAYS_BEFORE_CLOSE} )) days ago)"
+          echo "Stale label: ${{ env.STALE_LABEL }}"
+          echo "Operations limit: ${{ env.OPERATIONS_PER_RUN }}"
+
+      # ————————————————————————————————————————————————————————————————
+      # 2. Process issues for stale marking and closing
+      # ————————————————————————————————————————————————————————————————
+      - name: Process stale issues
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
-          # —————————————————— Core behaviour ——————————————————
-          days-before-stale: 60                 # warn after 60 days
-          days-before-close: 14                 # close 14 days later
-          stale-issue-label: stale
-          stale-pr-label: stale
-          close-issue-message: >
-            This issue was automatically closed after **{{ days }} days** of
-            inactivity. If this is still relevant, feel free to re‑open.
-          close-pr-message: >
-            This PR was automatically closed after **{{ days }} days** of
-            inactivity. If you plan to resume work, please re‑open.
-          stale-issue-message: >
-            This issue has been inactive for **{{ days }} days** and will be
-            closed in {{ daysUntilClose }} days if no further activity occurs.
-          stale-pr-message: >
-            This pull request has been inactive for **{{ days }} days** and will
-            be closed in {{ daysUntilClose }} days if no further activity occurs.
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const staleCutoff = '${{ steps.dates.outputs.stale_cutoff }}';
+            const closeCutoff = '${{ steps.dates.outputs.close_cutoff }}';
+            const staleLabel = '${{ env.STALE_LABEL }}';
+            const exemptLabels = '${{ env.EXEMPT_ISSUE_LABELS }}'.split(',').map(l => l.trim()).filter(l => l);
+            const operationsLimit = parseInt('${{ env.OPERATIONS_PER_RUN }}');
 
-          # —————————————————— Quality‑of‑life filters ——————————————————
-          exempt-issue-labels: pinned,never-stale
-          exempt-pr-labels: work-in-progress,never-stale
-          exempt-draft-pr: true             # ignore draft PRs
-          remove-stale-when-updated: true   # clear label on any activity
-          only-labels: ''                   # process everything (override if needed)
+            console.log('=== Processing Issues ===');
+            console.log(`Exempt labels: ${exemptLabels.join(', ')}`);
 
-          # —————————————————— API‑usage optimization ——————————————————
-          # Avoid hitting secondary‑rate limits on large repos.
-          operations-per-run: 300
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+            let operationsCount = 0;
+            let processedCount = 0;
+            let markedStaleCount = 0;
+            let closedCount = 0;
+
+            // Helper function to check if issue has exempt labels
+            function hasExemptLabel(issue) {
+              const issueLabels = issue.labels.map(label => label.name);
+              return exemptLabels.some(exempt => issueLabels.includes(exempt));
+            }
+
+            // Helper function to check if issue is already stale
+            function isAlreadyStale(issue) {
+              return issue.labels.some(label => label.name === staleLabel);
+            }
+
+            // Get all open issues with pagination
+            const iterator = github.paginate.iterator(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              sort: 'updated',
+              direction: 'asc',
+              per_page: 100
+            });
+
+            for await (const { data: issues } of iterator) {
+              for (const issue of issues) {
+                // Skip pull requests (they're handled separately)
+                if (issue.pull_request) continue;
+
+                // Stop if we've hit our operations limit
+                if (operationsCount >= operationsLimit) {
+                  console.log(`⚠️ Reached operations limit (${operationsLimit}), stopping`);
+                  break;
+                }
+
+                processedCount++;
+                const updatedAt = new Date(issue.updated_at);
+                const daysSinceUpdate = Math.floor((Date.now() - updatedAt.getTime()) / (1000 * 60 * 60 * 24));
+
+                console.log(`Processing issue #${issue.number}: "${issue.title}" (updated ${daysSinceUpdate} days ago)`);
+
+                // Skip if issue has exempt labels
+                if (hasExemptLabel(issue)) {
+                  console.log(`  ⏭️ Skipping: has exempt label`);
+                  continue;
+                }
+
+                const alreadyStale = isAlreadyStale(issue);
+
+                // Check if issue should be closed (already stale + past close cutoff)
+                if (alreadyStale && updatedAt < new Date(closeCutoff)) {
+                  try {
+                    await github.rest.issues.createComment({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: issue.number,
+                      body: `This issue was automatically closed after **${daysSinceUpdate} days** of inactivity. If this is still relevant, feel free to re‑open.`
+                    });
+
+                    await github.rest.issues.update({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: issue.number,
+                      state: 'closed'
+                    });
+
+                    console.log(`  ✅ Closed issue #${issue.number}`);
+                    closedCount++;
+                    operationsCount += 2;
+                  } catch (error) {
+                    console.log(`  ❌ Failed to close issue #${issue.number}: ${error.message}`);
+                  }
+                }
+                // Check if issue should be marked as stale
+                else if (!alreadyStale && updatedAt < new Date(staleCutoff)) {
+                  try {
+                    await github.rest.issues.addLabels({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: issue.number,
+                      labels: [staleLabel]
+                    });
+
+                    await github.rest.issues.createComment({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: issue.number,
+                      body: `This issue has been inactive for **${daysSinceUpdate} days** and will be closed in ${{ env.DAYS_BEFORE_CLOSE }} days if no further activity occurs.`
+                    });
+
+                    console.log(`  🏷️ Marked issue #${issue.number} as stale`);
+                    markedStaleCount++;
+                    operationsCount += 2;
+                  } catch (error) {
+                    console.log(`  ❌ Failed to mark issue #${issue.number} as stale: ${error.message}`);
+                  }
+                }
+                else {
+                  console.log(`  ✅ Issue #${issue.number} is still active`);
+                }
+              }
+
+              if (operationsCount >= operationsLimit) break;
+            }
+
+            console.log('\n=== Issues Summary ===');
+            console.log(`Processed: ${processedCount} issues`);
+            console.log(`Marked stale: ${markedStaleCount} issues`);
+            console.log(`Closed: ${closedCount} issues`);
+            console.log(`Operations used: ${operationsCount}/${operationsLimit}`);
+
+      # ————————————————————————————————————————————————————————————————
+      # 3. Process pull-requests for stale marking and closing
+      # ————————————————————————————————————————————————————————————————
+      - name: Process stale pull requests
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const staleCutoff = '${{ steps.dates.outputs.stale_cutoff }}';
+            const closeCutoff = '${{ steps.dates.outputs.close_cutoff }}';
+            const staleLabel = '${{ env.STALE_LABEL }}';
+            const exemptLabels = '${{ env.EXEMPT_PR_LABELS }}'.split(',').map(l => l.trim()).filter(l => l);
+            const operationsLimit = parseInt('${{ env.OPERATIONS_PER_RUN }}');
+
+            console.log('\n=== Processing Pull Requests ===');
+            console.log(`Exempt labels: ${exemptLabels.join(', ')}`);
+
+            let operationsCount = 0;
+            let processedCount = 0;
+            let markedStaleCount = 0;
+            let closedCount = 0;
+
+            // Helper functions (same as issues)
+            function hasExemptLabel(pr) {
+              const prLabels = pr.labels.map(label => label.name);
+              return exemptLabels.some(exempt => prLabels.includes(exempt));
+            }
+
+            function isAlreadyStale(pr) {
+              return pr.labels.some(label => label.name === staleLabel);
+            }
+
+            // Get all open pull requests with pagination
+            const iterator = github.paginate.iterator(github.rest.pulls.list, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              sort: 'updated',
+              direction: 'asc',
+              per_page: 100
+            });
+
+            for await (const { data: prs } of iterator) {
+              for (const pr of prs) {
+                // Stop if we've hit our operations limit
+                if (operationsCount >= operationsLimit) {
+                  console.log(`⚠️ Reached operations limit (${operationsLimit}), stopping`);
+                  break;
+                }
+
+                processedCount++;
+                const updatedAt = new Date(pr.updated_at);
+                const daysSinceUpdate = Math.floor((Date.now() - updatedAt.getTime()) / (1000 * 60 * 60 * 24));
+
+                console.log(`Processing PR #${pr.number}: "${pr.title}" (updated ${daysSinceUpdate} days ago)`);
+
+                // Skip draft PRs
+                if (pr.draft) {
+                  console.log(`  ⏭️ Skipping: draft PR`);
+                  continue;
+                }
+
+                // Skip if PR has exempt labels
+                if (hasExemptLabel(pr)) {
+                  console.log(`  ⏭️ Skipping: has exempt label`);
+                  continue;
+                }
+
+                const alreadyStale = isAlreadyStale(pr);
+
+                // Check if PR should be closed (already stale + past close cutoff)
+                if (alreadyStale && updatedAt < new Date(closeCutoff)) {
+                  try {
+                    await github.rest.issues.createComment({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: pr.number,
+                      body: `This PR was automatically closed after **${daysSinceUpdate} days** of inactivity. If you plan to resume work, please re‑open.`
+                    });
+
+                    await github.rest.pulls.update({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      pull_number: pr.number,
+                      state: 'closed'
+                    });
+
+                    console.log(`  ✅ Closed PR #${pr.number}`);
+                    closedCount++;
+                    operationsCount += 2;
+                  } catch (error) {
+                    console.log(`  ❌ Failed to close PR #${pr.number}: ${error.message}`);
+                  }
+                }
+                // Check if PR should be marked as stale
+                else if (!alreadyStale && updatedAt < new Date(staleCutoff)) {
+                  try {
+                    await github.rest.issues.addLabels({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: pr.number,
+                      labels: [staleLabel]
+                    });
+
+                    await github.rest.issues.createComment({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: pr.number,
+                      body: `This pull request has been inactive for **${daysSinceUpdate} days** and will be closed in ${{ env.DAYS_BEFORE_CLOSE }} days if no further activity occurs.`
+                    });
+
+                    console.log(`  🏷️ Marked PR #${pr.number} as stale`);
+                    markedStaleCount++;
+                    operationsCount += 2;
+                  } catch (error) {
+                    console.log(`  ❌ Failed to mark PR #${pr.number} as stale: ${error.message}`);
+                  }
+                }
+                else {
+                  console.log(`  ✅ PR #${pr.number} is still active`);
+                }
+              }
+
+              if (operationsCount >= operationsLimit) break;
+            }
+
+            console.log('\n=== Pull Requests Summary ===');
+            console.log(`Processed: ${processedCount} PRs`);
+            console.log(`Marked stale: ${markedStaleCount} PRs`);
+            console.log(`Closed: ${closedCount} PRs`);
+            console.log(`Operations used: ${operationsCount}/${operationsLimit}`);
+
+      # ————————————————————————————————————————————————————————————————
+      # 4. Clean up stale labels from recently updated items
+      # ————————————————————————————————————————————————————————————————
+      - name: Remove stale labels from updated items
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const staleCutoff = '${{ steps.dates.outputs.stale_cutoff }}';
+            const staleLabel = '${{ env.STALE_LABEL }}';
+
+            console.log('\n=== Cleaning Stale Labels ===');
+            console.log('Looking for recently updated items with stale labels...');
+
+            let removedCount = 0;
+
+            // Find issues with stale label that have been updated recently
+            const staleIssues = await github.rest.search.issuesAndPullRequests({
+              q: `repo:${context.repo.owner}/${context.repo.repo} is:open label:"${staleLabel}" updated:>${staleCutoff}`,
+              per_page: 100
+            });
+
+            for (const item of staleIssues.data.items) {
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: item.number,
+                  name: staleLabel
+                });
+
+                const itemType = item.pull_request ? 'PR' : 'issue';
+                console.log(`  ✅ Removed stale label from ${itemType} #${item.number}: "${item.title}"`);
+                removedCount++;
+              } catch (error) {
+                if (error.status === 404) {
+                  console.log(`  ℹ️ Label not found on #${item.number} (already removed)`);
+                } else {
+                  console.log(`  ❌ Failed to remove stale label from #${item.number}: ${error.message}`);
+                }
+              }
+            }
+
+            console.log(`\n=== Label Cleanup Summary ===`);
+            console.log(`Removed stale labels from: ${removedCount} items`);
+
+      # ————————————————————————————————————————————————————————————————
+      # 5. Final workflow status report
+      # ————————————————————————————————————————————————————————————————
+      - name: Report workflow status
+        run: |
+          echo "=== Stale Check Workflow Complete ==="
+          echo "🕐 Completed: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "📊 Check the job logs above for detailed statistics"
+          echo "⚙️ Configuration:"
+          echo "  - Days before stale: ${{ env.DAYS_BEFORE_STALE }}"
+          echo "  - Days before close: ${{ env.DAYS_BEFORE_CLOSE }}"
+          echo "  - Stale label: ${{ env.STALE_LABEL }}"
+          echo "  - Operations limit: ${{ env.OPERATIONS_PER_RUN }}"
