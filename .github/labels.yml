@@ -64,3 +64,9 @@
 - name: "docker"
   description: "Used for referencing Docker related issues"
   color: 006b75
+- name: "requires-manual-review"
+  description: "PR or issue requires manual review by a maintainer or security team"
+  color: ffd700
+- name: "dependabot"
+  description: "PR or issue created by or related to Dependabot"
+  color: 1a70c7
