@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you find go-template useful in your software or research, please cite this project using the following citation metadata. A citation helps support future development and encourages best practices in software reuse."
 title: "go-template"
-version: "1.0.12"
+version: "1.0.13"
 url: "https://github.com/mrz1836/go-template"
 repository: "https://github.com/mrz1836/go-template"
 repository-code: "https://github.com/mrz1836/go-template"
