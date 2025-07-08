@@ -19,7 +19,7 @@ on:
       - master         # Only test pushes to default branch
     tags:
       - 'v*'           # Optional: Run tests on versioned tags
-  pull_request:        # Run tests on all PRs (regardless of target)
+  pull_request: # Run tests on all PRs (regardless of target)
     branches:
       - '**'
 
@@ -107,8 +107,27 @@ jobs:
       - name: Verify make help works
         run: make help
 
+  # ----------------------------------------------------------------------------------
+  # Goleaks: Secret Detection
+  #
+  # This job uses the Gitleaks GitHub Action to scan for secrets in the codebase.
+  # ----------------------------------------------------------------------------------
+  goleaks:
+    name: Run Gitleaks (secret scan)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run gitleaks scan
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v8.27.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_NOTIFY_USER_LIST: '@mrz1836'
+          GITLEAKS_ENABLE_COMMENTS: 'true'
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: 'true'
+          GITLEAKS_ENABLE_SUMMARY: 'true'
+          GITLEAKS_VERSION: '8.27.2'
+
   test:
-    needs: [ asknancy, govulncheck, govet, testmake ]
+    needs: [ asknancy, goleaks, govulncheck, govet, testmake ]
     strategy:
       matrix:
         go-version: [ 1.24.x ]

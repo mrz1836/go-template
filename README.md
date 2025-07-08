@@ -316,7 +316,6 @@ This glossary describes each tracked file in the repository and notes if it is r
 | [.github/pull_request_template.md](.github/pull_request_template.md)                           | Pull request description template               | GitHub           |
 | [.github/sweep.yaml](.github/sweep.yaml)                                                       | Sweep AI configuration                          | Sweep AI         |
 | [.github/workflows/auto-merge-on-approval.yml](.github/workflows/auto-merge-on-approval.yml)   | Workflow for automatic merges                   | GitHub Actions   |
-| [.github/workflows/check-for-leaks.yml](.github/workflows/check-for-leaks.yml)                 | Secret leak detection workflow                  | GitHub Actions   |
 | [.github/workflows/clean-runner-cache.yml](.github/workflows/clean-runner-cache.yml)           | Cleanup for GitHub runners                      | GitHub Actions   |
 | [.github/workflows/codeql-analysis.yml](.github/workflows/codeql-analysis.yml)                 | CodeQL security analysis workflow               | GitHub Actions   |
 | [.github/workflows/delete-merged-branches.yml](.github/workflows/delete-merged-branches.yml)   | Auto delete merged branches                     | GitHub Actions   |
@@ -453,7 +452,6 @@ vet                   ## Run go vet
 | Workflow Name                                                                | Description                                                                                                                 |
 |------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
 | [auto-merge-on-approval.yml](.github/workflows/auto-merge-on-approval.yml)   | Automatically merges PRs after approval and all required checks, following strict rules.                                    |
-| [check-for-leaks.yml](.github/workflows/check-for-leaks.yml)                 | Runs [gitleaks](https://github.com/gitleaks/gitleaks) to detect secrets on a daily schedule.                                |
 | [clean-runner-cache.yml](.github/workflows/clean-runner-cache.yml)           | Removes GitHub Actions caches tied to closed pull requests.                                                                 |
 | [codeql-analysis.yml](.github/workflows/codeql-analysis.yml)                 | Analyzes code for security vulnerabilities using [GitHub CodeQL](https://codeql.github.com/).                               |
 | [delete-merged-branches.yml](.github/workflows/delete-merged-branches.yml)   | Deletes feature branches after their pull requests are merged.                                                              |
