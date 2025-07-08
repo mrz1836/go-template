@@ -1,11 +1,12 @@
 # ------------------------------------------------------------------------------
 #  Update Pre-commit Hooks Workflow
 #
-#  Purpose: Automatically update pre-commit hooks weekly and open a PR.
+#  Purpose: Automatically update pre-commit hooks weekly and open a PR
 #
-#  Triggers: Runs every Monday at 08:00 UTC and can be triggered manually.
+#  Triggers: Runs every Monday at 08:20 UTC and can be triggered manually.
 #
 #  Maintainer: @mrz1836
+#
 # ------------------------------------------------------------------------------
 
 name: update-pre-commit-hooks
@@ -13,49 +14,66 @@ name: update-pre-commit-hooks
 on:
   schedule:
     # ┌─ min ┬─ hour ┬─ dom ┬─ mon ┬─ dow ┐
-    - cron: '0 8 * * 1'   # Every Monday at 08:00 UTC
+    - cron: '20 8 * * 1'   # Every Monday at 08:20 UTC
   workflow_dispatch:
 
+# ----------------------------------------------------------------------------
+# Minimal top-level permissions
+# ----------------------------------------------------------------------------
 permissions:
   contents: read
-  pull-requests: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  BRANCH_NAME: chore/update-pre-commit-hooks
+  CONFIG_FILE: .pre-commit-config.yaml
+
 jobs:
   update-hooks:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: write        # For creating branches and commits
+      pull-requests: write   # For creating PRs
 
     steps:
-      # -- 1. Checkout full history so we can push a branch -------------------
+      # ————————————————————————————————————————————————————————————————
+      # 1. Checkout repository with PAT for write operations
+      # ————————————————————————————————————————————————————————————————
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          fetch-depth: 0
+          token: ${{ secrets.GH_PAT_TOKEN }}
+          fetch-depth: 0  # Full history for branch operations
 
-      # -- 2. Configure git for authenticated fetches ------------------------
-      - name: Configure git for GitHub authentication
+      # ————————————————————————————————————————————————————————————————
+      # 2. Verify pre-commit configuration exists
+      # ————————————————————————————————————————————————————————————————
+      - name: Verify pre-commit config exists
         run: |
-          git config --global url."https://x-access-token:${{ secrets.GH_PAT_TOKEN }}@github.com/".insteadOf "https://github.com/"
+          if [ ! -f "${{ env.CONFIG_FILE }}" ]; then
+            echo "❌ Pre-commit config not found: ${{ env.CONFIG_FILE }}"
+            echo "Please ensure .pre-commit-config.yaml exists in your repository"
+            exit 1
+          else
+            echo "✅ Pre-commit config found: ${{ env.CONFIG_FILE }}"
+            echo "Current config:"
+            cat "${{ env.CONFIG_FILE }}"
+          fi
 
-      # -- 3. Set commit author identity (fixes 'please tell me who you are')
-      - name: Set git author
-        run: |
-          git config --global user.name  "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      # -- 4. Set up Python ---------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
+      # 3. Set up Python for pre-commit
+      # ————————————————————————————————————————————————————————————————
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: '3.x'
 
-      # -- 5. Cache pip dependencies -----------------------------------------
+      # ————————————————————————————————————————————————————————————————
+      # 4. Cache pip dependencies for faster runs
+      # ————————————————————————————————————————————————————————————————
       - name: Cache pip dependencies
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
@@ -64,45 +82,258 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      # -- 6. Install pre-commit ---------------------------------------------
+      # ————————————————————————————————————————————————————————————————
+      # 5. Install pre-commit
+      # ————————————————————————————————————————————————————————————————
       - name: Install pre-commit
-        run: pip install --require-hashes -r .github/pip-requirements.txt
+        run: |
+          if [ -f ".github/pip-requirements.txt" ]; then
+            echo "Installing pre-commit from requirements file..."
+            pip install --require-hashes -r .github/pip-requirements.txt
+          else
+            echo "No requirements file found, installing pre-commit directly..."
+            pip install pre-commit
+          fi
 
-      # -- 7. Run autoupdate (with --freeze) and commit if something changed --
+          # Verify installation
+          pre-commit --version
+          echo "✅ Pre-commit installed successfully"
+
+      # ————————————————————————————————————————————————————————————————
+      # 6. Backup original config for comparison
+      # ————————————————————————————————————————————————————————————————
+      - name: Backup original config
+        run: |
+          cp "${{ env.CONFIG_FILE }}" "${{ env.CONFIG_FILE }}.backup"
+          echo "Original config backed up for comparison"
+
+      # ————————————————————————————————————————————————————————————————
+      # 7. Run pre-commit autoupdate and migrate config
+      # ————————————————————————————————————————————————————————————————
       - name: Run pre-commit autoupdate
         id: update
         run: |
+          echo "Running pre-commit autoupdate..."
+
+          # Run autoupdate with --freeze for reproducible builds
           pre-commit autoupdate --freeze
+
+          # Migrate config if needed
+          echo "Running config migration..."
           pre-commit migrate-config
-          git add .pre-commit-config.yaml
-          if ! git diff --cached --quiet; then
-            git commit -m "chore: update pre-commit hooks"
-            echo "changed=true" >> "$GITHUB_OUTPUT"
+
+          # Check if anything changed
+          if ! cmp -s "${{ env.CONFIG_FILE }}" "${{ env.CONFIG_FILE }}.backup"; then
+            echo "✅ Changes detected in pre-commit configuration"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+
+            # Show the diff for logging
+            echo "--- Changes detected ---"
+            diff "${{ env.CONFIG_FILE }}.backup" "${{ env.CONFIG_FILE }}" || true
+          else
+            echo "ℹ️ No changes detected in pre-commit configuration"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
           fi
 
-      # -- 8. Check if there are changes to commit -----------------------------
-      - name: Configure git for PAT
+          # Clean up backup
+          rm "${{ env.CONFIG_FILE }}.backup"
+
+      # ————————————————————————————————————————————————————————————————
+      # 8. Configure git and check for existing PR branch
+      # ————————————————————————————————————————————————————————————————
+      - name: Configure git and check existing PR
+        id: git_setup
+        if: steps.update.outputs.has_changes == 'true'
         run: |
-          git config --global url."https://x-access-token:${{ secrets.GH_PAT_TOKEN }}@github.com/".insteadOf "https://github.com/"
+          # Configure git user
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      # -- 9. Push changes if there are any --------------------------------------
-      - name: Create pull request
-        if: steps.update.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
-        with:
-          token: ${{ secrets.GH_PAT_TOKEN }}
-          commit-message: "chore: update pre-commit hooks"
-          title: "chore(deps): update pre-commit hooks"
-          body: |
-            This automated pull request updates all pre-commit hooks to their latest versions as of this week.
+          # Check if branch exists remotely
+          if git ls-remote --exit-code --heads origin "${{ env.BRANCH_NAME }}" >/dev/null 2>&1; then
+            echo "Branch ${{ env.BRANCH_NAME }} already exists remotely"
+            echo "branch_exists=true" >> $GITHUB_OUTPUT
 
-            **What's changed:**
-            - All hooks in `.pre-commit-config.yaml` have been updated using `pre-commit autoupdate --freeze`.
-            - The configuration has been migrated if needed.
+            # Check if there's already an open PR
+            pr_number=$(gh pr list --head "${{ env.BRANCH_NAME }}" --json number --jq '.[0].number // empty')
+            if [ -n "$pr_number" ]; then
+              echo "Open PR already exists: #$pr_number"
+              echo "pr_exists=true" >> $GITHUB_OUTPUT
+              echo "pr_number=$pr_number" >> $GITHUB_OUTPUT
+            else
+              echo "Branch exists but no open PR found"
+              echo "pr_exists=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "Branch ${{ env.BRANCH_NAME }} does not exist"
+            echo "branch_exists=false" >> $GITHUB_OUTPUT
+            echo "pr_exists=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
 
-            **Why this matters:**
-            - Keeps code quality tools up-to-date.
-            - Ensures compatibility and security with the latest hook releases.
+      # ————————————————————————————————————————————————————————————————
+      # 9. Create or update branch with changes
+      # ————————————————————————————————————————————————————————————————
+      - name: Create branch and commit changes
+        if: steps.update.outputs.has_changes == 'true'
+        run: |
+          # Create or switch to the branch
+          if [ "${{ steps.git_setup.outputs.branch_exists }}" = "true" ]; then
+            echo "Switching to existing branch..."
+            git fetch origin "${{ env.BRANCH_NAME }}"
+            git checkout "${{ env.BRANCH_NAME }}"
+            git merge origin/main  # Ensure branch is up to date
+          else
+            echo "Creating new branch..."
+            git checkout -b "${{ env.BRANCH_NAME }}"
+          fi
 
-            **No manual action is required** unless you notice issues with the updated hooks. Please review and merge if everything looks good.
-          branch: "chore/update-pre-commit-hooks"
+          # Stage the changes
+          git add "${{ env.CONFIG_FILE }}"
+
+          # Create detailed commit message
+          commit_msg="chore(deps): update pre-commit hooks
+
+          Automated pre-commit hook update:
+          - Updated hooks to latest versions using 'pre-commit autoupdate --freeze'
+          - Migrated configuration if needed
+          - Generated on $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          - Workflow: ${{ github.workflow }}
+          - Run ID: ${{ github.run_id }}"
+
+          git commit -m "$commit_msg"
+
+          # Push the branch
+          git push origin "${{ env.BRANCH_NAME }}"
+          echo "✅ Changes committed and pushed to ${{ env.BRANCH_NAME }}"
+
+      # ————————————————————————————————————————————————————————————————
+      # 10. Create new pull request using GitHub CLI
+      # ————————————————————————————————————————————————————————————————
+      - name: Create new pull request
+        if: steps.update.outputs.has_changes == 'true' && steps.git_setup.outputs.pr_exists != 'true'
+        run: |
+          # Generate detailed PR body
+          pr_body="## 🤖 Automated Pre-commit Hooks Update
+
+          This PR updates all pre-commit hooks to their latest versions.
+
+          ### 📋 Changes Made
+          - Updated hooks using \`pre-commit autoupdate --freeze\` for reproducible builds
+          - Migrated configuration if needed
+          - Automated update run on $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+
+          ### 🔍 What's Updated
+          All hooks in \`.pre-commit-config.yaml\` have been updated to their latest compatible versions.
+
+          ### ✅ Benefits
+          - 🔧 Latest code quality tools and fixes
+          - 🔒 Security improvements from updated dependencies
+          - 🐛 Bug fixes in linting and formatting tools
+          - 📦 Better compatibility with current codebase
+
+          ### 🧪 Next Steps
+          1. **Review the changes** in the Files tab
+          2. **Check if tests pass** - automated CI will run
+          3. **Merge when ready** - no manual action needed unless issues arise
+
+          ### 🤖 Automation Details
+          - **Workflow:** \`${{ github.workflow }}\`
+          - **Trigger:** ${{ github.event_name }}
+          - **Run ID:** [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+          ---
+
+          **Note:** This PR was created automatically. To customize updates, modify \`.pre-commit-config.yaml\` manually and push to the \`${{ env.BRANCH_NAME }}\` branch."
+
+          # Create the pull request
+          pr_url=$(gh pr create \
+            --title "chore(deps): update pre-commit hooks" \
+            --body "$pr_body" \
+            --head "${{ env.BRANCH_NAME }}" \
+            --base main \
+            --label "dependencies,chore,automated,pre-commit" \
+            --assignee "mrz1836")
+
+          echo "✅ Pull request created: $pr_url"
+
+          # Add a comment with the specific changes
+          gh pr comment "$pr_url" --body "### 📊 Configuration Changes
+
+          \`\`\`diff
+          $(git diff HEAD~1 "${{ env.CONFIG_FILE }}")
+          \`\`\`
+
+          **Tip:** You can test these changes locally by running:
+          \`\`\`bash
+          pre-commit run --all-files
+          \`\`\`"
+
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
+
+      # ————————————————————————————————————————————————————————————————
+      # 11. Update existing PR if one exists
+      # ————————————————————————————————————————————————————————————————
+      - name: Update existing PR
+        if: steps.update.outputs.has_changes == 'true' && steps.git_setup.outputs.pr_exists == 'true'
+        run: |
+          pr_number="${{ steps.git_setup.outputs.pr_number }}"
+
+          echo "Updating existing PR #$pr_number with new changes..."
+
+          # Add comment about the update
+          gh pr comment "$pr_number" --body "### 🔄 Pre-commit Hooks Updated Again
+
+          New changes detected and committed to this PR:
+          - Updated on $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          - Run ID: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+          ### Latest Changes:
+          \`\`\`diff
+          $(git diff HEAD~1 "${{ env.CONFIG_FILE }}")
+          \`\`\`
+
+          The PR now contains the most recent hook versions available."
+
+          echo "✅ Existing PR #$pr_number updated with new changes"
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
+
+      # ————————————————————————————————————————————————————————————————
+      # 12. Test updated hooks (optional verification)
+      # ————————————————————————————————————————————————————————————————
+      - name: Test updated hooks
+        if: steps.update.outputs.has_changes == 'true'
+        continue-on-error: true  # Don't fail workflow if hooks have issues
+        run: |
+          echo "Testing updated pre-commit hooks..."
+
+          # Install the hooks
+          pre-commit install
+
+          # Try to run hooks on a subset of files (to avoid long runs)
+          echo "Running quick hook validation..."
+          pre-commit run --files "${{ env.CONFIG_FILE }}" || echo "Some hooks failed - this is normal and will be caught in the PR"
+
+          echo "✅ Hook testing completed (see above for any issues)"
+
+      # ————————————————————————————————————————————————————————————————
+      # 13. Report final workflow status
+      # ————————————————————————————————————————————————————————————————
+      - name: Report workflow status
+        run: |
+          echo "=== Pre-commit Hooks Update Summary ==="
+          if [ "${{ steps.update.outputs.has_changes }}" = "true" ]; then
+            if [ "${{ steps.git_setup.outputs.pr_exists }}" = "true" ]; then
+              echo "✅ Status: Updated existing PR #${{ steps.git_setup.outputs.pr_number }}"
+            else
+              echo "✅ Status: Created new pull request"
+            fi
+            echo "📁 Config: ${{ env.CONFIG_FILE }}"
+            echo "🌿 Branch: ${{ env.BRANCH_NAME }}"
+          else
+            echo "ℹ️ Status: No updates available - hooks are current"
+          fi
+          echo "🕐 Completed: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
