@@ -40,7 +40,17 @@ updates:
     allow:
       - dependency-type: "direct"
     groups:
-      gomod-minor-patch:
+      gomod-minor:
+        update-types: [ "minor" ]
+      gomod-patch:
+        update-types: [ "patch" ]
+      security-deps:
+        patterns:
+          - "*crypto*"
+          - "*security*"
+          - "*auth*"
+          - "*jwt*"
+          - "*oauth*"
         update-types: [ "minor", "patch" ]
     open-pull-requests-limit: 10
     assignees: [ "mrz1836" ]
