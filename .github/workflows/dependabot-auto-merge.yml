@@ -48,7 +48,8 @@ jobs:
       # -----------------------------------------------------------------------
       - name: Fetch Dependabot metadata
         id: metadata
-        uses: dependabot/fetch-metadata@v2
+        # v2.4.0 - 08eff52bf64351f401fb50d4972fa95b9f2c2d1b
+        uses: dependabot/fetch-metadata@08eff52bf64351f401fb50d4972fa95b9f2c2d1b
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -69,7 +70,8 @@ jobs:
       # -----------------------------------------------------------------------
       - name: Alert on major version bump
         if: steps.metadata.outputs.update-type == 'version-update:semver-major'
-        uses: actions/github-script@v7
+        # v7.0.1 - 60a0d83039c74a4aee543508d2ffcb1c3799cdea
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -155,7 +157,8 @@ jobs:
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-minor' &&
           steps.metadata.outputs.dependency-type == 'direct:production'
-        uses: actions/github-script@v7
+        # v7.0.1 - 60a0d83039c74a4aee543508d2ffcb1c3799cdea
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
         with:
           github-token: ${{ secrets.GH_PAT_TOKEN }}
           script: |
@@ -233,7 +236,8 @@ jobs:
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
           steps.metadata.outputs.update-type == 'version-update:semver-minor'
-        uses: actions/github-script@v7
+        # v7.0.1 - 60a0d83039c74a4aee543508d2ffcb1c3799cdea
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
         with:
           github-token: ${{ secrets.GH_PAT_TOKEN }}
           script: |
