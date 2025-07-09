@@ -19,16 +19,25 @@
 
 name: auto-enable-merge-on-approval
 
+# ————————————————————————————————————————————————————————————————
+# Trigger Configuration
+# ————————————————————————————————————————————————————————————————
 on:
   pull_request_review:
     types: [submitted]
   pull_request:
     types: [ready_for_review, review_request_removed]
 
+# ————————————————————————————————————————————————————————————————
+# Permissions
+# ————————————————————————————————————————————————————————————————
 permissions:
   contents: read
   pull-requests: read
 
+# ————————————————————————————————————————————————————————————————
+# Concurrency Control
+# ————————————————————————————————————————————————————————————————
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -45,9 +54,9 @@ jobs:
     if: github.event.pull_request.user.login != 'dependabot[bot]'
 
     steps:
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       # 1. Get PR information and validate conditions
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       - name: Check PR conditions and enable auto-merge
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
@@ -65,9 +74,9 @@ jobs:
 
             console.log(`Checking auto-merge conditions for PR #${prNumber}: "${pr.title}"`);
 
-            // ------------------------------------------------------------------
+            // ————————————————————————————————————————————————————————————————
             // Check basic PR conditions
-            // ------------------------------------------------------------------
+            // ————————————————————————————————————————————————————————————————
             const isDraft = pr.draft;
             const title = pr.title || '';
             const labels = pr.labels.map(l => l.name);
@@ -84,9 +93,9 @@ jobs:
               return;
             }
 
-            // ------------------------------------------------------------------
+            // ————————————————————————————————————————————————————————————————
             // Check review conditions
-            // ------------------------------------------------------------------
+            // ————————————————————————————————————————————————————————————————
             const { data: reviews } = await github.rest.pulls.listReviews({
               owner,
               repo,
@@ -109,9 +118,9 @@ jobs:
 
             console.log(`Reviews: ${approvals} approvals, ${changesRequested} changes requested, ${requestedReviewers} pending`);
 
-            // ------------------------------------------------------------------
+            // ————————————————————————————————————————————————————————————————
             // Check if auto-merge should be enabled
-            // ------------------------------------------------------------------
+            // ————————————————————————————————————————————————————————————————
             const shouldEnableAutoMerge = (
               approvals >= 1 &&
               changesRequested === 0 &&
@@ -125,9 +134,9 @@ jobs:
               return;
             }
 
-            // ------------------------------------------------------------------
+            // ————————————————————————————————————————————————————————————————
             // Enable auto-merge using GitHub CLI
-            // ------------------------------------------------------------------
+            // ————————————————————————————————————————————————————————————————
             try {
               // Check if auto-merge is already enabled
               if (pr.auto_merge) {
@@ -169,9 +178,9 @@ jobs:
               });
             }
 
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       # 2. Disable auto-merge if conditions change
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       - name: Disable auto-merge if conditions no longer met
         if: github.event.action == 'submitted' && github.event.review.state == 'CHANGES_REQUESTED'
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1

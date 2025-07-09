@@ -1,4 +1,4 @@
-# This workflow uses actions that are not certified by GitHub. They are provided
+# This workflow uses actions that GitHub does not certify. They are provided
 # by a third-party and are governed by separate terms of service, privacy
 # policy, and support documentation.
 
@@ -14,7 +14,7 @@ on:
   push:
     branches: [ "master" ]
 
-# Declare default permissions as read only.
+# Declare default permissions as read-only.
 permissions: read-all
 
 jobs:
@@ -71,7 +71,7 @@ jobs:
           retention-days: 5
 
       # Upload the results to GitHub's code scanning dashboard (optional).
-      # Commenting out will disable upload of results to your repo's Code Scanning dashboard
+      # Commenting out will disable the upload of results to your repo's Code Scanning dashboard
       - name: "Upload to code-scanning"
         uses: github/codeql-action/upload-sarif@181d5eefc20863364f96762470ba6f862bdef56b # v3.29.2
         with:

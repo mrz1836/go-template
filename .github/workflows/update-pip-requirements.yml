@@ -7,41 +7,40 @@
 #  Triggers: Runs every Monday at 08:20 UTC and can be triggered manually.
 #
 #  Maintainer: @mrz1836
-#
 # ------------------------------------------------------------------------------
 
 name: update-pip-requirements
 
-# ----------------------------------------------------------------------------
-# Workflow Triggers
-# ----------------------------------------------------------------------------
+# ————————————————————————————————————————————————————————————————
+# Trigger Configuration
+# ————————————————————————————————————————————————————————————————
 on:
   schedule:
     # ┌─ min ┬─ hour ┬─ dom ┬─ mon ┬─ dow ┐
     - cron: '20 8 * * 1'   # Every Monday at 08:20 UTC
   workflow_dispatch:        # Allow manual triggering from the GitHub UI
 
-# ----------------------------------------------------------------------------
-# Minimal top-level permissions
-# ----------------------------------------------------------------------------
+# ————————————————————————————————————————————————————————————————
+# Permissions
+# ————————————————————————————————————————————————————————————————
 permissions:
   contents: read
 
-# -----------------------------------------------------------------------------
-# Cancel in-progress runs of the same branch or tag
-# -----------------------------------------------------------------------------
+# ————————————————————————————————————————————————————————————————
+# Concurrency Control
+# ————————————————————————————————————————————————————————————————
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# ————————————————————————————————————————————————————————————————
+# Environment Variables
+# ————————————————————————————————————————————————————————————————
 env:
   BRANCH_NAME: chore/update-pip-requirements
   REQUIREMENTS_FILE: .github/pip-requirements.txt
 
 jobs:
-  # ---------------------------------------------------------------------------
-  # Main job: update pip requirements file and open a PR
-  # ---------------------------------------------------------------------------
   update-requirements:
     runs-on: ubuntu-latest
     permissions:

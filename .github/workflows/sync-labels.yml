@@ -6,17 +6,13 @@
 #  Triggers: Only when `.github/labels.yml` is modified on the default branch.
 #
 #  Maintainer: @mrz1836
-#
 # ------------------------------------------------------------------------------------
 
 name: sync-labels
 
-# ############################################################################
-# EVENT TRIGGERS
-#
-# • Only fires when `.github/labels.yml` is changed on the default branch.
-#   This avoids unnecessary CI runs when the rest of the repo changes.
-# ############################################################################
+# ————————————————————————————————————————————————————————————————
+# Trigger Configuration
+# ————————————————————————————————————————————————————————————————
 on:
   push:
     branches: [ master ]
@@ -30,13 +26,22 @@ on:
         default: false
         required: false
 
+# ————————————————————————————————————————————————————————————————
+# Permissions
+# ————————————————————————————————————————————————————————————————
 permissions:
   contents: read
 
+# ————————————————————————————————————————————————————————————————
+# Concurrency Control
+# ————————————————————————————————————————————————————————————————
 concurrency:
   group: sync-labels-${{ github.ref }}
   cancel-in-progress: true
 
+# ————————————————————————————————————————————————————————————————
+# Environment Variables
+# ————————————————————————————————————————————————————————————————
 env:
   LABELS_FILE: .github/labels.yml
 

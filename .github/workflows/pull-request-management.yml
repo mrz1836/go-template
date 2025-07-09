@@ -6,22 +6,33 @@
 #  Triggers: On pull request events (opened, reopened, ready for review)
 #
 #  Maintainer: @mrz1836
-#
 # ------------------------------------------------------------------------------------
 
 name: pull-request-management
 
+# ————————————————————————————————————————————————————————————————
+# Trigger Configuration
+# ————————————————————————————————————————————————————————————————
 on:
   pull_request:
     types: [ opened, reopened, ready_for_review ]
 
+# ————————————————————————————————————————————————————————————————
+# Permissions
+# ————————————————————————————————————————————————————————————————
 permissions:
   contents: read
 
+# ————————————————————————————————————————————————————————————————
+# Concurrency Control
+# ————————————————————————————————————————————————————————————————
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
+# ————————————————————————————————————————————————————————————————
+# Environment Variables
+# ————————————————————————————————————————————————————————————————
 env:
   DEFAULT_ASSIGNEE: mrz1836
 

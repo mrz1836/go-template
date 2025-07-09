@@ -19,14 +19,23 @@
 
 name: dependabot-auto-merge
 
+# ————————————————————————————————————————————————————————————————
+# Trigger Configuration
+# ————————————————————————————————————————————————————————————————
 on:
   pull_request:
     types: [ opened, synchronize, reopened, ready_for_review ]
 
+# ————————————————————————————————————————————————————————————————
+# Permissions
+# ————————————————————————————————————————————————————————————————
 permissions:
   contents: read
   pull-requests: read
 
+# ————————————————————————————————————————————————————————————————
+# Concurrency Control
+# ————————————————————————————————————————————————————————————————
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -43,18 +52,18 @@ jobs:
     if: github.event.pull_request.user.login == 'dependabot[bot]'
 
     steps:
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       # 1. Get official Dependabot metadata
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       - name: Fetch Dependabot metadata
         id: metadata
         uses: dependabot/fetch-metadata@08eff52bf64351f401fb50d4972fa95b9f2c2d1b # v2.4.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       # 2. Log dependency information for debugging
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       - name: Log dependency details
         run: |
           echo "Dependency name: ${{ steps.metadata.outputs.dependency-names }}"
@@ -64,9 +73,9 @@ jobs:
           echo "New version: ${{ steps.metadata.outputs.new-version }}"
           echo "Previous version: ${{ steps.metadata.outputs.previous-version }}"
 
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       # 3. Alert on major version updates - with duplicate prevention
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       - name: Alert on major version bump
         if: steps.metadata.outputs.update-type == 'version-update:semver-major'
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
@@ -118,9 +127,9 @@ jobs:
               console.log('Major version alert already exists, skipping duplicate comment');
             }
 
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       # 4. Auto-approve and merge patch updates (safest)
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       - name: Auto-approve and merge patch updates
         if: steps.metadata.outputs.update-type == 'version-update:semver-patch'
         run: |
@@ -132,9 +141,9 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
 
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       # 5. Auto-approve and merge minor updates for development dependencies
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       - name: Auto-approve minor updates for dev dependencies
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-minor' &&
@@ -148,9 +157,9 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
 
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       # 6. Alert on minor production dependency updates
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       - name: Alert on minor production dependency updates
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-minor' &&
@@ -201,9 +210,9 @@ jobs:
               //});
             }
 
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       # 7. Handle security updates with elevated auto-merge
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       - name: Auto-approve security updates
         if: |
           contains(join(github.event.pull_request.labels.*.name, ','), 'security') ||
@@ -226,9 +235,9 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
 
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       # 8. Add tracking labels for all auto-merged PRs
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       - name: Add auto-merge labels
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
@@ -244,9 +253,9 @@ jobs:
               labels: ['automerge', 'dependabot']
             });
 
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       # 9. Report final status
-      # -----------------------------------------------------------------------
+      # ————————————————————————————————————————————————————————————————
       - name: Report processing status
         run: |
           echo "=== Dependabot Auto-Merge Summary ==="

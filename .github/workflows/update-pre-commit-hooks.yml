@@ -6,27 +6,35 @@
 #  Triggers: Runs every Monday at 08:20 UTC and can be triggered manually.
 #
 #  Maintainer: @mrz1836
-#
 # ------------------------------------------------------------------------------
 
 name: update-pre-commit-hooks
 
+# ————————————————————————————————————————————————————————————————
+# Trigger Configuration
+# ————————————————————————————————————————————————————————————————
 on:
   schedule:
     # ┌─ min ┬─ hour ┬─ dom ┬─ mon ┬─ dow ┐
     - cron: '20 8 * * 1'   # Every Monday at 08:20 UTC
   workflow_dispatch:
 
-# ----------------------------------------------------------------------------
-# Minimal top-level permissions
-# ----------------------------------------------------------------------------
+# ————————————————————————————————————————————————————————————————
+# Permissions
+# ————————————————————————————————————————————————————————————————
 permissions:
   contents: read
 
+# ————————————————————————————————————————————————————————————————
+# Concurrency Control
+# ————————————————————————————————————————————————————————————————
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# ————————————————————————————————————————————————————————————————
+# Environment Variables
+# ————————————————————————————————————————————————————————————————
 env:
   BRANCH_NAME: chore/update-pre-commit-hooks
   CONFIG_FILE: .pre-commit-config.yaml

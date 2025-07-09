@@ -1,18 +1,18 @@
 # ------------------------------------------------------------------------------------
 #  Run Go Tests Workflow
 #
-#  Purpose   : Run all Go tests and dependency checks on every push and pull request.
+#  Purpose: Run all Go tests and dependency checks on every push and pull request.
 #
-#  Triggers  : On push or pull request to any branch.
+#  Triggers: On push or pull request to any branch.
 #
 #  Maintainer: @mrz1836
 # ------------------------------------------------------------------------------------
 
 name: run-go-tests
 
-env:
-  GO111MODULE: on
-
+# ————————————————————————————————————————————————————————————————
+# Trigger Configuration
+# ————————————————————————————————————————————————————————————————
 on:
   push:
     branches:
@@ -23,13 +23,24 @@ on:
     branches:
       - '**'
 
-# Cancel older runs of the same branch/PR if a new commit is pushed
+# ————————————————————————————————————————————————————————————————
+# Permissions
+# ————————————————————————————————————————————————————————————————
+permissions:
+  contents: read
+
+# ————————————————————————————————————————————————————————————————
+# Concurrency Control
+# ————————————————————————————————————————————————————————————————
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
+# ————————————————————————————————————————————————————————————————
+# Environment Variables
+# ————————————————————————————————————————————————————————————————
+env:
+  GO111MODULE: on
 
 jobs:
   # ----------------------------------------------------------------------------------

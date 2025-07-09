@@ -6,30 +6,35 @@
 #  Triggers: Scheduled (Mon-Fri at 08:32 UTC) and manual dispatch.
 #
 #  Maintainer: @mrz1836
-#
 # ------------------------------------------------------------------------------------
 
 name: stale-check
 
+# ————————————————————————————————————————————————————————————————
+# Trigger Configuration
+# ————————————————————————————————————————————————————————————————
 on:
   schedule:
     # ┌─ min  ─┬─ hour ─┬─ dom ─┬─ mon ─┬─ dow ─┐
     - cron: '32 8 * * 1-5'         # Mon‑Fri at 08:32 UTC
   workflow_dispatch:               # Allow manual triggering
 
-# ----------------------------------------------------------------------------
-# Minimal top-level permissions
-# ----------------------------------------------------------------------------
+# ————————————————————————————————————————————————————————————————
+# Permissions
+# ————————————————————————————————————————————————————————————————
 permissions:
   contents: read
 
+# ————————————————————————————————————————————————————————————————
+# Concurrency Control
+# ————————————————————————————————————————————————————————————————
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# ----------------------------------------------------------------------------
-# Configuration - easily adjustable
-# ----------------------------------------------------------------------------
+# ————————————————————————————————————————————————————————————————
+# Environment Variables
+# ————————————————————————————————————————————————————————————————
 env:
   DAYS_BEFORE_STALE: 60
   DAYS_BEFORE_CLOSE: 14
@@ -39,14 +44,11 @@ env:
   OPERATIONS_PER_RUN: 300
 
 jobs:
-  # ---------------------------------------------------------------------------
-  # Main job: Process stale issues and PRs
-  # ---------------------------------------------------------------------------
   stale-check:
     runs-on: ubuntu-latest
     permissions:
-      issues: write
-      pull-requests: write
+      issues: write # Required to add labels and comments
+      pull-requests: write # Required to add labels and comments on PRs
 
     steps:
       # ————————————————————————————————————————————————————————————————

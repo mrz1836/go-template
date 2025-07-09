@@ -10,16 +10,24 @@
 
 name: clean-runner-cache
 
+# ————————————————————————————————————————————————————————————————
+# Trigger Configuration
+# ————————————————————————————————————————————————————————————————
 on:
   pull_request:
     types: [ closed ]
 
-# Cancel older runs of the same PR if a new commit is pushed
+# ————————————————————————————————————————————————————————————————
+# Permissions
+# ————————————————————————————————————————————————————————————————
+permissions: read-all
+
+# ————————————————————————————————————————————————————————————————
+# Concurrency Control
+# ————————————————————————————————————————————————————————————————
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
-
-permissions: read-all
 
 jobs:
   cleanup:
@@ -27,11 +35,15 @@ jobs:
     permissions:
       actions: read
     steps:
-      ## Install GitHub CLI for cache management
+      # ————————————————————————————————————————————————————————————————
+      # Install GitHub CLI and Cleanup Caches
+      # ————————————————————————————————————————————————————————————————
       - name: Install GitHub CLI
         run: sudo apt-get update && sudo apt-get install -y gh
 
-      ## Fetch the list of cache keys and delete them
+      # ————————————————————————————————————————————————————————————————
+      # Fetch the list of cache keys and delete them
+      # ————————————————————————————————————————————————————————————————
       - name: Cleanup caches
         run: |
           echo "Fetching list of cache keys"
