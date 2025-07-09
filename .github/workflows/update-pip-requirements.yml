@@ -101,7 +101,8 @@ jobs:
             python .github/scripts/update_pip_requirements.py
           else
             echo "No custom script found, using default pip-tools approach..."
-            pip install pip-tools==7.4.1 --hash=sha256:4c690e5fbae2f21e87843e89c26191f0d9454f362d8acdbd695716493ec8b3a9
+            # Install pip-tools from pinned, hash-verified requirements
+            pip install --require-hashes -r "${{ env.REQUIREMENTS_FILE }}"
             # If requirements.in exists, compile it; otherwise work with existing .txt
             if [ -f ".github/pip-requirements.in" ]; then
               pip-compile --upgrade .github/pip-requirements.in --output-file "${{ env.REQUIREMENTS_FILE }}"
