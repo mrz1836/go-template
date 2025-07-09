@@ -217,7 +217,7 @@ jobs:
           echo "✅ Changes committed and pushed to ${{ env.BRANCH_NAME }}"
 
       # ————————————————————————————————————————————————————————————————
-      # 10. Create new pull request using GitHub CLI
+      # 10. Create a new pull request using GitHub CLI
       # ————————————————————————————————————————————————————————————————
       - name: Create new pull request
         if: steps.update.outputs.has_changes == 'true' && steps.git_setup.outputs.pr_exists != 'true'
