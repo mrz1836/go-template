@@ -53,7 +53,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          token: ${{ secrets.GH_PAT_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0  # Full history for branch operations
 
       # ————————————————————————————————————————————————————————————————
@@ -178,7 +178,7 @@ jobs:
             echo "pr_exists=false" >> $GITHUB_OUTPUT
           fi
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ————————————————————————————————————————————————————————————————
       # 9. Create or update branch with changes
@@ -279,7 +279,7 @@ jobs:
           \`\`\`"
 
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ————————————————————————————————————————————————————————————————
       # 11. Update existing PR if one exists
@@ -307,7 +307,7 @@ jobs:
 
           echo "✅ Existing PR #$pr_number updated with new changes"
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ————————————————————————————————————————————————————————————————
       # 12. Test updated hooks (optional verification)

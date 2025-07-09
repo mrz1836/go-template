@@ -55,7 +55,7 @@ jobs:
       - name: Apply labels based on branch prefix and PR title
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
-          github-token: ${{ secrets.GH_PAT_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const branch = context.payload.pull_request.head.ref;
             const prTitle = context.payload.pull_request.title;
@@ -179,7 +179,7 @@ jobs:
       - name: Assign default assignee if none assigned
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
-          github-token: ${{ secrets.GH_PAT_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const pr = context.payload.pull_request;
             const assignees = pr.assignees || [];
@@ -226,7 +226,7 @@ jobs:
       - name: Welcome new contributor
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
-          github-token: ${{ secrets.GH_PAT_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const author = context.payload.pull_request.user.login;
             const repoName = context.repo.repo;
@@ -276,7 +276,7 @@ jobs:
       - name: Add size label based on changes
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
-          github-token: ${{ secrets.GH_PAT_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const pr = context.payload.pull_request;
             const additions = pr.additions || 0;

@@ -146,7 +146,7 @@ jobs:
           echo "✅ Enabled auto-merge for patch update"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ————————————————————————————————————————————————————————————————
       # 5. Auto-approve and merge minor updates for development dependencies
@@ -162,7 +162,7 @@ jobs:
           echo "✅ Enabled auto-merge for minor dev dependency"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ————————————————————————————————————————————————————————————————
       # 6. Alert on minor production dependency updates
@@ -173,7 +173,7 @@ jobs:
           steps.metadata.outputs.dependency-type == 'direct:production'
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
-          github-token: ${{ secrets.GH_PAT_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const issueNumber = context.issue.number;
             const dependency = '${{ steps.metadata.outputs.dependency-names }}';
@@ -241,7 +241,7 @@ jobs:
           fi
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ————————————————————————————————————————————————————————————————
       # 8. Add tracking labels for all auto-merged PRs
@@ -252,7 +252,7 @@ jobs:
           steps.metadata.outputs.update-type == 'version-update:semver-minor'
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
-          github-token: ${{ secrets.GH_PAT_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
