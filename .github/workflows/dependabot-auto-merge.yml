@@ -224,8 +224,7 @@ jobs:
       - name: Auto-approve security updates
         if: |
           contains(join(github.event.pull_request.labels.*.name, ','), 'security') ||
-          contains(github.event.pull_request.title, 'security') ||
-          contains(github.event.pull_request.body, 'security')
+          contains(github.event.pull_request.title, 'security-deps')
         run: |
           echo "Security update detected - auto-approving regardless of semver level"
           gh pr review --approve "$PR_URL" --body "🔒 Auto-approving security update for ${{ steps.metadata.outputs.dependency-names }}"
