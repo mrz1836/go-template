@@ -750,6 +750,132 @@ Security is a first-class requirement. If you discover a vulnerability—no matt
 
 <br/>
 
+## ⚙️ GitHub Workflows Development
+
+GitHub Actions workflows are critical infrastructure that automate our CI/CD pipeline, testing, security scanning, and release processes. All workflows must be reliable, secure, and maintainable to ensure consistent developer experience and protect our codebase.
+
+<br/><br/>
+
+### 🎯 Workflow Development Priorities
+
+* **Security First** — Use minimal permissions, pin all actions to full commit SHA, and never expose secrets unnecessarily
+* **Reliability** — Workflows should be deterministic, idempotent, and handle failure gracefully
+* **Performance** — Optimize for speed with appropriate caching, parallel execution, and efficient resource usage
+* **Maintainability** — Write self-documenting workflows with clear structure, consistent naming, and comprehensive comments
+* **Native GitHub Features** — Prefer built-in GitHub Actions and features over third-party alternatives when possible
+* **Least Privilege** — Grant only the minimum permissions required for each job and step
+* **Fail Fast** — Design workflows to catch issues early and provide clear, actionable error messages
+* **Documentation** — Every workflow must include purpose, triggers, and maintainer information in header comments
+
+<br/><br/>
+
+### 📋 Workflow Development Guidelines
+
+* **Action Pinning** — Pin all external actions to full commit SHA (e.g., `actions/checkout@2f3b4a2e0e471e13e2ea2bc2a350e888c9cf9b75`) for security and reproducibility
+* **Permissions** — Use `permissions: read-all` as default, then grant specific write permissions only where needed
+* **Concurrency Control** — Include concurrency groups to prevent resource conflicts and optimize runner usage
+* **Environment Variables** — Use `env` blocks at appropriate levels (workflow, job, or step) to maintain clarity
+* **Error Handling** — Use `continue-on-error` and `if` conditionals strategically to handle expected failures
+* **Matrix Builds** — Leverage matrix strategies for testing across multiple versions, platforms, or configurations
+* **Caching** — Implement intelligent caching for dependencies, build artifacts, and test results
+* **Secrets Management** — Use GitHub Secrets for sensitive data; never hardcode credentials or tokens
+* **Branch Protection** — Ensure critical workflows are required status checks before merging
+* **Workflow Naming** — Use kebab-case names that clearly describe the workflow purpose
+
+<br/><br/>
+
+### 🏗️ Workflow Template
+
+Use this template as the foundation for all new GitHub Actions workflows:
+
+```yaml
+# ------------------------------------------------------------------------------
+#  [Workflow Name] Workflow
+#
+#  Purpose: [Brief description of what this workflow does and why it exists]
+#
+#  Triggers: [List the events that trigger this workflow]
+#
+#  Maintainer: @[github-username]
+# ------------------------------------------------------------------------------
+
+name: [workflow-name]
+
+# ————————————————————————————————————————————————————————————————
+# Trigger Configuration
+# ————————————————————————————————————————————————————————————————
+on:
+  [trigger-events]
+
+# ————————————————————————————————————————————————————————————————
+# Permissions
+# ————————————————————————————————————————————————————————————————
+permissions: read-all
+
+# ————————————————————————————————————————————————————————————————
+# Concurrency Control
+# ————————————————————————————————————————————————————————————————
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  [job-name]:
+    runs-on: ubuntu-latest
+    permissions:
+      [specific-permissions]: [read|write]
+    steps:
+      # ————————————————————————————————————————————————————————————————
+      # [Step Category/Purpose]
+      # ————————————————————————————————————————————————————————————————
+      - name: [Step Name]
+        uses: [action@full-commit-sha]
+        with:
+          [parameters]
+
+      # ————————————————————————————————————————————————————————————————
+      # [Next Step Category/Purpose]
+      # ————————————————————————————————————————————————————————————————
+      - name: [Next Step Name]
+        run: |
+          [commands]
+        env:
+          [environment-variables]
+```
+
+<br/><br/>
+
+### 🔍 Template Usage Notes
+
+* Replace all bracketed placeholders `[...]` with actual values
+* Use descriptive names for workflows, jobs, and steps
+* Include section separators (dashes) to organize logical groups of steps
+* Add environment variables in the appropriate scope (workflow, job, or step level)
+* Document complex logic with inline comments using `#` within run blocks
+* Test workflows thoroughly in draft PRs before merging to avoid CI/CD disruption
+
+<br/><br/>
+
+### 🚦 Workflow Validation Checklist
+
+Before merging any workflow changes, verify:
+
+* [ ] All external actions are pinned to full commit SHA
+* [ ] Permissions follow least-privilege principle
+* [ ] Concurrency control prevents resource conflicts
+* [ ] Workflow header includes purpose, triggers, and maintainer
+* [ ] Section separators organize steps logically
+* [ ] Environment variables are properly scoped
+* [ ] Error handling covers expected failure scenarios
+* [ ] Workflow has been tested in a draft PR
+* [ ] Documentation reflects any new workflow dependencies or requirements
+
+<br/>
+
+---
+
+<br/>
+
 ## 🕓 Change Log (AGENTS.md)
 
 This section tracks notable updates to `AGENTS.md`, including the date, author, and purpose of each revision. 
