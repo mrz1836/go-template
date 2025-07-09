@@ -40,6 +40,12 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+# ————————————————————————————————————————————————————————————————
+# Environment Configuration
+# ————————————————————————————————————————————————————————————————
+env:
+  MAINTAINER_USERNAME: mrz1836
+
 jobs:
   auto-merge:
     runs-on: ubuntu-latest
@@ -86,8 +92,9 @@ jobs:
             const dependency = '${{ steps.metadata.outputs.dependency-names }}';
             const newVersion = '${{ steps.metadata.outputs.new-version }}';
             const previousVersion = '${{ steps.metadata.outputs.previous-version }}';
+            const maintainer = '${{ env.MAINTAINER_USERNAME }}';
 
-            const commentBody = `⚠️ @mrz1836 – **Major version update detected**
+            const commentBody = `⚠️ @${maintainer} – **Major version update detected**
 
             **Dependency:** \`${dependency}\`
             **Version:** \`${previousVersion}\` → \`${newVersion}\`
@@ -172,8 +179,9 @@ jobs:
             const dependency = '${{ steps.metadata.outputs.dependency-names }}';
             const newVersion = '${{ steps.metadata.outputs.new-version }}';
             const previousVersion = '${{ steps.metadata.outputs.previous-version }}';
+            const maintainer = '${{ env.MAINTAINER_USERNAME }}';
 
-            const commentBody = `🔍 @mrz1836 – **Minor production dependency update**
+            const commentBody = `🔍 @${maintainer} – **Minor production dependency update**
 
             **Dependency:** \`${dependency}\`
             **Version:** \`${previousVersion}\` → \`${newVersion}\`
