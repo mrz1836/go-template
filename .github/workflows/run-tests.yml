@@ -131,6 +131,7 @@ jobs:
         uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v8.27.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
           GITLEAKS_NOTIFY_USER_LIST: '@mrz1836'
           GITLEAKS_ENABLE_COMMENTS: 'true'
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: 'true'
