@@ -40,10 +40,6 @@ updates:
     allow:
       - dependency-type: "direct"
     groups:
-      gomod-minor:
-        update-types: [ "minor" ]
-      gomod-patch:
-        update-types: [ "patch" ]
       security-deps:
         patterns:
           - "*crypto*"
