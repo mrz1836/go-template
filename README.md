@@ -34,7 +34,7 @@
           <img src="https://goreportcard.com/badge/github.com/mrz1836/go-template?style=flat" alt="Go Report Card">
         </a><br/>
 		<a href="https://codecov.io/gh/mrz1836/go-template">
-          <img src="https://codecov.io/gh/mrz1836/go-template/branch/master/graph/badge.svg?style=flat&token=iBdJQpOej9" alt="Code Coverage">
+          <img src="https://codecov.io/gh/mrz1836/go-template/branch/master/graph/badge.svg?style=flat" alt="Code Coverage">
         </a><br/>
 		<a href="https://scorecard.dev/viewer/?uri=github.com/mrz1836/go-template">
           <img src="https://api.scorecard.dev/projects/github.com/mrz1836/go-template/badge?logo=springsecurity&logoColor=white" alt="OpenSSF Scorecard">
@@ -120,7 +120,7 @@ Clone it, [rename a few placeholders](#-template-kick-off-guide-3-easy-steps), a
   _[golangci-lint](https://github.com/golangci/golangci-lint) with 50+ linters and [gofumpt](https://github.com/mvdan/gofumpt) keeps the codebase clean and idiomatic - no bikeshedding required._
 
 - **🤖 AI-Friendly Policies**  
-  _AGENTS.md, CLAUDE.md, cursorrules, and sweep.yaml ensure [ChatGPT](https://openai.com), [Claude](https://claude.ai/), [Cursor](https://www.cursor.com/) & [Sweep](https://sweep.dev/) follow the same house rules._
+  _[AGENTS.md](.github/AGENTS.md), [CLAUDE.md](.github/CLAUDE.md), [cursorrules](.cursorrules), and [sweep.yaml](.github/sweep.yaml) ensure [ChatGPT](https://openai.com), [Claude](https://claude.ai/), [Cursor](https://www.cursor.com/) & [Sweep](https://sweep.dev/) follow the same house rules._
 
 - **🌍 Community-Ready Meta**  
   _[Issue/PR templates](.github/ISSUE_TEMPLATE), [CODEOWNERS](.github/CODEOWNERS), [CITATION](CITATION.cff), [label sync](.github/labels.yml), and a welcome bot to show contributors exactly how to get involved._
@@ -185,7 +185,7 @@ make install-template owner=my_org repo=my-lib
 
 	* Remove the default social-share image so you can drop in your own
 
-> That’s it—open a diff, make sure you're happy, commit, and push. 🎉
+> That's it—open a diff, make sure you're happy, commit, and push. 🎉
 
 <br/>
 
@@ -277,7 +277,7 @@ go get -u github.com/mrz1836/go-template
 * **Instant Cloud Workspaces** via [Gitpod](https://gitpod.io/) – spin up a fully configured dev environment with automatic linting and tests.
 * **Out‑of‑the‑Box VS Code Happiness** with a preconfigured [Go](https://code.visualstudio.com/docs/languages/go) workspace and [`.vscode`](.vscode) folder with all the right settings.
 * **Optional Release Broadcasts** to your community via [Slack](https://slack.com), [Discord](https://discord.com), or [Twitter](https://twitter.com) – plug in your webhook.
-* **AI Compliance Playbook** – machine‑readable guidelines ([AGENTS.md](.github/AGENTS.md), [CLAUDE.md](.github/CLAUDE.md), [.cursorrules](.cursorrules), [sweep.yaml](.github/sweep.yaml)) keep ChatGPT, Claude, Cursor & Sweep aligned with your repo’s rules.
+* **AI Compliance Playbook** – machine‑readable guidelines ([AGENTS.md](.github/AGENTS.md), [CLAUDE.md](.github/CLAUDE.md), [.cursorrules](.cursorrules), [sweep.yaml](.github/sweep.yaml)) keep ChatGPT, Claude, Cursor & Sweep aligned with your repo's rules.
 * **Pre-commit Hooks for Consistency** powered by [pre-commit](https://pre-commit.com) and the [.pre-commit-config.yaml](.pre-commit-config.yaml) file—run the same formatting, linting, and tests before every commit, just like CI.
 * **Automated Hook Updates** keep the [.pre-commit-config.yaml](.pre-commit-config.yaml) current via a weekly [workflow](.github/workflows/update-pre-commit-hooks.yml).
 * **DevContainers for Instant Onboarding** – Launch a ready-to-code environment in seconds with [VS Code DevContainers](https://containers.dev/) and the included [.devcontainer.json](.devcontainer.json) config.
