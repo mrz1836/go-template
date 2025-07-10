@@ -1,4 +1,4 @@
-# 🚀 Code Standards
+# ✅ Code Standards
 
 Welcome to a modern Go codebase. 
 
