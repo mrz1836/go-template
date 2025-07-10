@@ -1295,6 +1295,7 @@ All contributors are expected to append entries here when making meaningful chan
 
 | Date       | Author   | Summary of Changes                                    |
 |------------|----------|-------------------------------------------------------|
+| 2025-07-10 | @mrz1836 | Go essentials section, labels, and more!              |
 | 2025-07-07 | @mrz1836 | Minor mods in formatting, linting, gitleaks           |
 | 2025-06-30 | @mrz1836 | Added pre-commit hook guidelines and config reference |
 | 2025-06-27 | @mrz1836 | Adapted to fix this project                           |
