@@ -68,6 +68,40 @@ runs:
           ${{ inputs.matrix-os }}-gomod-
 
     # ————————————————————————————————————————————————————————————————
+    # Check go.mod required version before setting up Go
+    # ————————————————————————————————————————————————————————————————
+    - name: 🔍 Check Go version requirement
+      id: check-go-version
+      shell: bash
+      run: |
+        if [ -f go.mod ]; then
+          REQUIRED_VERSION=$(grep -E '^go\s+[0-9]+\.[0-9]+' go.mod | awk '{print $2}')
+          if [ -n "$REQUIRED_VERSION" ]; then
+            echo "📋 go.mod requires Go version: $REQUIRED_VERSION"
+            echo "required_version=$REQUIRED_VERSION" >> $GITHUB_OUTPUT
+
+            # Extract major.minor from inputs.go-version (handle formats like 1.23.x, 1.23, 1.23.4)
+            REQUESTED_VERSION="${{ inputs.go-version }}"
+            REQUESTED_MAJOR_MINOR=$(echo "$REQUESTED_VERSION" | grep -oE '^[0-9]+\.[0-9]+')
+
+            # Compare versions
+            if [ -n "$REQUESTED_MAJOR_MINOR" ]; then
+              # Convert to comparable format (e.g., 1.23 -> 123, 1.9 -> 109)
+              REQ_COMPARABLE=$(echo "$REQUIRED_VERSION" | awk -F. '{printf "%d%02d", $1, $2}')
+              REQUESTED_COMPARABLE=$(echo "$REQUESTED_MAJOR_MINOR" | awk -F. '{printf "%d%02d", $1, $2}')
+
+              if [ "$REQUESTED_COMPARABLE" -lt "$REQ_COMPARABLE" ]; then
+                echo "⚠️ WARNING: Requested Go version (${{ inputs.go-version }}) is older than required ($REQUIRED_VERSION)"
+                echo "version_mismatch=true" >> $GITHUB_OUTPUT
+              else
+                echo "✅ Requested Go version (${{ inputs.go-version }}) meets requirement ($REQUIRED_VERSION)"
+                echo "version_mismatch=false" >> $GITHUB_OUTPUT
+              fi
+            fi
+          fi
+        fi
+
+    # ————————————————————————————————————————————————————————————————
     # Determine Go Toolchain Mode and set up Go
     # ————————————————————————————————————————————————————————————————
     # Issue with installing 1.23 and then it auto-upgrading to 1.24
@@ -75,7 +109,11 @@ runs:
       id: toolchain-mode
       shell: bash
       run: |
-        if [[ "${{ inputs.go-version }}" == "${{ inputs.go-secondary-version }}" && \
+        # If there's a version mismatch, allow toolchain to auto-upgrade
+        if [[ "${{ steps.check-go-version.outputs.version_mismatch }}" == "true" ]]; then
+          echo "⚠️ Version mismatch detected - allowing Go toolchain to auto-upgrade"
+          echo "Not setting GOTOOLCHAIN (using default auto behavior)"
+        elif [[ "${{ inputs.go-version }}" == "${{ inputs.go-secondary-version }}" && \
               "${{ inputs.go-version }}" != "${{ inputs.go-primary-version }}" ]]; then
           echo "Setting GOTOOLCHAIN=local"
           echo "GOTOOLCHAIN=local" >> $GITHUB_ENV
