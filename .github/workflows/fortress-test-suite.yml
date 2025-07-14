@@ -53,6 +53,9 @@ on:
         description: 'Codecov token for coverage uploads'
         required: false
 
+permissions:
+  contents: read
+
 jobs:
   # ----------------------------------------------------------------------------------
   # Testing Matrix for Go (Parallel)

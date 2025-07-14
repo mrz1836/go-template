@@ -76,6 +76,9 @@ on:
         description: 'Warm cache matrix JSON'
         value: ${{ jobs.setup-config.outputs.warm-cache-matrix }}
 
+permissions:
+  contents: read
+
 jobs:
   # ----------------------------------------------------------------------------------
   # Setup the configuration for the CI environment
@@ -135,7 +138,7 @@ jobs:
       # Checkout code (sparse checkout)
       # ————————————————————————————————————————————————————————————————
       - name: 📥 Checkout (sparse)
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           sparse-checkout: |
             Makefile

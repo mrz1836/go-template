@@ -33,6 +33,10 @@ on:
         description: 'Gitleaks license key'
         required: false
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   # ----------------------------------------------------------------------------------
   # Ask Nancy (Dependency Checks)
