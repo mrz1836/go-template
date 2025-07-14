@@ -274,7 +274,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      issues: write
+      pull-requests: write
     if: |
       github.event.action != 'closed' &&
       github.event.pull_request.head.repo.owner.login == github.repository_owner
@@ -359,7 +359,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      issues: write
+      pull-requests: write
     if: |
       github.event.action == 'opened' &&
       contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR"]'), github.event.pull_request.author_association) &&
