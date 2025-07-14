@@ -86,7 +86,7 @@ jobs:
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/.github/pip-requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('.github/pip/*.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
 
@@ -95,13 +95,13 @@ jobs:
       # ————————————————————————————————————————————————————————————————
       - name: Install pre-commit
         run: |
-          if [ ! -f ".github/pip-requirements.txt" ]; then
-            echo "❌ Requirements file .github/pip-requirements.txt not found"
+          if [ ! -f ".github/pip/requirements.txt" ]; then
+            echo "❌ Requirements file .github/pip/requirements.txt not found"
             exit 1
           fi
 
           echo "Installing pre-commit from requirements file..."
-          pip install --require-hashes -r .github/pip-requirements.txt
+          pip install --require-hashes -r .github/pip/requirements.txt
 
           # Verify installation
           pre-commit --version

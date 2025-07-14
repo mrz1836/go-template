@@ -290,70 +290,70 @@ go get -u github.com/mrz1836/go-template
 
 This glossary describes each tracked file in the repository and notes if it is required for GitHub or another external service.
 
-| File Path                                                                                      | Description                                     | Service          |
-|------------------------------------------------------------------------------------------------|-------------------------------------------------|------------------|
-| [.cursorrules](.cursorrules)                                                                   | Rules for Cursor AI integrations                | Cursor           |
-| [.devcontainer.json](.devcontainer.json)                                                       | VS Code dev or GitHub container configuration   | VS Code & GitHub |
-| [.dockerignore](.dockerignore)                                                                 | Paths ignored by Docker builds                  | Docker           |
-| [.editorconfig](.editorconfig)                                                                 | Editor configuration defaults                   | Editor           |
-| [.gitattributes](.gitattributes)                                                               | Git attributes and export settings              | Git              |
-| [.github/.env.shared](.github/.env.shared)                                                     | Shared environment variables for GitHub Actions | GitHub Actions   |
-| [.github/AGENTS.md](.github/AGENTS.md)                                                         | Contribution rules and guidelines               | GitHub           |
-| [.github/CLAUDE.md](.github/CLAUDE.md)                                                         | Claude agent instructions                       | Claude           |
-| [.github/CODEOWNERS](.github/CODEOWNERS)                                                       | Code ownership declarations for GitHub          | GitHub           |
-| [.github/CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md)                                       | Community behavior standards                    | GitHub           |
-| [.github/CODE_STANDARDS.md](.github/CODE_STANDARDS.md)                                         | Coding style guide                              | GitHub           |
-| [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md)                                             | How to contribute to the project                | GitHub           |
-| [.github/FUNDING.yml](.github/FUNDING.yml)                                                     | Funding links displayed by GitHub               | GitHub           |
-| [.github/IMAGES/go-share-image.png](.github/IMAGES/go-share-image.png)                         | Social sharing image                            | GitHub           |
-| [.github/ISSUE_TEMPLATE/bug_report.yml](.github/ISSUE_TEMPLATE/bug_report.yml)                 | Issue template for bug reports                  | GitHub           |
-| [.github/ISSUE_TEMPLATE/feature_request.yml](.github/ISSUE_TEMPLATE/feature_request.yml)       | Issue template for feature requests             | GitHub           |
-| [.github/ISSUE_TEMPLATE/question.yml](.github/ISSUE_TEMPLATE/question.yml)                     | Issue template for questions                    | GitHub           |
-| [.github/SECURITY.md](.github/SECURITY.md)                                                     | Security policy                                 | GitHub           |
-| [.github/SUPPORT.md](.github/SUPPORT.md)                                                       | Support guidelines                              | GitHub           |
-| [.github/actions/warm-cache/action.yml](.github/actions/warm-cache/action.yml)                 | Action to warm GitHub Actions cache             | GitHub Actions   |
-| [.github/dependabot.yml](.github/dependabot.yml)                                               | Dependabot configuration                        | GitHub           |
-| [.github/labels.yml](.github/labels.yml)                                                       | Repository label definitions                    | GitHub           |
-| [.github/pip-requirements.txt](.github/pip-requirements.txt)                                   | Python requirements for pre-commit hooks        | GitHub           |
-| [.github/pull_request_template.md](.github/pull_request_template.md)                           | Pull request description template               | GitHub           |
-| [.github/sweep.yaml](.github/sweep.yaml)                                                       | Sweep AI configuration                          | Sweep AI         |
-| [.github/workflows/auto-merge-on-approval.yml](.github/workflows/auto-merge-on-approval.yml)   | Workflow for automatic merges                   | GitHub Actions   |
-| [.github/workflows/codeql-analysis.yml](.github/workflows/codeql-analysis.yml)                 | CodeQL security analysis workflow               | GitHub Actions   |
-| [.github/workflows/dependabot-auto-merge.yml](.github/workflows/dependabot-auto-merge.yml)     | Auto merge Dependabot PRs                       | GitHub Actions   |
-| [.github/workflows/fortress.yml](.github/workflows/fortress.yml)                               | Fortress security & testing workflow            | GitHub Actions   |
-| [.github/workflows/ossar.yml](.github/workflows/ossar.yml)                                     | OSSAR static analysis workflow                  | GitHub Actions   |
-| [.github/workflows/pull-request-management.yml](.github/workflows/pull-request-management.yml) | Pull request triage workflow                    | GitHub Actions   |
-| [.github/workflows/scorecard.yml](.github/workflows/scorecard.yml)                             | OpenSSF Scorecard workflow                      | GitHub Actions   |
-| [.github/workflows/stale.yml](.github/workflows/stale-check.yml)                               | Close stale issues and PRs                      | GitHub Actions   |
-| [.github/workflows/sync-labels.yml](.github/workflows/sync-labels.yml)                         | Sync repository labels                          | GitHub Actions   |
-| [.github/workflows/update-pip-requirements.yml](.github/workflows/update-pip-requirements.yml) | Update Python requirements for pre-commit hooks | GitHub Actions   |
-| [.github/workflows/update-pre-commit-hooks.yml](.github/workflows/update-pre-commit-hooks.yml) | Automatically update pre-commit hooks           | GitHub Actions   |
-| [.gitignore](.gitignore)                                                                       | Files and directories Git should ignore         | Git              |
-| [.gitpod.yml](.gitpod.yml)                                                                     | Gitpod workspace configuration                  | Gitpod           |
-| [.golangci.json](.golangci.json)                                                               | GolangCI-Lint configuration                     | GolangCI-Lint    |
-| [.goreleaser.yml](.goreleaser.yml)                                                             | GoReleaser configuration for release automation | GoReleaser       |
-| [.make/common.mk](.make/common.mk)                                                             | Shared make tasks                               | Make             |
-| [.make/go.mk](.make/go.mk)                                                                     | Go-specific make tasks                          | Make             |
-| [.make/temp.mk](.make/temp.mk)                                                                 | Temporary makefile for internal use             | Make             |
-| [.pre-commit-config.yaml](.pre-commit-config.yaml)                                             | Pre-commit hooks configuration                  | Pre-commit       |
-| [.vscode/extensions.json](.vscode/extensions.json)                                             | Recommended VS Code extensions                  | VS Code          |
-| [.vscode/launch.json](.vscode/launch.json)                                                     | VS Code debugging configuration                 | VS Code          |
-| [.vscode/settings.json](.vscode/settings.json)                                                 | VS Code workspace settings                      | VS Code          |
-| [.vscode/tasks.json](.vscode/tasks.json)                                                       | VS Code tasks configuration                     | VS Code          |
-| [CITATION.cff](CITATION.cff)                                                                   | Citation metadata recognized by GitHub          | GitHub           |
-| [Dockerfile](Dockerfile)                                                                       | Docker image build instructions                 | Docker           |
-| [LICENSE](LICENSE)                                                                             | Project license                                 | Yours!           |
-| [Makefile](Makefile)                                                                           | Build and lint automation                       | Make             |
-| [README.md](README.md)                                                                         | Project overview and usage                      | Yours!           |
-| [codecov.yml](codecov.yml)                                                                     | Codecov upload configuration                    | Codecov          |
-| [examples/example.go](examples/example.go)                                                     | Example usage of the library                    | None             |
-| [go.mod](go.mod)                                                                               | Go module definition                            | Go               |
-| [go.sum](go.sum)                                                                               | Dependency checksums generated by Go            | Go               |
-| [template.go](template.go)                                                                     | Main package source code                        | Yours!           |
-| [template_benchmark_test.go](template_benchmark_test.go)                                       | Go benchmark tests                              | Go test          |
-| [template_example_test.go](template_example_test.go)                                           | Example tests for documentation                 | Go test          |
-| [template_fuzz_test.go](template_fuzz_test.go)                                                 | Go fuzz tests                                   | Go test          |
-| [template_test.go](template_test.go)                                                           | Unit tests                                      | Go test          |
+| File Path                                                                                            | Description                                     | Service          |
+|------------------------------------------------------------------------------------------------------|-------------------------------------------------|------------------|
+| [.cursorrules](.cursorrules)                                                                         | Rules for Cursor AI integrations                | Cursor           |
+| [.devcontainer.json](.devcontainer.json)                                                             | VS Code dev or GitHub container configuration   | VS Code & GitHub |
+| [.dockerignore](.dockerignore)                                                                       | Paths ignored by Docker builds                  | Docker           |
+| [.editorconfig](.editorconfig)                                                                       | Editor configuration defaults                   | Editor           |
+| [.gitattributes](.gitattributes)                                                                     | Git attributes and export settings              | Git              |
+| [.github/.env.shared](.github/.env.shared)                                                           | Shared environment variables for GitHub Actions | GitHub Actions   |
+| [.github/AGENTS.md](.github/AGENTS.md)                                                               | Contribution rules and guidelines               | GitHub           |
+| [.github/CLAUDE.md](.github/CLAUDE.md)                                                               | Claude agent instructions                       | Claude           |
+| [.github/CODEOWNERS](.github/CODEOWNERS)                                                             | Code ownership declarations for GitHub          | GitHub           |
+| [.github/CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md)                                             | Community behavior standards                    | GitHub           |
+| [.github/CODE_STANDARDS.md](.github/CODE_STANDARDS.md)                                               | Coding style guide                              | GitHub           |
+| [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md)                                                   | How to contribute to the project                | GitHub           |
+| [.github/FUNDING.yml](.github/FUNDING.yml)                                                           | Funding links displayed by GitHub               | GitHub           |
+| [.github/IMAGES/go-share-image.png](.github/IMAGES/go-share-image.png)                               | Social sharing image                            | GitHub           |
+| [.github/ISSUE_TEMPLATE/bug_report.yml](.github/ISSUE_TEMPLATE/bug_report.yml)                       | Issue template for bug reports                  | GitHub           |
+| [.github/ISSUE_TEMPLATE/feature_request.yml](.github/ISSUE_TEMPLATE/feature_request.yml)             | Issue template for feature requests             | GitHub           |
+| [.github/ISSUE_TEMPLATE/question.yml](.github/ISSUE_TEMPLATE/question.yml)                           | Issue template for questions                    | GitHub           |
+| [.github/SECURITY.md](.github/SECURITY.md)                                                           | Security policy                                 | GitHub           |
+| [.github/SUPPORT.md](.github/SUPPORT.md)                                                             | Support guidelines                              | GitHub           |
+| [.github/actions/warm-cache/action.yml](.github/actions/warm-cache/action.yml)                       | Action to warm GitHub Actions cache             | GitHub Actions   |
+| [.github/dependabot.yml](.github/dependabot.yml)                                                     | Dependabot configuration                        | GitHub           |
+| [.github/labels.yml](.github/labels.yml)                                                             | Repository label definitions                    | GitHub           |
+| [.github/pip-requirements.txt](.github/pip-requirements.txt)                                         | Python requirements for pre-commit hooks        | GitHub           |
+| [.github/pull_request_template.md](.github/pull_request_template.md)                                 | Pull request description template               | GitHub           |
+| [.github/sweep.yaml](.github/sweep.yaml)                                                             | Sweep AI configuration                          | Sweep AI         |
+| [.github/workflows/auto-merge-on-approval.yml](.github/workflows/auto-merge-on-approval.yml)         | Workflow for automatic merges                   | GitHub Actions   |
+| [.github/workflows/codeql-analysis.yml](.github/workflows/codeql-analysis.yml)                       | CodeQL security analysis workflow               | GitHub Actions   |
+| [.github/workflows/dependabot-auto-merge.yml](.github/workflows/dependabot-auto-merge.yml)           | Auto merge Dependabot PRs                       | GitHub Actions   |
+| [.github/workflows/fortress.yml](.github/workflows/fortress.yml)                                     | Fortress security & testing workflow            | GitHub Actions   |
+| [.github/workflows/ossar.yml](.github/workflows/ossar.yml)                                           | OSSAR static analysis workflow                  | GitHub Actions   |
+| [.github/workflows/pull-request-management.yml](.github/workflows/pull-request-management.yml)       | Pull request triage workflow                    | GitHub Actions   |
+| [.github/workflows/scorecard.yml](.github/workflows/scorecard.yml)                                   | OpenSSF Scorecard workflow                      | GitHub Actions   |
+| [.github/workflows/stale.yml](.github/workflows/stale-check.yml)                                     | Close stale issues and PRs                      | GitHub Actions   |
+| [.github/workflows/sync-labels.yml](.github/workflows/sync-labels.yml)                               | Sync repository labels                          | GitHub Actions   |
+| [.github/workflows/update-python-dependencies.yml](.github/workflows/update-python-dependencies.yml) | Update Python dependencies for pre-commit hooks | GitHub Actions   |
+| [.github/workflows/update-pre-commit-hooks.yml](.github/workflows/update-pre-commit-hooks.yml)       | Automatically update pre-commit hooks           | GitHub Actions   |
+| [.gitignore](.gitignore)                                                                             | Files and directories Git should ignore         | Git              |
+| [.gitpod.yml](.gitpod.yml)                                                                           | Gitpod workspace configuration                  | Gitpod           |
+| [.golangci.json](.golangci.json)                                                                     | GolangCI-Lint configuration                     | GolangCI-Lint    |
+| [.goreleaser.yml](.goreleaser.yml)                                                                   | GoReleaser configuration for release automation | GoReleaser       |
+| [.make/common.mk](.make/common.mk)                                                                   | Shared make tasks                               | Make             |
+| [.make/go.mk](.make/go.mk)                                                                           | Go-specific make tasks                          | Make             |
+| [.make/temp.mk](.make/temp.mk)                                                                       | Temporary makefile for internal use             | Make             |
+| [.pre-commit-config.yaml](.pre-commit-config.yaml)                                                   | Pre-commit hooks configuration                  | Pre-commit       |
+| [.vscode/extensions.json](.vscode/extensions.json)                                                   | Recommended VS Code extensions                  | VS Code          |
+| [.vscode/launch.json](.vscode/launch.json)                                                           | VS Code debugging configuration                 | VS Code          |
+| [.vscode/settings.json](.vscode/settings.json)                                                       | VS Code workspace settings                      | VS Code          |
+| [.vscode/tasks.json](.vscode/tasks.json)                                                             | VS Code tasks configuration                     | VS Code          |
+| [CITATION.cff](CITATION.cff)                                                                         | Citation metadata recognized by GitHub          | GitHub           |
+| [Dockerfile](Dockerfile)                                                                             | Docker image build instructions                 | Docker           |
+| [LICENSE](LICENSE)                                                                                   | Project license                                 | Yours!           |
+| [Makefile](Makefile)                                                                                 | Build and lint automation                       | Make             |
+| [README.md](README.md)                                                                               | Project overview and usage                      | Yours!           |
+| [codecov.yml](codecov.yml)                                                                           | Codecov upload configuration                    | Codecov          |
+| [examples/example.go](examples/example.go)                                                           | Example usage of the library                    | None             |
+| [go.mod](go.mod)                                                                                     | Go module definition                            | Go               |
+| [go.sum](go.sum)                                                                                     | Dependency checksums generated by Go            | Go               |
+| [template.go](template.go)                                                                           | Main package source code                        | Yours!           |
+| [template_benchmark_test.go](template_benchmark_test.go)                                             | Go benchmark tests                              | Go test          |
+| [template_example_test.go](template_example_test.go)                                                 | Example tests for documentation                 | Go test          |
+| [template_fuzz_test.go](template_fuzz_test.go)                                                       | Go fuzz tests                                   | Go test          |
+| [template_test.go](template_test.go)                                                                 | Unit tests                                      | Go test          |
 </details>
 
 <details>
@@ -458,20 +458,20 @@ vet                   ## Run go vet only on your module packages
 <summary><strong><code>GitHub Workflows</code></strong></summary>
 <br/>
 
-| Workflow Name                                                                | Description                                                                                                                 |
-|------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
-| [auto-merge-on-approval.yml](.github/workflows/auto-merge-on-approval.yml)   | Automatically merges PRs after approval and all required checks, following strict rules.                                    |
-| [codeql-analysis.yml](.github/workflows/codeql-analysis.yml)                 | Analyzes code for security vulnerabilities using [GitHub CodeQL](https://codeql.github.com/).                               |
-| [dependabot-auto-merge.yml](.github/workflows/dependabot-auto-merge.yml)     | Automatically merges [Dependabot](https://github.com/dependabot) PRs that meet all requirements.                            |
-| [fortress-release.yml](.github/workflows/fortress-release.yml)               | Builds and publishes releases via [GoReleaser](https://goreleaser.com/intro/) when a semver tag is pushed.                  |
-| [fortress.yml](.github/workflows/fortress.yml)                               | Runs linter, Go tests and dependency checks on every pull request.                                                          |
-| [ossar.yml](.github/workflows/ossar.yml)                                     | Runs [OSSAR](https://github.com/github/ossar-action) static analysis workflow                                               |
-| [pull-request-management.yml](.github/workflows/pull-request-management.yml) | Labels PRs by branch prefix, assigns a default user if none is assigned, and welcomes new contributors with a comment.      |
-| [scorecard.yml](.github/workflows/scorecard.yml)                             | Runs [OpenSSF](https://openssf.org/) Scorecard to assess supply chain security.                                             |
-| [stale.yml](.github/workflows/stale-check.yml)                               | Warns about (and optionally closes) inactive issues and PRs on a schedule or manual trigger.                                |
-| [sync-labels.yml](.github/workflows/sync-labels.yml)                         | Keeps GitHub labels in sync with the declarative manifest at [`.github/labels.yml`](./.github/labels.yml).                  |
-| [update-pip-requirements.yml](.github/workflows/update-pip-requirements.yml) | Updates Python [requirements](./.github/workflows/update-pip-requirements.yml) for pre-commit hooks to the latest versions. |
-| [update-pre-commit-hooks.yml](.github/workflows/update-pre-commit-hooks.yml) | Automatically update versions for [pre-commit](https://pre-commit.com/) hooks                                               |
+| Workflow Name                                                                      | Description                                                                                                            |
+|------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| [auto-merge-on-approval.yml](.github/workflows/auto-merge-on-approval.yml)         | Automatically merges PRs after approval and all required checks, following strict rules.                               |
+| [codeql-analysis.yml](.github/workflows/codeql-analysis.yml)                       | Analyzes code for security vulnerabilities using [GitHub CodeQL](https://codeql.github.com/).                          |
+| [dependabot-auto-merge.yml](.github/workflows/dependabot-auto-merge.yml)           | Automatically merges [Dependabot](https://github.com/dependabot) PRs that meet all requirements.                       |
+| [fortress-release.yml](.github/workflows/fortress-release.yml)                     | Builds and publishes releases via [GoReleaser](https://goreleaser.com/intro/) when a semver tag is pushed.             |
+| [fortress.yml](.github/workflows/fortress.yml)                                     | Runs linter, Go tests and dependency checks on every pull request.                                                     |
+| [ossar.yml](.github/workflows/ossar.yml)                                           | Runs [OSSAR](https://github.com/github/ossar-action) static analysis workflow                                          |
+| [pull-request-management.yml](.github/workflows/pull-request-management.yml)       | Labels PRs by branch prefix, assigns a default user if none is assigned, and welcomes new contributors with a comment. |
+| [scorecard.yml](.github/workflows/scorecard.yml)                                   | Runs [OpenSSF](https://openssf.org/) Scorecard to assess supply chain security.                                        |
+| [stale.yml](.github/workflows/stale-check.yml)                                     | Warns about (and optionally closes) inactive issues and PRs on a schedule or manual trigger.                           |
+| [sync-labels.yml](.github/workflows/sync-labels.yml)                               | Keeps GitHub labels in sync with the declarative manifest at [`.github/labels.yml`](./.github/labels.yml).             |
+| [update-python-dependencies.yml](.github/workflows/update-python-dependencies.yml) | Updates Python dependencies for pre-commit hooks in the repository.                                                    |
+| [update-pre-commit-hooks.yml](.github/workflows/update-pre-commit-hooks.yml)       | Automatically update versions for [pre-commit](https://pre-commit.com/) hooks                                          |
 
 </details>
 

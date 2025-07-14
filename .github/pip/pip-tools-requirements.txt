@@ -1,5 +1,5 @@
 # pip-tools requirements with hash verification
-# This file is used by update-pip-requirements.yml workflow
+# This file is used by update-python-dependencies.yml workflow
 # To update: pip-compile --generate-hashes pip-tools-requirements.in
 #
 # SECURITY: All packages MUST include hashes for supply chain security
