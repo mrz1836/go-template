@@ -17,7 +17,7 @@
 #
 # ------------------------------------------------------------------------------------
 
-name: update-pip-requirements
+name: Update Pip Requirements
 
 # ————————————————————————————————————————————————————————————————
 # Trigger Configuration
@@ -115,21 +115,21 @@ jobs:
           ENV_JSON: ${{ needs.load-env.outputs.env-json }}
         run: |
           echo "📋 Extracting configuration from environment..."
-          
+
           # Extract all needed variables
           BRANCH_NAME=$(echo "$ENV_JSON" | jq -r '.UPDATE_PIP_REQUIREMENTS_BRANCH')
           REQUIREMENTS_FILE=$(echo "$ENV_JSON" | jq -r '.PIP_REQUIREMENTS_FILE')
           PREFERRED_TOKEN=$(echo "$ENV_JSON" | jq -r '.PREFERRED_GITHUB_TOKEN')
-          
+
           # Set as environment variables for all subsequent steps
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
           echo "REQUIREMENTS_FILE=$REQUIREMENTS_FILE" >> $GITHUB_ENV
-          
+
           # Log configuration
           echo "🔍 Configuration loaded:"
           echo "  📁 Requirements file: $REQUIREMENTS_FILE"
           echo "  🌿 Update branch: $BRANCH_NAME"
-          
+
           if [[ "$PREFERRED_TOKEN" == "GH_PAT_TOKEN" && -n "${{ secrets.GH_PAT_TOKEN }}" ]]; then
             echo "  🔑 Token: Personal Access Token (PAT)"
           else
