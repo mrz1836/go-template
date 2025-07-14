@@ -10,7 +10,7 @@
 #  management across all workflows.
 #
 #  Triggers:
-#  - Scheduled: Every Monday at 08:20 UTC
+#  - Scheduled: Every Monday at 12:00 UTC (7:00 AM EST)
 #  - Manual: Via workflow_dispatch
 #
 #  Maintainer: @mrz1836
@@ -25,7 +25,7 @@ name: Update Pip Requirements
 on:
   schedule:
     # ┌─ min ┬─ hour ┬─ dom ┬─ mon ┬─ dow ┐
-    - cron: '20 8 * * 1'   # Every Monday at 08:20 UTC
+    - cron: '0 12 * * 1-5'  # 7:00 AM EST (12:00 UTC)
   workflow_dispatch:        # Allow manual triggering from the GitHub UI
 
 # ————————————————————————————————————————————————————————————————

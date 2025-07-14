@@ -3,7 +3,7 @@
 #
 #  Purpose: Automatically update pre-commit hooks weekly and open a PR
 #
-#  Triggers: Runs every Monday at 08:20 UTC and can be triggered manually.
+#  Triggers: Runs every Monday at 12:00 UTC (7:00 AM EST)
 #
 #  Maintainer: @mrz1836
 # ------------------------------------------------------------------------------
@@ -16,7 +16,7 @@ name: update-pre-commit-hooks
 on:
   schedule:
     # ┌─ min ┬─ hour ┬─ dom ┬─ mon ┬─ dow ┐
-    - cron: '20 8 * * 1'   # Every Monday at 08:20 UTC
+    - cron: '0 12 * * 1-5'  # 7:00 AM EST (12:00 UTC)
   workflow_dispatch:
 
 # ————————————————————————————————————————————————————————————————
