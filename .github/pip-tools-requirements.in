@@ -1,0 +1,5 @@
+# pip-tools requirements input file
+# To regenerate pip-tools-requirements.txt with hashes:
+# pip-compile --generate-hashes pip-tools-requirements.in
+
+pip-tools==7.4.1

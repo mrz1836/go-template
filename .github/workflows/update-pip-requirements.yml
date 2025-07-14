@@ -144,6 +144,12 @@ jobs:
         with:
           token: ${{ secrets.GH_PAT_TOKEN || secrets.GITHUB_TOKEN }}
           fetch-depth: 0  # Full history for branch operations
+          sparse-checkout: |
+            .github/pip-requirements.txt
+            .github/pip-requirements.in
+            .github/pip-tools-requirements.txt
+            .github/pip-tools-requirements.in
+            .github/scripts/update_pip_requirements.py
 
       # ————————————————————————————————————————————————————————————————
       # Set up Python for dependency management
@@ -209,10 +215,25 @@ jobs:
           else
             echo "📦 No custom script found, using default pip-tools approach..."
 
-            # Install pip-tools from pinned, hash-verified requirements
+            # Install pip-tools with specific version and hash
             echo "📦 Installing pip-tools..."
-            pip install --require-hashes -r "${{ env.REQUIREMENTS_FILE }}" 2>/dev/null || \
-              pip install pip-tools
+            # Try to install from existing requirements first
+            if pip install --require-hashes -r "${{ env.REQUIREMENTS_FILE }}" 2>/dev/null; then
+              echo "✅ Installed from existing requirements file"
+            else
+              echo "⚠️ Installing pip-tools with pinned version..."
+              # SECURITY: All pip installs MUST use --require-hashes to prevent supply chain attacks
+              # pip-tools is installed from a dedicated requirements file with all dependencies pinned
+              if [ -f ".github/pip-tools-requirements.txt" ]; then
+                echo "📦 Installing from pip-tools-requirements.txt..."
+                pip install --require-hashes -r .github/pip-tools-requirements.txt
+                echo "✅ pip-tools installed with hash verification"
+              else
+                echo "❌ ERROR: pip-tools-requirements.txt not found"
+                echo "❌ This file is required for secure pip-tools installation"
+                exit 1
+              fi
+            fi
 
             # If requirements.in exists, compile it; otherwise work with existing .txt
             if [ -f ".github/pip-requirements.in" ]; then
