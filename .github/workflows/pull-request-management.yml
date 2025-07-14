@@ -741,19 +741,24 @@ jobs:
       - name: 📊 Generate workflow summary
         env:
           ENV_JSON: ${{ needs.load-env.outputs.env-json }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_ACTION: ${{ github.event.action }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_MERGED: ${{ github.event.pull_request.merged }}
         run: |
           echo "📊 Generating workflow summary..."
 
           echo "# 🔧 Pull Request Management Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**⏰ Processed:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
-          echo "**📋 PR:** #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}" >> $GITHUB_STEP_SUMMARY
-          echo "**🎬 Action:** ${{ github.event.action }}" >> $GITHUB_STEP_SUMMARY
-          echo "**👤 Author:** @${{ github.event.pull_request.user.login }}" >> $GITHUB_STEP_SUMMARY
+          echo "**📋 PR:** #$PR_NUMBER - $PR_TITLE" >> $GITHUB_STEP_SUMMARY
+          echo "**🎬 Action:** $PR_ACTION" >> $GITHUB_STEP_SUMMARY
+          echo "**👤 Author:** @$PR_AUTHOR" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Show results based on action type
-          if [ "${{ github.event.action }}" != "closed" ]; then
+          if [ "$PR_ACTION" != "closed" ]; then
             echo "## 📋 Actions Taken" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "| Action | Result |" >> $GITHUB_STEP_SUMMARY
@@ -807,7 +812,7 @@ jobs:
             fi
             
             # Branch deletion
-            if [ "${{ github.event.pull_request.merged }}" = "true" ] && [ "${{ needs.delete-branch.result }}" = "success" ]; then
+            if [ "$PR_MERGED" = "true" ] && [ "${{ needs.delete-branch.result }}" = "success" ]; then
               DELETED="${{ needs.delete-branch.outputs.branch-deleted }}"
               if [ "$DELETED" = "true" ]; then
                 echo "| 🌿 Branch Deletion | Deleted |" >> $GITHUB_STEP_SUMMARY
@@ -844,17 +849,22 @@ jobs:
       # Report final workflow status
       # ————————————————————————————————————————————————————————————————
       - name: 📢 Report workflow status
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_ACTION: ${{ github.event.action }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_MERGED: ${{ github.event.pull_request.merged }}
         run: |
           echo "=== 🔧 Pull Request Management Summary ==="
-          echo "📋 PR: #${{ github.event.pull_request.number }}"
-          echo "🎬 Action: ${{ github.event.action }}"
-          echo "👤 Author: @${{ github.event.pull_request.user.login }}"
+          echo "📋 PR: #$PR_NUMBER"
+          echo "🎬 Action: $PR_ACTION"
+          echo "👤 Author: @$PR_AUTHOR"
           
           # Summary based on action
-          if [ "${{ github.event.action }}" != "closed" ]; then
+          if [ "$PR_ACTION" != "closed" ]; then
             echo "✅ PR management tasks completed"
           else
-            if [ "${{ github.event.pull_request.merged }}" = "true" ]; then
+            if [ "$PR_MERGED" = "true" ]; then
               echo "✅ PR merged and cleanup completed"
             else
               echo "✅ PR closed and cleanup completed"
