@@ -3,3 +3,4 @@
 # pip-compile --generate-hashes pip-tools-requirements.in
 
 pip-tools==7.4.1
+setuptools>=78.1.1
