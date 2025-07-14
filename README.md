@@ -17,7 +17,7 @@
           <img src="https://img.shields.io/github/release-pre/mrz1836/go-template?logo=github&style=flat&v=1" alt="Latest Release">
         </a><br/>
         <a href="https://github.com/mrz1836/go-template/actions">
-          <img src="https://img.shields.io/github/actions/workflow/status/mrz1836/go-template/run-tests.yml?branch=master&logo=github&style=flat" alt="Build Status">
+          <img src="https://img.shields.io/github/actions/workflow/status/mrz1836/go-template/fortress.yml?branch=master&logo=github&style=flat" alt="Build Status">
         </a><br/>
 		<a href="https://github.com/mrz1836/go-template/actions">
           <img src="https://github.com/mrz1836/go-template/actions/workflows/codeql-analysis.yml/badge.svg?style=flat" alt="CodeQL">

@@ -1062,7 +1062,7 @@ CI automatically runs on every PR to verify:
 * Linting (`make lint`)
 * Tests (`make test`)
 * Fuzz tests (if applicable) (`make run-fuzz-tests`)
-* This codebase uses GitHub Actions; test workflows reside in `.github/workflows/run-tests.yml`
+* This codebase uses GitHub Actions; test workflows reside in `.github/workflows/fortress.yml` and `.github/workflows/fortress-test-suite.yml`.
 * Pin each external GitHub Action to a **full commit SHA** (e.g., `actions/checkout@2f3b4a2e0e471e13e2ea2bc2a350e888c9cf9b75`) as recommended by GitHub's [security hardening guidance](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-pinned-actions). Dependabot will track and update these pinned versions automatically.
 
 Failing PRs will be blocked. AI agents should iterate until CI passes.
