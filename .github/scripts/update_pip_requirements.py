@@ -3,7 +3,7 @@ import tempfile
 import re
 from pathlib import Path
 
-REQ_FILE = Path('.github/pip-requirements.txt')
+REQ_FILE = Path('.github/pip/requirements.txt')
 
 def get_latest_version(pkg: str) -> str:
     result = subprocess.check_output(['pip', 'index', 'versions', pkg], text=True)

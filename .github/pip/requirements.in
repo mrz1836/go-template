@@ -1,0 +1,9 @@
+# Main Python dependencies for GitHub Actions workflows
+# To regenerate requirements.txt with hashes:
+# pip-compile --generate-hashes requirements.in
+
+# Pre-commit framework for managing git hooks
+pre-commit==4.2.0
+
+# pip-tools for requirements management (also in pip-tools-requirements.txt)
+pip-tools==7.4.1

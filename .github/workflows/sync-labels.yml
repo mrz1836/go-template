@@ -23,7 +23,7 @@ on:
     branches: [ master ]
     paths:
       - .github/labels.yml  # Runs *only* when this file changes
-  workflow_dispatch:       # Allow manual triggering
+  workflow_dispatch:        # Allow manual triggering
     inputs:
       dry_run:
         description: 'Dry run mode (show changes without applying them)'
