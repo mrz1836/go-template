@@ -588,25 +588,29 @@ jobs:
       - name: 🧹 Cleanup caches
         id: clean
         if: env.CLEAN_CACHE == 'true'
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
         run: |
-          echo "🧹 Cleaning up caches for PR #${{ github.event.pull_request.number }}..."
+          echo "🧹 Cleaning up caches for PR #$PR_NUMBER..."
           echo "════════════════════════════════════════════════════════════════"
           
           # Fetch the list of cache keys for this PR
-          echo "📋 Fetching cache list for PR #${{ github.event.pull_request.number }}..."
+          echo "📋 Fetching cache list for PR #$PR_NUMBER..."
           
           # Get all caches and filter for this PR (checking multiple possible refs)
-          PR_NUM="${{ github.event.pull_request.number }}"
           allCaches=$(gh cache list --limit 100 --json id,key,ref)
           
           # Debug: Show what refs we're looking for
           echo "🔍 Looking for caches with refs:"
-          echo "  - refs/pull/$PR_NUM/merge"
-          echo "  - refs/pull/$PR_NUM/head"
-          echo "  - refs/heads/${{ github.event.pull_request.head.ref }}"
+          echo "  - refs/pull/$PR_NUMBER/merge"
+          echo "  - refs/pull/$PR_NUMBER/head"
+          echo "  - refs/heads/$PR_HEAD_REF"
           
           # Filter caches that belong to this PR (multiple possible refs)
-          cacheKeysForPR=$(echo "$allCaches" | jq -r --arg pr "$PR_NUM" --arg branch "${{ github.event.pull_request.head.ref }}" \
+          cacheKeysForPR=$(echo "$allCaches" | jq -r --arg pr "$PR_NUMBER" --arg branch "$PR_HEAD_REF" \
             '.[] | select(
               .ref == "refs/pull/\($pr)/merge" or 
               .ref == "refs/pull/\($pr)/head" or
@@ -645,9 +649,6 @@ jobs:
           echo "════════════════════════════════════════════════════════════════"
           echo "✅ Cleaned $cleanedCount out of $cacheCount cache(s)"
           echo "caches-cleaned=$cleanedCount" >> $GITHUB_OUTPUT
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
 
   # ----------------------------------------------------------------------------------
   # Delete Merged Branch
