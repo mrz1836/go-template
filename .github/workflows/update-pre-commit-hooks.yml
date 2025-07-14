@@ -25,7 +25,7 @@ on:
   schedule:
     # ┌─ min ┬─ hour ┬─ dom ┬─ mon ┬─ dow ┐
     - cron: '0 12 * * 1-5'  # 7:00 AM EST (12:00 UTC)
-  workflow_dispatch:        # Allow manual triggering from the GitHub UI
+  workflow_dispatch: # Allow manual triggering from the GitHub UI
     inputs:
       create_pr:
         description: 'Create pull request with changes'
@@ -109,7 +109,7 @@ jobs:
   # ----------------------------------------------------------------------------------
   update-hooks:
     name: 🪝 Update Pre-commit Hooks
-    needs: [load-env]
+    needs: [ load-env ]
     runs-on: ubuntu-latest
     permissions:
       contents: write        # For creating branches and commits
@@ -575,7 +575,7 @@ jobs:
   summary:
     name: 📊 Generate Summary
     if: always()
-    needs: [load-env, update-hooks]
+    needs: [ load-env, update-hooks ]
     runs-on: ubuntu-latest
     steps:
       # ————————————————————————————————————————————————————————————————

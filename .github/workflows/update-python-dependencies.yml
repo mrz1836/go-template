@@ -27,7 +27,7 @@ on:
   schedule:
     # ┌─ min ┬─ hour ┬─ dom ┬─ mon ┬─ dow ┐
     - cron: '0 12 * * 1-5'  # 7:00 AM EST (12:00 UTC)
-  workflow_dispatch:        # Allow manual triggering from the GitHub UI
+  workflow_dispatch: # Allow manual triggering from the GitHub UI
     inputs:
       update_main:
         description: 'Update main requirements.txt'
@@ -116,7 +116,7 @@ jobs:
   # ----------------------------------------------------------------------------------
   update-dependencies:
     name: 📦 Update Python Dependencies
-    needs: [load-env]
+    needs: [ load-env ]
     runs-on: ubuntu-latest
     permissions:
       contents: write        # For creating branches and commits
@@ -143,7 +143,7 @@ jobs:
           PREFERRED_TOKEN=$(echo "$ENV_JSON" | jq -r '.PREFERRED_GITHUB_TOKEN')
           PR_LABELS=$(echo "$ENV_JSON" | jq -r '.UPDATE_PYTHON_DEPENDENCIES_PR_LABELS')
           PR_ASSIGNEE=$(echo "$ENV_JSON" | jq -r '.UPDATE_PYTHON_DEPENDENCIES_PR_ASSIGNEE')
-          
+
           # Validate required configuration
           if [[ -z "$BRANCH_NAME" ]] || [[ "$BRANCH_NAME" == "null" ]]; then
             echo "❌ ERROR: UPDATE_PYTHON_DEPENDENCIES_BRANCH not set in .env.shared" >&2
@@ -170,7 +170,7 @@ jobs:
             DEFAULT_UPDATE_MAIN=$(echo "$ENV_JSON" | jq -r '.UPDATE_PYTHON_DEPENDENCIES_SCHEDULE_UPDATE_MAIN')
             DEFAULT_UPDATE_PIP_TOOLS=$(echo "$ENV_JSON" | jq -r '.UPDATE_PYTHON_DEPENDENCIES_SCHEDULE_UPDATE_PIP_TOOLS')
             DEFAULT_CREATE_PR=$(echo "$ENV_JSON" | jq -r '.UPDATE_PYTHON_DEPENDENCIES_SCHEDULE_CREATE_PR')
-            
+
             echo "UPDATE_MAIN=$DEFAULT_UPDATE_MAIN" >> $GITHUB_ENV
             echo "UPDATE_PIP_TOOLS=$DEFAULT_UPDATE_PIP_TOOLS" >> $GITHUB_ENV
             echo "CREATE_PR=$DEFAULT_CREATE_PR" >> $GITHUB_ENV
@@ -224,7 +224,7 @@ jobs:
       - name: 🔧 Install pip-tools
         run: |
           echo "🔧 Installing pip-tools..."
-          
+
           # SECURITY: All pip installs MUST use --require-hashes
           if [ -f "${{ env.PIP_DIR }}/pip-tools-requirements.txt" ]; then
             echo "📦 Installing from pip-tools-requirements.txt..."
@@ -235,7 +235,7 @@ jobs:
             echo "❌ This file is required for secure pip-tools installation"
             exit 1
           fi
-          
+
           # Verify installation
           pip-compile --version
           echo "✅ pip-tools ready"
@@ -246,13 +246,13 @@ jobs:
       - name: 💾 Backup original files
         run: |
           echo "💾 Creating backups of all requirement files..."
-          
+
           # Find all .txt files in pip directory and create backups
           find "${{ env.PIP_DIR }}" -name "*.txt" -type f | while read -r file; do
             cp "$file" "${file}.backup"
             echo "  📄 Backed up: $file"
           done
-          
+
           echo "✅ All backups created"
 
       # ————————————————————————————————————————————————————————————————
@@ -263,9 +263,9 @@ jobs:
         id: update_pip_tools
         run: |
           echo "🔧 Updating pip-tools requirements..."
-          
+
           cd "${{ env.PIP_DIR }}"
-          
+
           if [ -f "pip-tools-requirements.in" ]; then
             echo "📝 Found pip-tools-requirements.in, compiling with hash verification..."
             pip-compile --upgrade --generate-hashes \
@@ -273,7 +273,7 @@ jobs:
               --output-file pip-tools-requirements.txt \
               --resolver=backtracking \
               --verbose
-            
+
             # Check for changes
             if ! cmp -s "pip-tools-requirements.txt" "pip-tools-requirements.txt.backup"; then
               echo "✅ pip-tools requirements updated"
@@ -295,9 +295,9 @@ jobs:
         id: update_main
         run: |
           echo "📦 Updating main requirements..."
-          
+
           cd "${{ env.PIP_DIR }}"
-          
+
           # Check if custom update script exists
           if [ -f "../scripts/update_pip_requirements.py" ]; then
             echo "🐍 Running custom update script..."
@@ -311,7 +311,7 @@ jobs:
               --verbose
           else
             echo "⚠️ No requirements.in found, attempting to upgrade existing requirements.txt..."
-            
+
             # Extract package names from existing requirements
             if [ -f "requirements.txt" ]; then
               grep -v '^#' requirements.txt | \
@@ -319,24 +319,24 @@ jobs:
                 cut -d' ' -f1 | \
                 grep -v '^$' | \
                 sed 's/==.*//' > temp-requirements.in
-              
+
               if [ -s temp-requirements.in ]; then
                 echo "📝 Extracted packages from existing requirements:"
                 cat temp-requirements.in
-                
+
                 pip-compile --upgrade --generate-hashes \
                   temp-requirements.in \
                   --output-file requirements.txt \
                   --resolver=backtracking \
                   --verbose
-                
+
                 rm temp-requirements.in
               else
                 echo "⚠️ Could not extract package list from existing requirements"
               fi
             fi
           fi
-          
+
           # Check for changes
           if [ -f "requirements.txt.backup" ] && ! cmp -s "requirements.txt" "requirements.txt.backup"; then
             echo "✅ Main requirements updated"
@@ -353,10 +353,10 @@ jobs:
         id: check_all_changes
         run: |
           echo "🔍 Checking for changes across all requirement files..."
-          
+
           changes_found=false
           changed_files=()
-          
+
           # Check all .txt files against their backups
           find "${{ env.PIP_DIR }}" -name "*.txt.backup" -type f | while read -r backup; do
             original="${backup%.backup}"
@@ -365,17 +365,17 @@ jobs:
               filename=$(basename "$original")
               changed_files+=("$filename")
               echo "  📝 Changed: $filename"
-              
+
               # Show summary of changes
               echo "  📊 Changes in $filename:"
               diff -u "$backup" "$original" | grep -E '^[+-]' | grep -v '^[+-]#' | head -10 || true
             fi
           done
-          
+
           if [ "$changes_found" = true ]; then
             echo "✅ Changes detected in requirement files"
             echo "has_changes=true" >> $GITHUB_OUTPUT
-            
+
             # Count total changes
             total_changes=$(find "${{ env.PIP_DIR }}" -name "*.txt" -type f -exec sh -c '
               backup="${1}.backup"
@@ -383,7 +383,7 @@ jobs:
                 diff "$backup" "$1" | grep -E "^[<>]" | grep -v "^[<>] #" | wc -l
               fi
             ' sh {} \; | awk '{sum += $1} END {print sum}')
-            
+
             echo "changed_count=$total_changes" >> $GITHUB_OUTPUT
             echo "  📊 Total package changes: ~$total_changes"
           else
@@ -391,7 +391,7 @@ jobs:
             echo "has_changes=false" >> $GITHUB_OUTPUT
             echo "changed_count=0" >> $GITHUB_OUTPUT
           fi
-          
+
           # Clean up backups
           find "${{ env.PIP_DIR }}" -name "*.backup" -type f -delete
           echo "🧹 Cleaned up backup files"
@@ -630,7 +630,7 @@ jobs:
   summary:
     name: 📊 Generate Summary
     if: always()
-    needs: [load-env, update-dependencies]
+    needs: [ load-env, update-dependencies ]
     runs-on: ubuntu-latest
     steps:
       # ————————————————————————————————————————————————————————————————
@@ -654,11 +654,11 @@ jobs:
             echo "|----------|----------|" >> $GITHUB_STEP_SUMMARY
             echo "| **Status** | 🔄 Dependencies updated |" >> $GITHUB_STEP_SUMMARY
             echo "| **Packages Modified** | ~${{ needs.update-dependencies.outputs.changed_count }} |" >> $GITHUB_STEP_SUMMARY
-            
+
             # Extract configuration from env-json
             PIP_DIR=$(echo "$ENV_JSON" | jq -r '.PIP_DIRECTORY')
             BRANCH_NAME=$(echo "$ENV_JSON" | jq -r '.UPDATE_PYTHON_DEPENDENCIES_BRANCH')
-            
+
             echo "| **Directory** | \`$PIP_DIR\` |" >> $GITHUB_STEP_SUMMARY
             echo "| **Branch** | \`$BRANCH_NAME\` |" >> $GITHUB_STEP_SUMMARY
 
