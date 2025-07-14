@@ -274,7 +274,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      issues: write
+      pull-requests: write
     if: |
       github.event.action != 'closed' &&
       github.event.pull_request.head.repo.owner.login == github.repository_owner
@@ -359,7 +359,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      issues: write
+      pull-requests: write
     if: |
       github.event.action == 'opened' &&
       contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR"]'), github.event.pull_request.author_association) &&
@@ -593,11 +593,32 @@ jobs:
           echo "════════════════════════════════════════════════════════════════"
           
           # Fetch the list of cache keys for this PR
-          echo "📋 Fetching cache list..."
-          cacheKeysForPR=$(gh cache list --ref "$BRANCH" --limit 100 --json id,key,ref | jq -r '.[] | select(.ref == env.BRANCH) | .id')
+          echo "📋 Fetching cache list for PR #${{ github.event.pull_request.number }}..."
           
-          # Count caches
-          cacheCount=$(echo "$cacheKeysForPR" | grep -c . || echo "0")
+          # Get all caches and filter for this PR (checking multiple possible refs)
+          PR_NUM="${{ github.event.pull_request.number }}"
+          allCaches=$(gh cache list --limit 100 --json id,key,ref)
+          
+          # Debug: Show what refs we're looking for
+          echo "🔍 Looking for caches with refs:"
+          echo "  - refs/pull/$PR_NUM/merge"
+          echo "  - refs/pull/$PR_NUM/head"
+          echo "  - refs/heads/${{ github.event.pull_request.head.ref }}"
+          
+          # Filter caches that belong to this PR (multiple possible refs)
+          cacheKeysForPR=$(echo "$allCaches" | jq -r --arg pr "$PR_NUM" --arg branch "${{ github.event.pull_request.head.ref }}" \
+            '.[] | select(
+              .ref == "refs/pull/\($pr)/merge" or 
+              .ref == "refs/pull/\($pr)/head" or
+              .ref == "refs/heads/\($branch)"
+            ) | .id')
+          
+          # Count caches - handle empty results properly
+          if [ -z "$cacheKeysForPR" ]; then
+            cacheCount=0
+          else
+            cacheCount=$(echo "$cacheKeysForPR" | wc -l | tr -d ' ')
+          fi
           
           if [ "$cacheCount" -eq "0" ]; then
             echo "ℹ️ No caches found for this PR"
@@ -627,7 +648,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
-          BRANCH: refs/pull/${{ github.event.pull_request.number }}/merge
 
   # ----------------------------------------------------------------------------------
   # Delete Merged Branch
@@ -741,19 +761,24 @@ jobs:
       - name: 📊 Generate workflow summary
         env:
           ENV_JSON: ${{ needs.load-env.outputs.env-json }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_ACTION: ${{ github.event.action }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_MERGED: ${{ github.event.pull_request.merged }}
         run: |
           echo "📊 Generating workflow summary..."
 
           echo "# 🔧 Pull Request Management Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**⏰ Processed:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
-          echo "**📋 PR:** #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}" >> $GITHUB_STEP_SUMMARY
-          echo "**🎬 Action:** ${{ github.event.action }}" >> $GITHUB_STEP_SUMMARY
-          echo "**👤 Author:** @${{ github.event.pull_request.user.login }}" >> $GITHUB_STEP_SUMMARY
+          echo "**📋 PR:** #$PR_NUMBER - $PR_TITLE" >> $GITHUB_STEP_SUMMARY
+          echo "**🎬 Action:** $PR_ACTION" >> $GITHUB_STEP_SUMMARY
+          echo "**👤 Author:** @$PR_AUTHOR" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Show results based on action type
-          if [ "${{ github.event.action }}" != "closed" ]; then
+          if [ "$PR_ACTION" != "closed" ]; then
             echo "## 📋 Actions Taken" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "| Action | Result |" >> $GITHUB_STEP_SUMMARY
@@ -807,7 +832,7 @@ jobs:
             fi
             
             # Branch deletion
-            if [ "${{ github.event.pull_request.merged }}" = "true" ] && [ "${{ needs.delete-branch.result }}" = "success" ]; then
+            if [ "$PR_MERGED" = "true" ] && [ "${{ needs.delete-branch.result }}" = "success" ]; then
               DELETED="${{ needs.delete-branch.outputs.branch-deleted }}"
               if [ "$DELETED" = "true" ]; then
                 echo "| 🌿 Branch Deletion | Deleted |" >> $GITHUB_STEP_SUMMARY
@@ -844,17 +869,22 @@ jobs:
       # Report final workflow status
       # ————————————————————————————————————————————————————————————————
       - name: 📢 Report workflow status
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_ACTION: ${{ github.event.action }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_MERGED: ${{ github.event.pull_request.merged }}
         run: |
           echo "=== 🔧 Pull Request Management Summary ==="
-          echo "📋 PR: #${{ github.event.pull_request.number }}"
-          echo "🎬 Action: ${{ github.event.action }}"
-          echo "👤 Author: @${{ github.event.pull_request.user.login }}"
+          echo "📋 PR: #$PR_NUMBER"
+          echo "🎬 Action: $PR_ACTION"
+          echo "👤 Author: @$PR_AUTHOR"
           
           # Summary based on action
-          if [ "${{ github.event.action }}" != "closed" ]; then
+          if [ "$PR_ACTION" != "closed" ]; then
             echo "✅ PR management tasks completed"
           else
-            if [ "${{ github.event.pull_request.merged }}" = "true" ]; then
+            if [ "$PR_MERGED" = "true" ]; then
               echo "✅ PR merged and cleanup completed"
             else
               echo "✅ PR closed and cleanup completed"

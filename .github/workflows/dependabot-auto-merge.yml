@@ -201,13 +201,17 @@ jobs:
       # ————————————————————————————————————————————————————————————————
       - name: 🔒 Check for security update
         id: check-security
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
         run: |
           echo "🔒 Checking if this is a security update..."
           
           # Check PR title and labels for security indicators
-          if [[ "${{ contains(join(github.event.pull_request.labels.*.name, ','), 'security') }}" == "true" ]] || \
-             [[ "${{ contains(github.event.pull_request.title, 'security') }}" == "true" ]] || \
-             [[ "${{ contains(github.event.pull_request.title, '[Security]') }}" == "true" ]]; then
+          # Using environment variables to prevent script injection
+          if [[ "$PR_LABELS" == *"security"* ]] || \
+             [[ "$PR_TITLE" == *"security"* ]] || \
+             [[ "$PR_TITLE" == *"[Security]"* ]]; then
             echo "is_security=true" >> $GITHUB_OUTPUT
             echo "✅ Security update detected"
           else
