@@ -596,8 +596,12 @@ jobs:
           echo "📋 Fetching cache list..."
           cacheKeysForPR=$(gh cache list --ref "$BRANCH" --limit 100 --json id,key,ref | jq -r '.[] | select(.ref == env.BRANCH) | .id')
           
-          # Count caches
-          cacheCount=$(echo "$cacheKeysForPR" | grep -c . || echo "0")
+          # Count caches - handle empty results properly
+          if [ -z "$cacheKeysForPR" ]; then
+            cacheCount=0
+          else
+            cacheCount=$(echo "$cacheKeysForPR" | wc -l | tr -d ' ')
+          fi
           
           if [ "$cacheCount" -eq "0" ]; then
             echo "ℹ️ No caches found for this PR"
