@@ -593,8 +593,25 @@ jobs:
           echo "════════════════════════════════════════════════════════════════"
           
           # Fetch the list of cache keys for this PR
-          echo "📋 Fetching cache list..."
-          cacheKeysForPR=$(gh cache list --ref "$BRANCH" --limit 100 --json id,key,ref | jq -r '.[] | select(.ref == env.BRANCH) | .id')
+          echo "📋 Fetching cache list for PR #${{ github.event.pull_request.number }}..."
+          
+          # Get all caches and filter for this PR (checking multiple possible refs)
+          PR_NUM="${{ github.event.pull_request.number }}"
+          allCaches=$(gh cache list --limit 100 --json id,key,ref)
+          
+          # Debug: Show what refs we're looking for
+          echo "🔍 Looking for caches with refs:"
+          echo "  - refs/pull/$PR_NUM/merge"
+          echo "  - refs/pull/$PR_NUM/head"
+          echo "  - refs/heads/${{ github.event.pull_request.head.ref }}"
+          
+          # Filter caches that belong to this PR (multiple possible refs)
+          cacheKeysForPR=$(echo "$allCaches" | jq -r --arg pr "$PR_NUM" --arg branch "${{ github.event.pull_request.head.ref }}" \
+            '.[] | select(
+              .ref == "refs/pull/\($pr)/merge" or 
+              .ref == "refs/pull/\($pr)/head" or
+              .ref == "refs/heads/\($branch)"
+            ) | .id')
           
           # Count caches - handle empty results properly
           if [ -z "$cacheKeysForPR" ]; then
@@ -631,7 +648,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
-          BRANCH: refs/pull/${{ github.event.pull_request.number }}/merge
 
   # ----------------------------------------------------------------------------------
   # Delete Merged Branch
