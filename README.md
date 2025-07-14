@@ -458,6 +458,22 @@ vet                   ## Run go vet only on your module packages
 <summary><strong><code>GitHub Workflows</code></strong></summary>
 <br/>
 
+### 🎛️ The Workflow Control Center
+
+All GitHub Actions workflows in this repository are powered by a single configuration file: [**.env.shared**](.github/.env.shared) – your one-stop shop for tweaking CI/CD behavior without touching a single YAML file! 🎯
+
+This magical file controls everything from:
+- **🚀 Go version matrix** (test on multiple versions or just one)
+- **🏃 Runner selection** (Ubuntu or macOS, your wallet decides)
+- **🔬 Feature toggles** (coverage, fuzzing, linting, race detection)
+- **🛡️ Security tool versions** (gitleaks, nancy, govulncheck)
+- **🤖 Auto-merge behaviors** (how aggressive should the bots be?)
+- **🏷️ PR management rules** (size labels, auto-assignment, welcome messages)
+
+> **Pro tip:** Want to disable code coverage? Just flip `ENABLE_CODE_COVERAGE=false` in [.env.shared](.github/.env.shared) and push. No YAML archaeology required! 
+
+<br/>
+
 | Workflow Name                                                                      | Description                                                                                                            |
 |------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
 | [auto-merge-on-approval.yml](.github/workflows/auto-merge-on-approval.yml)         | Automatically merges PRs after approval and all required checks, following strict rules.                               |
