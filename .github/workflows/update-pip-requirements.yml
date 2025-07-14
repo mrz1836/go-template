@@ -174,13 +174,11 @@ jobs:
             echo "❌ Requirements file not found: ${{ env.REQUIREMENTS_FILE }}"
             echo "📝 Creating basic requirements file..."
             mkdir -p "$(dirname "${{ env.REQUIREMENTS_FILE }}")"
-            cat > "${{ env.REQUIREMENTS_FILE }}" << 'EOF'
-            # Python dependencies for GitHub Actions
-            # Updated automatically by update-pip-requirements workflow
-            #
-            # This file uses pip-tools hash verification for security
-            # To regenerate hashes: pip-compile --generate-hashes requirements.in
-            EOF
+            echo "# Python dependencies for GitHub Actions" > "${{ env.REQUIREMENTS_FILE }}"
+            echo "# Updated automatically by update-pip-requirements workflow" >> "${{ env.REQUIREMENTS_FILE }}"
+            echo "#" >> "${{ env.REQUIREMENTS_FILE }}"
+            echo "# This file uses pip-tools hash verification for security" >> "${{ env.REQUIREMENTS_FILE }}"
+            echo "# To regenerate hashes: pip-compile --generate-hashes requirements.in" >> "${{ env.REQUIREMENTS_FILE }}"
             echo "✅ Created basic requirements file"
           else
             echo "✅ Requirements file found: ${{ env.REQUIREMENTS_FILE }}"
