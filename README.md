@@ -17,7 +17,7 @@
           <img src="https://img.shields.io/github/release-pre/mrz1836/go-template?logo=github&style=flat&v=1" alt="Latest Release">
         </a><br/>
         <a href="https://github.com/mrz1836/go-template/actions">
-          <img src="https://img.shields.io/github/actions/workflow/status/mrz1836/go-template/run-tests.yml?branch=master&logo=github&style=flat" alt="Build Status">
+          <img src="https://img.shields.io/github/actions/workflow/status/mrz1836/go-template/fortress.yml?branch=master&logo=github&style=flat" alt="Build Status">
         </a><br/>
 		<a href="https://github.com/mrz1836/go-template/actions">
           <img src="https://github.com/mrz1836/go-template/actions/workflows/codeql-analysis.yml/badge.svg?style=flat" alt="CodeQL">
@@ -458,13 +458,29 @@ vet                   ## Run go vet only on your module packages
 <summary><strong><code>GitHub Workflows</code></strong></summary>
 <br/>
 
+
+### 🎛️ The Workflow Control Center
+
+All GitHub Actions workflows in this repository are powered by a single configuration file: [**.env.shared**](.github/.env.shared) – your one-stop shop for tweaking CI/CD behavior without touching a single YAML file! 🎯
+
+This magical file controls everything from:
+- **🚀 Go version matrix** (test on multiple versions or just one)
+- **🏃 Runner selection** (Ubuntu or macOS, your wallet decides)
+- **🔬 Feature toggles** (coverage, fuzzing, linting, race detection)
+- **🛡️ Security tool versions** (gitleaks, nancy, govulncheck)
+- **🤖 Auto-merge behaviors** (how aggressive should the bots be?)
+- **🏷️ PR management rules** (size labels, auto-assignment, welcome messages)
+
+> **Pro tip:** Want to disable code coverage? Just flip `ENABLE_CODE_COVERAGE=false` in [.env.shared](.github/.env.shared) and push. No YAML archaeology required! 
+
+<br/>
+
 | Workflow Name                                                                      | Description                                                                                                            |
 |------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
 | [auto-merge-on-approval.yml](.github/workflows/auto-merge-on-approval.yml)         | Automatically merges PRs after approval and all required checks, following strict rules.                               |
 | [codeql-analysis.yml](.github/workflows/codeql-analysis.yml)                       | Analyzes code for security vulnerabilities using [GitHub CodeQL](https://codeql.github.com/).                          |
 | [dependabot-auto-merge.yml](.github/workflows/dependabot-auto-merge.yml)           | Automatically merges [Dependabot](https://github.com/dependabot) PRs that meet all requirements.                       |
-| [fortress-release.yml](.github/workflows/fortress-release.yml)                     | Builds and publishes releases via [GoReleaser](https://goreleaser.com/intro/) when a semver tag is pushed.             |
-| [fortress.yml](.github/workflows/fortress.yml)                                     | Runs linter, Go tests and dependency checks on every pull request.                                                     |
+| [fortress.yml](.github/workflows/fortress.yml)                                     | Runs the GoFortress security and testing workflow, including linting, testing, releasing, and vulnerability checks.    |
 | [ossar.yml](.github/workflows/ossar.yml)                                           | Runs [OSSAR](https://github.com/github/ossar-action) static analysis workflow                                          |
 | [pull-request-management.yml](.github/workflows/pull-request-management.yml)       | Labels PRs by branch prefix, assigns a default user if none is assigned, and welcomes new contributors with a comment. |
 | [scorecard.yml](.github/workflows/scorecard.yml)                                   | Runs [OpenSSF](https://openssf.org/) Scorecard to assess supply chain security.                                        |
