@@ -4,3 +4,4 @@
 
 pip-tools==7.4.1
 setuptools>=78.1.1
+pip<25  # pip 25.1 has compatibility issues with pip-tools on Python 3.13
