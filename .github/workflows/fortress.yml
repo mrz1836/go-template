@@ -67,68 +67,19 @@ jobs:
       # ————————————————————————————————————————————————————————————————
       # Check out code to access env file
       # ————————————————————————————————————————————————————————————————
-      - name: 📥 Checkout code
+      - name: 📥 Checkout code (sparse)
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           sparse-checkout: |
             .github/.env.shared
+            .github/actions/load-env
 
       # ————————————————————————————————————————————————————————————————
       # Load and parse environment file
       # ————————————————————————————————————————————————————————————————
       - name: 🌍 Load environment variables
+        uses: ./.github/actions/load-env
         id: load-env
-        run: |
-          echo "📋 Loading environment variables from .github/.env.shared..."
-
-          # Convert .env file to JSON for easy passing between jobs
-          # Strip inline comments and process the file
-          ENV_JSON=$(cat .github/.env.shared | \
-            grep -v '^#' | \
-            grep -v '^$' | \
-            sed 's/#.*$//' | \
-            sed 's/[[:space:]]*$//' | \
-            jq -Rs 'split("\n") | map(select(length > 0) | split("=") | select(length == 2) | {(.[0]): .[1]}) | add')
-
-          # Check to make sure we have an ENV and it is not empty
-          if [[ -z "$ENV_JSON" ]]; then
-              echo "❌ Environment variables are empty or not set." >&2
-              exit 1
-          fi
-
-          # Properly escape the JSON for GitHub Actions output
-          echo "env-json<<EOF" >> $GITHUB_OUTPUT
-          echo "$ENV_JSON" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-          echo "✅ Environment variables loaded successfully"
-
-          # Parse env for the primary_runner
-          PRIMARY_RUNNER=$(echo "$ENV_JSON" | jq -r '.PRIMARY_RUNNER')
-          if [[ -z "$PRIMARY_RUNNER" ]]; then
-              echo "❌ PRIMARY_RUNNER is not set in the environment file." >&2
-              exit 1
-          fi
-          echo "primary-runner=$PRIMARY_RUNNER" >> $GITHUB_OUTPUT
-
-      # ————————————————————————————————————————————————————————————————
-      # Configure GitHub Token based on preference
-      # ————————————————————————————————————————————————————————————————
-      - name: 🔑 Configure GitHub Token
-        id: configure-token
-        env:
-          ENV_JSON: ${{ steps.load-env.outputs.env-json }}
-        run: |
-          PREFERRED_TOKEN=$(echo "$ENV_JSON" | jq -r '.PREFERRED_GITHUB_TOKEN')
-
-          if [[ "$PREFERRED_TOKEN" == "GH_PAT_TOKEN" && -n "${{ secrets.GH_PAT_TOKEN }}" ]]; then
-            echo "✅ Using Personal Access Token (PAT)"
-            #echo "token=${{ secrets.GH_PAT_TOKEN }}" >> $GITHUB_OUTPUT
-            #echo "::add-mask::${{ secrets.GH_PAT_TOKEN }}"
-          else
-            echo "✅ Using default GITHUB_TOKEN"
-            #echo "token=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
-            #echo "::add-mask::${{ secrets.GITHUB_TOKEN }}"
-          fi
 
   # ----------------------------------------------------------------------------------
   # Setup Configuration Workflow
