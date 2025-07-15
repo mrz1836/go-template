@@ -71,35 +71,14 @@ jobs:
         with:
           sparse-checkout: |
             .github/.env.shared
+            .github/actions/load-env
 
       # ————————————————————————————————————————————————————————————————
       # Load and parse environment file
       # ————————————————————————————————————————————————————————————————
-      - name: 🔧 Load environment variables
+      - name: 🌍 Load environment variables
+        uses: ./.github/actions/load-env
         id: load-env
-        run: |
-          echo "📋 Loading environment variables from .github/.env.shared..."
-
-          # Convert .env file to JSON for easy passing between jobs
-          # Strip inline comments and process the file
-          ENV_JSON=$(cat .github/.env.shared | \
-            grep -v '^#' | \
-            grep -v '^$' | \
-            sed 's/#.*$//' | \
-            sed 's/[[:space:]]*$//' | \
-            jq -Rs 'split("\n") | map(select(length > 0) | split("=") | select(length == 2) | {(.[0]): .[1]}) | add')
-
-          # Check to make sure we have an ENV and it is not empty
-          if [[ -z "$ENV_JSON" ]]; then
-              echo "❌ ERROR: Environment variables are empty or not set." >&2
-              exit 1
-          fi
-
-          # Properly escape the JSON for GitHub Actions output
-          echo "env-json<<EOF" >> $GITHUB_OUTPUT
-          echo "$ENV_JSON" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-          echo "✅ Environment variables loaded successfully"
 
   # ----------------------------------------------------------------------------------
   # Process Auto-merge
@@ -114,7 +93,7 @@ jobs:
     outputs:
       action-taken: ${{ steps.process.outputs.action }}
       pr-number: ${{ github.event.pull_request.number }}
-      
+
     steps:
       # ————————————————————————————————————————————————————————————————
       # Extract configuration from env-json
@@ -139,7 +118,7 @@ jobs:
           LABELS_TO_ADD=$(echo "$ENV_JSON" | jq -r '.AUTO_MERGE_LABELS_TO_ADD')
           SKIP_BOT_PRS=$(echo "$ENV_JSON" | jq -r '.AUTO_MERGE_SKIP_BOT_PRS')
           PREFERRED_TOKEN=$(echo "$ENV_JSON" | jq -r '.PREFERRED_GITHUB_TOKEN')
-          
+
           # Validate required configuration
           if [[ -z "$MIN_APPROVALS" ]] || [[ "$MIN_APPROVALS" == "null" ]]; then
             MIN_APPROVALS="1"  # Default to 1 approval
@@ -196,7 +175,7 @@ jobs:
           script: |
             const { owner, repo } = context.repo;
             const prNumber = context.payload.pull_request.number;
-            
+
             console.log(`🔍 Checking auto-merge conditions for PR #${prNumber}`);
             console.log('════════════════════════════════════════════════════════════════');
 
@@ -226,7 +205,7 @@ jobs:
             const isDraft = pr.draft;
             const title = pr.title || '';
             const labels = pr.labels.map(l => l.name);
-            
+
             if (isDraft && process.env.SKIP_DRAFT === 'true') {
               console.log('📝 PR is draft - skipping auto-merge');
               core.setOutput('action', 'skip-draft');
@@ -238,7 +217,7 @@ jobs:
               const titleHasWip = /\b(wip|work.in.progress)\b/i.test(title);
               const wipLabels = process.env.WIP_LABELS.split(',').map(l => l.trim());
               const hasWipLabel = labels.some(label => wipLabels.includes(label));
-              
+
               if (titleHasWip || hasWipLabel) {
                 console.log('🚧 PR has WIP indicators - skipping auto-merge');
                 core.setOutput('action', 'skip-wip');
@@ -277,7 +256,7 @@ jobs:
             // Determine if we should enable auto-merge
             // ————————————————————————————————————————————————————————————————
             let shouldEnableAutoMerge = approvals >= minApprovals && changesRequested === 0;
-            
+
             if (process.env.REQUIRE_ALL_REVIEWS === 'true' && requestedReviewers > 0) {
               shouldEnableAutoMerge = false;
             }
@@ -299,10 +278,10 @@ jobs:
             // ————————————————————————————————————————————————————————————————
             // Check if this is a disable event
             // ————————————————————————————————————————————————————————————————
-            if (context.eventName === 'pull_request_review' && 
-                context.payload.review && 
+            if (context.eventName === 'pull_request_review' &&
+                context.payload.review &&
                 context.payload.review.state === 'CHANGES_REQUESTED') {
-              
+
               // Try to disable auto-merge
               try {
                 const { execSync } = require('child_process');
@@ -315,7 +294,7 @@ jobs:
                 });
 
                 console.log('🛑 Auto-merge disabled due to "Changes Requested" review');
-                
+
                 if (process.env.COMMENT_ON_DISABLE === 'true') {
                   await github.rest.issues.createComment({
                     owner,
@@ -324,7 +303,7 @@ jobs:
                     body: `🛑 **Auto-merge disabled**\n\nChanges were requested in a review. Auto-merge will be re-enabled when conditions are met again.`
                   });
                 }
-                
+
                 core.setOutput('action', 'disabled-changes-requested');
               } catch (error) {
                 console.log('ℹ️ Could not disable auto-merge (may not have been enabled)');
@@ -346,7 +325,7 @@ jobs:
               // Enable auto-merge with the configured merge type
               const { execSync } = require('child_process');
               const mergeType = process.env.DEFAULT_MERGE_TYPE;
-              
+
               let mergeCommand = `gh pr merge --auto`;
               if (mergeType === 'squash') {
                 mergeCommand += ' --squash';
@@ -355,15 +334,15 @@ jobs:
               } else if (mergeType === 'rebase') {
                 mergeCommand += ' --rebase';
               }
-              
+
               if (process.env.DELETE_BRANCH === 'true') {
                 mergeCommand += ' --delete-branch';
               }
-              
+
               mergeCommand += ` "${pr.html_url}"`;
 
               console.log(`🚀 Enabling auto-merge with command: ${mergeCommand}`);
-              
+
               execSync(mergeCommand, {
                 env: {
                   ...process.env,
@@ -373,13 +352,13 @@ jobs:
               });
 
               console.log('✅ Auto-merge enabled! PR will merge when all status checks pass.');
-              
+
               // Add comment if configured
               if (process.env.COMMENT_ON_ENABLE === 'true') {
-                const mergeTypeText = mergeType === 'squash' ? 'squash and merge' : 
-                                     mergeType === 'merge' ? 'create a merge commit' : 
+                const mergeTypeText = mergeType === 'squash' ? 'squash and merge' :
+                                     mergeType === 'merge' ? 'create a merge commit' :
                                      'rebase and merge';
-                
+
                 await github.rest.issues.createComment({
                   owner,
                   repo,
@@ -390,7 +369,7 @@ jobs:
                         `⏳ Pending reviews: ${requestedReviewers}`
                 });
               }
-              
+
               // Add labels if configured
               if (process.env.LABELS_TO_ADD) {
                 const labelsToAdd = process.env.LABELS_TO_ADD.split(',').map(l => l.trim()).filter(l => l);
@@ -404,12 +383,12 @@ jobs:
                   console.log(`🏷️ Added labels: ${labelsToAdd.join(', ')}`);
                 }
               }
-              
+
               core.setOutput('action', 'enabled');
-              
+
             } catch (error) {
               console.error('❌ Failed to enable auto-merge:', error.message);
-              
+
               // Comment on failure if configured
               if (process.env.COMMENT_ON_ENABLE === 'true') {
                 await github.rest.issues.createComment({
@@ -423,7 +402,7 @@ jobs:
                         `- Repository settings`
                 });
               }
-              
+
               core.setOutput('action', 'failed');
               throw error;
             }
@@ -451,7 +430,7 @@ jobs:
           echo "**⏰ Processed:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
           echo "**📋 PR:** #${{ needs.process-auto-merge.outputs.pr-number }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Determine action taken
           ACTION="${{ needs.process-auto-merge.outputs.action-taken }}"
           case "$ACTION" in
@@ -483,15 +462,15 @@ jobs:
               ACTION_DESC="❓ Unknown action: $ACTION"
               ;;
           esac
-          
+
           echo "## 🎯 Action Taken" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "$ACTION_DESC" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           echo "### 🔧 Current Configuration" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Extract configuration for display
           MIN_APPROVALS=$(echo "$ENV_JSON" | jq -r '.AUTO_MERGE_MIN_APPROVALS')
           REQUIRE_ALL_REVIEWS=$(echo "$ENV_JSON" | jq -r '.AUTO_MERGE_REQUIRE_ALL_REQUESTED_REVIEWS')
@@ -499,7 +478,7 @@ jobs:
           SKIP_DRAFT=$(echo "$ENV_JSON" | jq -r '.AUTO_MERGE_SKIP_DRAFT')
           SKIP_WIP=$(echo "$ENV_JSON" | jq -r '.AUTO_MERGE_SKIP_WIP')
           SKIP_BOT_PRS=$(echo "$ENV_JSON" | jq -r '.AUTO_MERGE_SKIP_BOT_PRS')
-          
+
           echo "| Setting | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|---------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| Min approvals | $MIN_APPROVALS |" >> $GITHUB_STEP_SUMMARY
@@ -519,7 +498,7 @@ jobs:
         run: |
           echo "=== 🤖 Auto-merge on Approval Summary ==="
           echo "📋 PR: #${{ needs.process-auto-merge.outputs.pr-number }}"
-          
+
           ACTION="${{ needs.process-auto-merge.outputs.action-taken }}"
           case "$ACTION" in
             enabled)
@@ -544,6 +523,6 @@ jobs:
               echo "❓ Action: $ACTION"
               ;;
           esac
-          
+
           echo "🕐 Completed: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
           echo "✅ Workflow completed!"
