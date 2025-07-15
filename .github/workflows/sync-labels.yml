@@ -63,35 +63,14 @@ jobs:
         with:
           sparse-checkout: |
             .github/.env.shared
+            .github/actions/load-env
 
       # ————————————————————————————————————————————————————————————————
       # Load and parse environment file
       # ————————————————————————————————————————————————————————————————
-      - name: 🔧 Load environment variables
+      - name: 🌍 Load environment variables
+        uses: ./.github/actions/load-env
         id: load-env
-        run: |
-          echo "📋 Loading environment variables from .github/.env.shared..."
-
-          # Convert .env file to JSON for easy passing between jobs
-          # Strip inline comments and process the file
-          ENV_JSON=$(cat .github/.env.shared | \
-            grep -v '^#' | \
-            grep -v '^$' | \
-            sed 's/#.*$//' | \
-            sed 's/[[:space:]]*$//' | \
-            jq -Rs 'split("\n") | map(select(length > 0) | split("=") | select(length == 2) | {(.[0]): .[1]}) | add')
-
-          # Check to make sure we have an ENV and it is not empty
-          if [[ -z "$ENV_JSON" ]]; then
-              echo "❌ ERROR: Environment variables are empty or not set." >&2
-              exit 1
-          fi
-
-          # Properly escape the JSON for GitHub Actions output
-          echo "env-json<<EOF" >> $GITHUB_OUTPUT
-          echo "$ENV_JSON" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-          echo "✅ Environment variables loaded successfully"
 
       # ————————————————————————————————————————————————————————————————
       # Extract sync-labels specific configuration

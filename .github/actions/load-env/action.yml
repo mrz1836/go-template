@@ -22,6 +22,9 @@ outputs:
   env-json:
     description: 'JSON object containing all environment variables'
     value: ${{ steps.load-env.outputs.env-json }}
+  primary-runner:
+    description: 'Primary runner OS extracted from environment variables'
+    value: ${{ steps.load-env.outputs.primary-runner }}
 
 runs:
   using: "composite"
@@ -59,3 +62,11 @@ runs:
         # Log count of variables loaded (for debugging)
         VAR_COUNT=$(echo "$ENV_JSON" | jq 'keys | length')
         echo "📊 Loaded $VAR_COUNT environment variables"
+
+        # Parse env for the primary_runner
+        PRIMARY_RUNNER=$(echo "$ENV_JSON" | jq -r '.PRIMARY_RUNNER')
+        if [[ -z "$PRIMARY_RUNNER" ]]; then
+            echo "❌ PRIMARY_RUNNER is not set in the environment file." >&2
+            exit 1
+        fi
+        echo "primary-runner=$PRIMARY_RUNNER" >> $GITHUB_OUTPUT

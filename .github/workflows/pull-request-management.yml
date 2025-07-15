@@ -67,35 +67,14 @@ jobs:
         with:
           sparse-checkout: |
             .github/.env.shared
+            .github/actions/load-env
 
       # ————————————————————————————————————————————————————————————————
       # Load and parse environment file
       # ————————————————————————————————————————————————————————————————
-      - name: 🔧 Load environment variables
+      - name: 🌍 Load environment variables
+        uses: ./.github/actions/load-env
         id: load-env
-        run: |
-          echo "📋 Loading environment variables from .github/.env.shared..."
-
-          # Convert .env file to JSON for easy passing between jobs
-          # Strip inline comments and process the file
-          ENV_JSON=$(cat .github/.env.shared | \
-            grep -v '^#' | \
-            grep -v '^$' | \
-            sed 's/#.*$//' | \
-            sed 's/[[:space:]]*$//' | \
-            jq -Rs 'split("\n") | map(select(length > 0) | split("=") | select(length == 2) | {(.[0]): .[1]}) | add')
-
-          # Check to make sure we have an ENV and it is not empty
-          if [[ -z "$ENV_JSON" ]]; then
-              echo "❌ ERROR: Environment variables are empty or not set." >&2
-              exit 1
-          fi
-
-          # Properly escape the JSON for GitHub Actions output
-          echo "env-json<<EOF" >> $GITHUB_OUTPUT
-          echo "$ENV_JSON" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-          echo "✅ Environment variables loaded successfully"
 
   # ----------------------------------------------------------------------------------
   # Apply Labels Based on Branch and Title
@@ -110,7 +89,7 @@ jobs:
     if: github.event.action != 'closed'
     outputs:
       labels-applied: ${{ steps.apply-labels.outputs.labels-applied }}
-      
+
     steps:
       # ————————————————————————————————————————————————————————————————
       # Extract configuration from env-json
@@ -125,7 +104,7 @@ jobs:
           # Extract all needed variables
           SKIP_BOT_USERS=$(echo "$ENV_JSON" | jq -r '.PR_MANAGEMENT_SKIP_BOT_USERS')
           APPLY_TYPE_LABELS=$(echo "$ENV_JSON" | jq -r '.PR_MANAGEMENT_APPLY_TYPE_LABELS')
-          
+
           # Set as environment variables for all subsequent steps
           echo "SKIP_BOT_USERS=$SKIP_BOT_USERS" >> $GITHUB_ENV
           echo "APPLY_TYPE_LABELS=$APPLY_TYPE_LABELS" >> $GITHUB_ENV
@@ -252,7 +231,7 @@ jobs:
                 if (existingLabelNames.length > 0) {
                   console.log(`ℹ️ Labels already present: ${existingLabelNames.join(', ')}`);
                 }
-                
+
                 core.setOutput('labels-applied', JSON.stringify(newLabels));
               } else {
                 console.log('ℹ️ All matching labels already present, no changes needed');
@@ -280,7 +259,7 @@ jobs:
       github.event.pull_request.head.repo.owner.login == github.repository_owner
     outputs:
       assignee-added: ${{ steps.assign.outputs.assignee-added }}
-      
+
     steps:
       # ————————————————————————————————————————————————————————————————
       # Extract configuration from env-json
@@ -295,7 +274,7 @@ jobs:
           # Extract all needed variables
           DEFAULT_ASSIGNEE=$(echo "$ENV_JSON" | jq -r '.PR_MANAGEMENT_DEFAULT_ASSIGNEE')
           SKIP_BOT_USERS=$(echo "$ENV_JSON" | jq -r '.PR_MANAGEMENT_SKIP_BOT_USERS')
-          
+
           # Set as environment variables for all subsequent steps
           echo "DEFAULT_ASSIGNEE=$DEFAULT_ASSIGNEE" >> $GITHUB_ENV
           echo "SKIP_BOT_USERS=$SKIP_BOT_USERS" >> $GITHUB_ENV
@@ -366,7 +345,7 @@ jobs:
       github.event.pull_request.head.repo.owner.login == github.repository_owner
     outputs:
       welcomed: ${{ steps.welcome.outputs.welcomed }}
-      
+
     steps:
       # ————————————————————————————————————————————————————————————————
       # Extract configuration from env-json
@@ -381,7 +360,7 @@ jobs:
           # Extract all needed variables
           WELCOME_FIRST_TIME=$(echo "$ENV_JSON" | jq -r '.PR_MANAGEMENT_WELCOME_FIRST_TIME')
           SKIP_BOT_USERS=$(echo "$ENV_JSON" | jq -r '.PR_MANAGEMENT_SKIP_BOT_USERS')
-          
+
           # Set as environment variables for all subsequent steps
           echo "WELCOME_FIRST_TIME=$WELCOME_FIRST_TIME" >> $GITHUB_ENV
           echo "SKIP_BOT_USERS=$SKIP_BOT_USERS" >> $GITHUB_ENV
@@ -457,7 +436,7 @@ jobs:
     outputs:
       size-label: ${{ steps.analyze.outputs.size-label }}
       total-changes: ${{ steps.analyze.outputs.total-changes }}
-      
+
     steps:
       # ————————————————————————————————————————————————————————————————
       # Extract configuration from env-json
@@ -475,7 +454,7 @@ jobs:
           SIZE_S=$(echo "$ENV_JSON" | jq -r '.PR_MANAGEMENT_SIZE_S_THRESHOLD')
           SIZE_M=$(echo "$ENV_JSON" | jq -r '.PR_MANAGEMENT_SIZE_M_THRESHOLD')
           SIZE_L=$(echo "$ENV_JSON" | jq -r '.PR_MANAGEMENT_SIZE_L_THRESHOLD')
-          
+
           # Set as environment variables for all subsequent steps
           echo "APPLY_SIZE_LABELS=$APPLY_SIZE_LABELS" >> $GITHUB_ENV
           echo "SIZE_XS=$SIZE_XS" >> $GITHUB_ENV
@@ -560,7 +539,7 @@ jobs:
     if: github.event.action == 'closed'
     outputs:
       caches-cleaned: ${{ steps.clean.outputs.caches-cleaned }}
-      
+
     steps:
       # ————————————————————————————————————————————————————————————————
       # Extract configuration from env-json
@@ -574,7 +553,7 @@ jobs:
 
           # Extract all needed variables
           CLEAN_CACHE=$(echo "$ENV_JSON" | jq -r '.PR_MANAGEMENT_CLEAN_CACHE_ON_CLOSE')
-          
+
           # Set as environment variables for all subsequent steps
           echo "CLEAN_CACHE=$CLEAN_CACHE" >> $GITHUB_ENV
 
@@ -596,46 +575,46 @@ jobs:
         run: |
           echo "🧹 Cleaning up caches for PR #$PR_NUMBER..."
           echo "════════════════════════════════════════════════════════════════"
-          
+
           # Fetch the list of cache keys for this PR
           echo "📋 Fetching cache list for PR #$PR_NUMBER..."
-          
+
           # Get all caches and filter for this PR (checking multiple possible refs)
           allCaches=$(gh cache list --limit 100 --json id,key,ref)
-          
+
           # Debug: Show what refs we're looking for
           echo "🔍 Looking for caches with refs:"
           echo "  - refs/pull/$PR_NUMBER/merge"
           echo "  - refs/pull/$PR_NUMBER/head"
           echo "  - refs/heads/$PR_HEAD_REF"
-          
+
           # Filter caches that belong to this PR (multiple possible refs)
           cacheKeysForPR=$(echo "$allCaches" | jq -r --arg pr "$PR_NUMBER" --arg branch "$PR_HEAD_REF" \
             '.[] | select(
-              .ref == "refs/pull/\($pr)/merge" or 
+              .ref == "refs/pull/\($pr)/merge" or
               .ref == "refs/pull/\($pr)/head" or
               .ref == "refs/heads/\($branch)"
             ) | .id')
-          
+
           # Count caches - handle empty results properly
           if [ -z "$cacheKeysForPR" ]; then
             cacheCount=0
           else
             cacheCount=$(echo "$cacheKeysForPR" | wc -l | tr -d ' ')
           fi
-          
+
           if [ "$cacheCount" -eq "0" ]; then
             echo "ℹ️ No caches found for this PR"
             echo "caches-cleaned=0" >> $GITHUB_OUTPUT
             exit 0
           fi
-          
+
           echo "🗑️ Found $cacheCount cache(s) to clean"
-          
+
           # Setting this to not fail the workflow while deleting cache keys
           set +e
           cleanedCount=0
-          
+
           # Delete each cache
           for cacheKey in $cacheKeysForPR; do
             if gh cache delete "$cacheKey"; then
@@ -645,7 +624,7 @@ jobs:
               echo "  ⚠️ Failed to delete cache: $cacheKey"
             fi
           done
-          
+
           echo "════════════════════════════════════════════════════════════════"
           echo "✅ Cleaned $cleanedCount out of $cacheCount cache(s)"
           echo "caches-cleaned=$cleanedCount" >> $GITHUB_OUTPUT
@@ -664,7 +643,7 @@ jobs:
       github.event.pull_request.merged == true
     outputs:
       branch-deleted: ${{ steps.delete.outputs.branch-deleted }}
-      
+
     steps:
       # ————————————————————————————————————————————————————————————————
       # Extract configuration from env-json
@@ -679,7 +658,7 @@ jobs:
           # Extract all needed variables
           DELETE_BRANCH=$(echo "$ENV_JSON" | jq -r '.PR_MANAGEMENT_DELETE_BRANCH_ON_MERGE')
           PROTECTED_BRANCHES=$(echo "$ENV_JSON" | jq -r '.PR_MANAGEMENT_PROTECTED_BRANCHES')
-          
+
           # Set as environment variables for all subsequent steps
           echo "DELETE_BRANCH=$DELETE_BRANCH" >> $GITHUB_ENV
           echo "PROTECTED_BRANCHES=$PROTECTED_BRANCHES" >> $GITHUB_ENV
@@ -712,7 +691,7 @@ jobs:
               repo,
             });
             const defaultBranch = repoData.default_branch;
-            
+
             // Build list of protected branches from config and default
             const configProtected = process.env.PROTECTED_BRANCHES.split(',').map(b => b.trim());
             const protectedBranches = [...new Set([...configProtected, defaultBranch])];
@@ -777,14 +756,14 @@ jobs:
           echo "**🎬 Action:** $PR_ACTION" >> $GITHUB_STEP_SUMMARY
           echo "**👤 Author:** @$PR_AUTHOR" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Show results based on action type
           if [ "$PR_ACTION" != "closed" ]; then
             echo "## 📋 Actions Taken" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "| Action | Result |" >> $GITHUB_STEP_SUMMARY
             echo "|--------|--------|" >> $GITHUB_STEP_SUMMARY
-            
+
             # Labels applied
             if [ "${{ needs.apply-labels.result }}" = "success" ]; then
               LABELS="${{ needs.apply-labels.outputs.labels-applied }}"
@@ -794,7 +773,7 @@ jobs:
                 echo "| 🏷️ Labels Applied | None needed |" >> $GITHUB_STEP_SUMMARY
               fi
             fi
-            
+
             # Assignee
             if [ "${{ needs.assign-assignee.result }}" = "success" ]; then
               if [ "${{ needs.assign-assignee.outputs.assignee-added }}" = "true" ]; then
@@ -803,14 +782,14 @@ jobs:
                 echo "| 👤 Default Assignee | Already assigned |" >> $GITHUB_STEP_SUMMARY
               fi
             fi
-            
+
             # Welcome message
             if [ "${{ needs.welcome-contributor.result }}" = "success" ]; then
               if [ "${{ needs.welcome-contributor.outputs.welcomed }}" = "true" ]; then
                 echo "| 👋 Welcome Message | Posted |" >> $GITHUB_STEP_SUMMARY
               fi
             fi
-            
+
             # Size label
             if [ "${{ needs.analyze-size.result }}" = "success" ]; then
               SIZE_LABEL="${{ needs.analyze-size.outputs.size-label }}"
@@ -819,19 +798,19 @@ jobs:
                 echo "| 📏 Size Analysis | $SIZE_LABEL ($TOTAL_CHANGES changes) |" >> $GITHUB_STEP_SUMMARY
               fi
             fi
-            
+
           else
             echo "## 🧹 Cleanup Actions" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "| Action | Result |" >> $GITHUB_STEP_SUMMARY
             echo "|--------|--------|" >> $GITHUB_STEP_SUMMARY
-            
+
             # Cache cleanup
             if [ "${{ needs.clean-cache.result }}" = "success" ]; then
               CACHES="${{ needs.clean-cache.outputs.caches-cleaned }}"
               echo "| 🧹 Cache Cleanup | $CACHES cache(s) cleaned |" >> $GITHUB_STEP_SUMMARY
             fi
-            
+
             # Branch deletion
             if [ "$PR_MERGED" = "true" ] && [ "${{ needs.delete-branch.result }}" = "success" ]; then
               DELETED="${{ needs.delete-branch.outputs.branch-deleted }}"
@@ -844,24 +823,24 @@ jobs:
               fi
             fi
           fi
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 🔧 Configuration" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Extract key configuration for display
           DEFAULT_ASSIGNEE=$(echo "$ENV_JSON" | jq -r '.PR_MANAGEMENT_DEFAULT_ASSIGNEE')
           APPLY_SIZE_LABELS=$(echo "$ENV_JSON" | jq -r '.PR_MANAGEMENT_APPLY_SIZE_LABELS')
           APPLY_TYPE_LABELS=$(echo "$ENV_JSON" | jq -r '.PR_MANAGEMENT_APPLY_TYPE_LABELS')
           WELCOME_FIRST_TIME=$(echo "$ENV_JSON" | jq -r '.PR_MANAGEMENT_WELCOME_FIRST_TIME')
-          
+
           echo "| Setting | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|---------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| Default Assignee | @$DEFAULT_ASSIGNEE |" >> $GITHUB_STEP_SUMMARY
           echo "| Apply Size Labels | $APPLY_SIZE_LABELS |" >> $GITHUB_STEP_SUMMARY
           echo "| Apply Type Labels | $APPLY_TYPE_LABELS |" >> $GITHUB_STEP_SUMMARY
           echo "| Welcome First-timers | $WELCOME_FIRST_TIME |" >> $GITHUB_STEP_SUMMARY
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
           echo "🤖 _Automated by GitHub Actions_" >> $GITHUB_STEP_SUMMARY
@@ -880,7 +859,7 @@ jobs:
           echo "📋 PR: #$PR_NUMBER"
           echo "🎬 Action: $PR_ACTION"
           echo "👤 Author: @$PR_AUTHOR"
-          
+
           # Summary based on action
           if [ "$PR_ACTION" != "closed" ]; then
             echo "✅ PR management tasks completed"
@@ -891,6 +870,6 @@ jobs:
               echo "✅ PR closed and cleanup completed"
             fi
           fi
-          
+
           echo "🕐 Completed: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
           echo "✅ Workflow completed!"

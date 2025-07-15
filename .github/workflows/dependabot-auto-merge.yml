@@ -69,35 +69,14 @@ jobs:
         with:
           sparse-checkout: |
             .github/.env.shared
+            .github/actions/load-env
 
       # ————————————————————————————————————————————————————————————————
       # Load and parse environment file
       # ————————————————————————————————————————————————————————————————
-      - name: 🔧 Load environment variables
+      - name: 🌍 Load environment variables
+        uses: ./.github/actions/load-env
         id: load-env
-        run: |
-          echo "📋 Loading environment variables from .github/.env.shared..."
-
-          # Convert .env file to JSON for easy passing between jobs
-          # Strip inline comments and process the file
-          ENV_JSON=$(cat .github/.env.shared | \
-            grep -v '^#' | \
-            grep -v '^$' | \
-            sed 's/#.*$//' | \
-            sed 's/[[:space:]]*$//' | \
-            jq -Rs 'split("\n") | map(select(length > 0) | split("=") | select(length == 2) | {(.[0]): .[1]}) | add')
-
-          # Check to make sure we have an ENV and it is not empty
-          if [[ -z "$ENV_JSON" ]]; then
-              echo "❌ ERROR: Environment variables are empty or not set." >&2
-              exit 1
-          fi
-
-          # Properly escape the JSON for GitHub Actions output
-          echo "env-json<<EOF" >> $GITHUB_OUTPUT
-          echo "$ENV_JSON" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-          echo "✅ Environment variables loaded successfully"
 
   # ----------------------------------------------------------------------------------
   # Process Dependabot PR
@@ -115,7 +94,7 @@ jobs:
       update-type: ${{ steps.metadata.outputs.update-type }}
       dependency-type: ${{ steps.metadata.outputs.dependency-type }}
       action-taken: ${{ steps.determine-action.outputs.action }}
-      
+
     steps:
       # ————————————————————————————————————————————————————————————————
       # Extract configuration from env-json
@@ -138,7 +117,7 @@ jobs:
           MANUAL_REVIEW_LABEL=$(echo "$ENV_JSON" | jq -r '.DEPENDABOT_MANUAL_REVIEW_LABEL')
           AUTO_MERGE_LABELS=$(echo "$ENV_JSON" | jq -r '.DEPENDABOT_AUTO_MERGE_LABELS')
           PREFERRED_TOKEN=$(echo "$ENV_JSON" | jq -r '.PREFERRED_GITHUB_TOKEN')
-          
+
           # Validate required configuration
           if [[ -z "$MAINTAINER" ]] || [[ "$MAINTAINER" == "null" ]]; then
             echo "❌ ERROR: DEPENDABOT_MAINTAINER_USERNAME not set in .env.shared" >&2
@@ -207,7 +186,7 @@ jobs:
           PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
         run: |
           echo "🔒 Checking if this is a security update..."
-          
+
           # Check PR title and labels for security indicators
           # Using environment variables to prevent script injection
           if [[ "$PR_LABELS" == *"security"* ]] || \
@@ -227,12 +206,12 @@ jobs:
         id: determine-action
         run: |
           echo "🎯 Determining action based on update type and configuration..."
-          
+
           UPDATE_TYPE="${{ steps.metadata.outputs.update-type }}"
           DEP_TYPE="${{ steps.metadata.outputs.dependency-type }}"
           IS_SECURITY="${{ steps.check-security.outputs.is_security }}"
           ACTION="none"
-          
+
           # Security updates (if enabled)
           if [[ "$IS_SECURITY" == "true" ]] && [[ "${{ env.AUTO_MERGE_SECURITY }}" == "true" ]]; then
             if [[ "$UPDATE_TYPE" != "version-update:semver-major" ]]; then
@@ -273,7 +252,7 @@ jobs:
           else
             ACTION="manual-review"
           fi
-          
+
           echo "action=$ACTION" >> $GITHUB_OUTPUT
           echo "✅ Determined action: $ACTION"
 
@@ -292,10 +271,10 @@ jobs:
             const previousVersion = '${{ steps.metadata.outputs.previous-version }}';
             const maintainer = '${{ env.MAINTAINER }}';
             const isSecurity = '${{ steps.check-security.outputs.is_security }}' === 'true';
-            
+
             const emoji = isSecurity ? '🚨' : '⚠️';
             const prefix = isSecurity ? '**SECURITY** - ' : '';
-            
+
             const commentBody = `${emoji} @${maintainer} – ${prefix}**Major version update detected**
 
             **Dependency:** \`${dependency}\`
@@ -305,7 +284,7 @@ jobs:
             ${isSecurity ? '\n🔒 **This is a security update with potential breaking changes**' : ''}
 
             This requires manual review for potential breaking changes.
-            
+
             **Review checklist:**
             - [ ] Check changelog/release notes for breaking changes
             - [ ] Review migration guide if available
@@ -368,7 +347,7 @@ jobs:
             **Ecosystem:** ${{ steps.metadata.outputs.package-ecosystem }}
 
             Please review for potential feature changes or compatibility issues.
-            
+
             **Quick review checklist:**
             - [ ] Check release notes for new features
             - [ ] Verify no deprecation warnings
@@ -405,11 +384,11 @@ jobs:
           startsWith(steps.determine-action.outputs.action, 'auto-merge-')
         run: |
           echo "🚀 Processing auto-merge for ${{ steps.determine-action.outputs.action }}..."
-          
+
           ACTION="${{ steps.determine-action.outputs.action }}"
           DEPENDENCY="${{ steps.metadata.outputs.dependency-names }}"
           VERSION_CHANGE="${{ steps.metadata.outputs.previous-version }} → ${{ steps.metadata.outputs.new-version }}"
-          
+
           # Determine approval message based on action type
           case "$ACTION" in
             "auto-merge-patch")
@@ -428,14 +407,14 @@ jobs:
               APPROVAL_MSG="✅ Auto-approving dependency update"
               ;;
           esac
-          
+
           # Approve the PR
           gh pr review --approve "$PR_URL" \
             --body "$APPROVAL_MSG: $DEPENDENCY ($VERSION_CHANGE)"
-          
+
           # Enable auto-merge
           gh pr merge --auto --squash "$PR_URL"
-          
+
           echo "✅ Enabled auto-merge for $ACTION"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
@@ -446,7 +425,7 @@ jobs:
       # ————————————————————————————————————————————————————————————————
       - name: 🏷️ Add tracking labels
         if: |
-          startsWith(steps.determine-action.outputs.action, 'auto-merge-') || 
+          startsWith(steps.determine-action.outputs.action, 'auto-merge-') ||
           startsWith(steps.determine-action.outputs.action, 'alert-')
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
@@ -454,13 +433,13 @@ jobs:
           script: |
             const action = '${{ steps.determine-action.outputs.action }}';
             const labels = [];
-            
+
             // Add auto-merge labels if applicable
             if (action.startsWith('auto-merge-')) {
               const autoMergeLabels = '${{ env.AUTO_MERGE_LABELS }}'.split(',').map(l => l.trim());
               labels.push(...autoMergeLabels);
             }
-            
+
             // Add dependency type label
             const depType = '${{ steps.metadata.outputs.dependency-type }}';
             if (depType === 'direct:development') {
@@ -468,7 +447,7 @@ jobs:
             } else if (depType === 'direct:production') {
               labels.push('prod-dependency');
             }
-            
+
             // Add update type label
             const updateType = '${{ steps.metadata.outputs.update-type }}';
             if (updateType === 'version-update:semver-patch') {
@@ -478,12 +457,12 @@ jobs:
             } else if (updateType === 'version-update:semver-major') {
               labels.push('major-update');
             }
-            
+
             // Add security label if applicable
             if ('${{ steps.check-security.outputs.is_security }}' === 'true') {
               labels.push('security');
             }
-            
+
             if (labels.length > 0) {
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
@@ -517,7 +496,7 @@ jobs:
           echo "**⏰ Processed:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
           echo "**📋 PR:** #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           echo "## 📦 Dependency Information" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
@@ -526,7 +505,7 @@ jobs:
           echo "| **Update Type** | ${{ needs.process-pr.outputs.update-type }} |" >> $GITHUB_STEP_SUMMARY
           echo "| **Dependency Type** | ${{ needs.process-pr.outputs.dependency-type }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Determine action taken
           ACTION="${{ needs.process-pr.outputs.action-taken }}"
           case "$ACTION" in
@@ -558,22 +537,22 @@ jobs:
               ACTION_DESC="❓ Unknown action"
               ;;
           esac
-          
+
           echo "## 🎯 Action Taken" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "$ACTION_DESC" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           echo "### 🔧 Current Configuration" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Extract configuration for display
           MAINTAINER=$(echo "$ENV_JSON" | jq -r '.DEPENDABOT_MAINTAINER_USERNAME')
           AUTO_MERGE_PATCH=$(echo "$ENV_JSON" | jq -r '.DEPENDABOT_AUTO_MERGE_PATCH')
           AUTO_MERGE_MINOR_DEV=$(echo "$ENV_JSON" | jq -r '.DEPENDABOT_AUTO_MERGE_MINOR_DEV')
           AUTO_MERGE_MINOR_PROD=$(echo "$ENV_JSON" | jq -r '.DEPENDABOT_AUTO_MERGE_MINOR_PROD')
           AUTO_MERGE_SECURITY=$(echo "$ENV_JSON" | jq -r '.DEPENDABOT_AUTO_MERGE_SECURITY_NON_MAJOR')
-          
+
           echo "| Setting | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|---------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| Auto-merge patch | $AUTO_MERGE_PATCH |" >> $GITHUB_STEP_SUMMARY
@@ -594,7 +573,7 @@ jobs:
           echo "📦 Dependency: ${{ needs.process-pr.outputs.dependency-names }}"
           echo "🔄 Update type: ${{ needs.process-pr.outputs.update-type }}"
           echo "📁 Dependency type: ${{ needs.process-pr.outputs.dependency-type }}"
-          
+
           ACTION="${{ needs.process-pr.outputs.action-taken }}"
           case "$ACTION" in
             auto-merge-*)
@@ -610,6 +589,6 @@ jobs:
               echo "❓ Action: $ACTION"
               ;;
           esac
-          
+
           echo "🕐 Completed: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
           echo "✅ Workflow completed!"
