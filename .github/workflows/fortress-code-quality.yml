@@ -385,12 +385,17 @@ jobs:
           npx prettier "**/*.{yml,yaml}" --list-different --ignore-path "$PRETTIER_IGNORE_PATH" 2>/dev/null | sort || true
 
           TOTAL_YAML=$(find . -type f \( -name "*.yml" -o -name "*.yaml" \) -not -path "./.git/*" | wc -l | xargs)
-          CHECKED_YAML=$(npx prettier "**/*.{yml,yaml}" --ignore-path "$PRETTIER_IGNORE_PATH" --list-different --loglevel=silent | wc -l | xargs || echo "0")
+          CHECKED_YAML=$(npx prettier "**/*.{yml,yaml}" --ignore-path "$PRETTIER_IGNORE_PATH" --list-different --log-level=silent | wc -l | xargs || echo "0")
           # Get total files that would be processed (not just different ones)
           PROCESSED_YAML=$(find . -type f \( -name "*.yml" -o -name "*.yaml" \) -not -path "./.git/*" | while read file; do
-            npx prettier "$file" --ignore-path "$PRETTIER_IGNORE_PATH" --list-different --loglevel=silent > /dev/null 2>&1
+            npx prettier "$file" --ignore-path "$PRETTIER_IGNORE_PATH" --list-different --log-level=silent > /dev/null 2>&1
             if [ $? -ne 2 ]; then echo "$file"; fi
           done | wc -l | xargs || echo "0")
+          
+          # Export to environment for use in later steps
+          echo "TOTAL_YAML=$TOTAL_YAML" >> $GITHUB_ENV
+          echo "CHECKED_YAML=$CHECKED_YAML" >> $GITHUB_ENV
+          echo "PROCESSED_YAML=$PROCESSED_YAML" >> $GITHUB_ENV
 
           echo ""
           echo "📈 Summary:"
@@ -493,10 +498,10 @@ jobs:
           echo "| **Result** | ✅ All files properly formatted |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📊 File Processing Statistics" >> $GITHUB_STEP_SUMMARY
-          echo "- **Total YAML files found**: $TOTAL_YAML" >> $GITHUB_STEP_SUMMARY
-          echo "- **Files processed by prettier**: $PROCESSED_YAML" >> $GITHUB_STEP_SUMMARY  
-          echo "- **Files needing formatting**: $CHECKED_YAML" >> $GITHUB_STEP_SUMMARY
-          echo "- **Files ignored by prettier**: $((TOTAL_YAML - PROCESSED_YAML))" >> $GITHUB_STEP_SUMMARY
+          echo "- **Total YAML files found**: ${{ env.TOTAL_YAML }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Files processed by prettier**: ${{ env.PROCESSED_YAML }}" >> $GITHUB_STEP_SUMMARY  
+          echo "- **Files needing formatting**: ${{ env.CHECKED_YAML }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Files ignored by prettier**: $((${{ env.TOTAL_YAML }} - ${{ env.PROCESSED_YAML }}))" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📋 EditorConfig YAML Rules Applied" >> $GITHUB_STEP_SUMMARY
           echo "- **Indent Style**: Spaces" >> $GITHUB_STEP_SUMMARY
