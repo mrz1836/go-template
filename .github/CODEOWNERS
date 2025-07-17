@@ -7,7 +7,7 @@
 
 # GitHub Actions workflows
 .github/workflows/* @mrz1836
-.env.shared @mrz1836
+.github/.env.shared @mrz1836
 
 # Documentation files
 *.md @mrz1836
@@ -23,11 +23,11 @@ go.mod @mrz1836
 go.sum @mrz1836
 
 # AI Config Files
-AGENTS.md @mrz1836
+.github/AGENTS.md @mrz1836
 .cursorrules @mrz1836
-CLAUDE.md @mrz1836
+.github/CLAUDE.md @mrz1836
 sweep.yml @mrz1836
 
 # Repository configuration
-labels.yml @mrz1836
-dependabot.yml @mrz1836
+.github/labels.yml @mrz1836
+.github/dependabot.yml @mrz1836
