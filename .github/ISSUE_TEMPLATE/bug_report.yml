@@ -40,7 +40,7 @@ body:
       label: Environment details
       description: Provide version information and your Go setup to help debug.
       placeholder: |
-        - Go version: go1.23.2
+        - Go version: go1.24.2
         - OS: macOS 14.5 (arm64)
         - Library version/commit: v1.3.4 or commit 88aef9c
     validations:
