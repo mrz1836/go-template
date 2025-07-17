@@ -391,7 +391,7 @@ jobs:
             npx prettier "$file" --ignore-path "$PRETTIER_IGNORE_PATH" --list-different --log-level=silent > /dev/null 2>&1
             if [ $? -ne 2 ]; then echo "$file"; fi
           done | wc -l | xargs || echo "0")
-          
+
           # Export to environment for use in later steps
           echo "TOTAL_YAML=$TOTAL_YAML" >> $GITHUB_ENV
           echo "CHECKED_YAML=$CHECKED_YAML" >> $GITHUB_ENV
