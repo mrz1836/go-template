@@ -14,48 +14,48 @@ on:
   workflow_call:
     inputs:
       start-epoch:
-        description: 'Workflow start epoch time'
+        description: "Workflow start epoch time"
         required: true
         type: string
       start-time:
-        description: 'Workflow start time'
+        description: "Workflow start time"
         required: true
         type: string
       setup-result:
-        description: 'Setup job result'
+        description: "Setup job result"
         required: true
         type: string
       test-makefile-result:
-        description: 'Test Makefile job result'
+        description: "Test Makefile job result"
         required: true
         type: string
       security-result:
-        description: 'Security job result'
+        description: "Security job result"
         required: true
         type: string
       code-quality-result:
-        description: 'Code quality job result'
+        description: "Code quality job result"
         required: true
         type: string
       test-suite-result:
-        description: 'Test suite job result'
+        description: "Test suite job result"
         required: true
         type: string
       release-result:
-        description: 'Result of the release job'
+        description: "Result of the release job"
         required: false
         type: string
-        default: 'skipped'
+        default: "skipped"
       test-matrix:
-        description: 'Test matrix JSON'
+        description: "Test matrix JSON"
         required: true
         type: string
       env-json:
-        description: 'JSON string of environment variables'
+        description: "JSON string of environment variables"
         required: true
         type: string
       primary-runner:
-        description: 'Primary runner OS'
+        description: "Primary runner OS"
         required: true
         type: string
 
@@ -89,7 +89,7 @@ jobs:
         if: always()
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          pattern: '*-stats-*'
+          pattern: "*-stats-*"
           merge-multiple: true
 
       # ————————————————————————————————————————————————————————————————

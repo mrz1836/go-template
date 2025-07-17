@@ -39,3 +39,6 @@ testdata
 
 # AI Models
 .claude
+
+# Node modules
+node_modules/

@@ -12,12 +12,12 @@
 #      extended with the prefixes listed in AGENTS.md
 # ----------------------------------------------------------------------
 
-minimum_pre_commit_version: "3.7.0"  # requires Python‑based hooks v2.0+
+minimum_pre_commit_version: "3.7.0" # requires Python‑based hooks v2.0+
 
 repos:
   # ---------------------- Core hygiene hooks --------------------------
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: cef0300fd0fc4d2a87a85fa2093c6b283ea36f4b  # frozen: v5.0.0
+    rev: cef0300fd0fc4d2a87a85fa2093c6b283ea36f4b # frozen: v5.0.0
     hooks:
       - id: check-added-large-files
       - id: end-of-file-fixer
@@ -26,7 +26,7 @@ repos:
 
   # ------------------------- Go toolchain -----------------------------
   - repo: https://github.com/TekWizely/pre-commit-golang
-    rev: 302c7fd28cdbb62d5fd1e3965fe36e33a5f77803  # frozen: v1.0.0-rc.1
+    rev: 302c7fd28cdbb62d5fd1e3965fe36e33a5f77803 # frozen: v1.0.0-rc.1
     hooks:
       - id: go-fmt
       - id: go-vet
@@ -37,10 +37,10 @@ repos:
 
   # ------------------------ Security scans ---------------------------
   - repo: https://github.com/zricethezav/gitleaks
-    rev: 47218a628da59ef6b24197d15f4b0248ca87f4f0  # frozen: v8.27.2
+    rev: 47218a628da59ef6b24197d15f4b0248ca87f4f0 # frozen: v8.27.2
     hooks:
       - id: gitleaks
-        stages: [ pre-commit, pre-push ]
+        stages: [pre-commit, pre-push]
 
   # ------------------- Commenting rule enforcement -------------------
   - repo: local
@@ -50,14 +50,14 @@ repos:
         language: system
         entry: |
           bash -c 'revive -config .revive.toml ./...'
-        types: [ go ]
+        types: [go]
         fail_fast: true
 
       - id: comment-conventions
         name: "custom comment linter (AGENTS.md)"
         language: python
         entry: scripts/comment_lint.py
-        types: [ go, markdown ]
+        types: [go, markdown]
         pass_filenames: true
         additional_dependencies:
           - regex==2025.6
@@ -65,10 +65,10 @@ repos:
 
   # --------------------- Commit‑msg validation -----------------------
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-    rev: 879f5400493f84c8b683bdeb3366a8439ca17858  # frozen: v9.22.0
+    rev: 879f5400493f84c8b683bdeb3366a8439ca17858 # frozen: v9.22.0
     hooks:
       - id: commitlint
-        stages: [ commit-msg ]
-        additional_dependencies: [ '@commitlint/config-conventional' ]
+        stages: [commit-msg]
+        additional_dependencies: ["@commitlint/config-conventional"]
 
-default_stages: [ pre-commit, pre-push ]
+default_stages: [pre-commit, pre-push]
