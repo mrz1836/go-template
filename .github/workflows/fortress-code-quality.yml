@@ -346,9 +346,9 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       # ————————————————————————————————————————————————————————————————
-      # Create temporary package.json for prettier installation
+      # Create package.json and package-lock.json for secure installation
       # ————————————————————————————————————————————————————————————————
-      - name: 📦 Create temporary package.json
+      - name: 📦 Create package files for secure installation
         run: |
           echo "{
             \"name\": \"yaml-validation\",
@@ -357,16 +357,20 @@ jobs:
             \"devDependencies\": {
               \"prettier\": \"${{ env.PRETTIER_VERSION }}\"
             }
-          }" > temp-package.json
+          }" > package.json
+          
+          # Create package-lock.json with pinned prettier version and integrity hash
+          npm install --package-lock-only
+          echo "✅ Package files created with locked dependencies"
 
       # ————————————————————————————————————————————————————————————————
-      # Install Prettier with an exact version
+      # Install Prettier using locked dependencies
       # ————————————————————————————————————————————————————————————————
-      - name: 📦 Install Prettier
+      - name: 📦 Install Prettier (pinned)
         run: |
-          echo "📦 Installing Prettier version ${{ env.PRETTIER_VERSION }}..."
-          npm install --no-save --package-lock-only --prefix . prettier@${{ env.PRETTIER_VERSION }}
-          echo "✅ Prettier installed successfully"
+          echo "📦 Installing Prettier with locked dependencies..."
+          npm ci --only=dev
+          echo "✅ Prettier installed successfully with pinned dependencies"
 
           # Capture version for output
           PRETTIER_VERSION=$(npx prettier --version)
@@ -518,6 +522,6 @@ jobs:
       - name: 🧹 Cleanup
         if: always()
         run: |
-          rm -f temp-package.json
+          rm -f package.json package-lock.json
           rm -rf node_modules
           echo "✅ Cleanup completed"
