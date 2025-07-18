@@ -27,6 +27,12 @@ on:
         description: "GitHub token for API access"
         required: true
     outputs:
+      benchmarks-enabled:
+        description: "Whether benchmarks are enabled"
+        value: ${{ jobs.setup-config.outputs.benchmarks-enabled }}
+      benchmark-matrix:
+        description: "Benchmark matrix JSON"
+        value: ${{ jobs.setup-config.outputs.benchmark-matrix }}
       code-coverage-enabled:
         description: "Whether code coverage is enabled"
         value: ${{ jobs.setup-config.outputs.code-coverage-enabled }}
@@ -90,6 +96,8 @@ jobs:
     name: 🎯 Setup CI Config
     runs-on: ${{ inputs.primary-runner }}
     outputs:
+      benchmarks-enabled: ${{ steps.config.outputs.benchmarks-enabled }}
+      benchmark-matrix: ${{ steps.matrix.outputs.matrix }}
       code-coverage-enabled: ${{ steps.config.outputs.code-coverage-enabled }}
       fuzz-testing-enabled: ${{ steps.config.outputs.fuzz-testing-enabled }}
       go-primary-version: ${{ steps.config.outputs.go-primary-version }}
@@ -271,6 +279,7 @@ jobs:
           fi
 
           # Feature flags
+          echo "benchmarks-enabled=${{ env.ENABLE_BENCHMARKS }}" >> $GITHUB_OUTPUT
           echo "code-coverage-enabled=${{ env.ENABLE_CODE_COVERAGE }}" >> $GITHUB_OUTPUT
           echo "go-lint-enabled=${{ env.ENABLE_GO_LINT }}" >> $GITHUB_OUTPUT
           echo "yaml-lint-enabled=${{ env.ENABLE_YAML_LINT }}" >> $GITHUB_OUTPUT
@@ -338,6 +347,7 @@ jobs:
           echo "## 🚀 Feature Flags" >> $GITHUB_STEP_SUMMARY
           echo "| Feature | Status | Impact |" >> $GITHUB_STEP_SUMMARY
           echo "|---------|--------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Benchmarks** | $([ "${{ env.ENABLE_BENCHMARKS }}" == "true" ] && echo "✅ Enabled" || echo "❌ Disabled") | Performance benchmarks will $([ "${{ env.ENABLE_BENCHMARKS }}" == "true" ] && echo "run and collect metrics" || echo "be skipped") |" >> $GITHUB_STEP_SUMMARY
           echo "| **Code Coverage** | $([ "${{ env.ENABLE_CODE_COVERAGE }}" == "true" ] && echo "✅ Enabled" || echo "❌ Disabled") | Code coverage reports will $([ "${{ env.ENABLE_CODE_COVERAGE }}" == "true" ] && echo "be generated and uploaded to Codecov" || echo "not be generated") |" >> $GITHUB_STEP_SUMMARY
           echo "| **Fuzz Testing** | $([ "${{ env.ENABLE_FUZZ_TESTING }}" == "true" ] && echo "✅ Enabled" || echo "❌ Disabled") | Fuzz tests will $([ "${{ env.ENABLE_FUZZ_TESTING }}" == "true" ] && echo "run on Linux with primary Go version" || echo "be skipped") |" >> $GITHUB_STEP_SUMMARY
           echo "| **Go Linting** | $([ "${{ env.ENABLE_GO_LINT }}" == "true" ] && echo "✅ Enabled" || echo "❌ Disabled") | golangci-lint will $([ "${{ env.ENABLE_GO_LINT }}" == "true" ] && echo "analyze code quality" || echo "be skipped") |" >> $GITHUB_STEP_SUMMARY
