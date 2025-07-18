@@ -247,39 +247,39 @@ jobs:
         if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
         run: |
           echo "❌ One or more jobs failed or were cancelled – see summary above." >&2
-          
+
           # Check if benchmarks failed only if they were enabled
           if [[ "${{ needs.setup.outputs.benchmarks-enabled }}" == "true" && "${{ needs.benchmarks.result }}" == "failure" ]]; then
             echo "❌ Benchmarks failed and were enabled" >&2
             exit 1
           fi
-          
+
           # Check other required jobs
           if [[ "${{ needs.setup.result }}" == "failure" || "${{ needs.setup.result }}" == "cancelled" ]]; then
             echo "❌ Setup failed or was cancelled" >&2
             exit 1
           fi
-          
+
           if [[ "${{ needs.test-makefile.result }}" == "failure" || "${{ needs.test-makefile.result }}" == "cancelled" ]]; then
             echo "❌ Test makefile failed or was cancelled" >&2
             exit 1
           fi
-          
+
           if [[ "${{ needs.security.result }}" == "failure" || "${{ needs.security.result }}" == "cancelled" ]]; then
             echo "❌ Security scans failed or were cancelled" >&2
             exit 1
           fi
-          
+
           if [[ "${{ needs.code-quality.result }}" == "failure" || "${{ needs.code-quality.result }}" == "cancelled" ]]; then
             echo "❌ Code quality checks failed or were cancelled" >&2
             exit 1
           fi
-          
+
           if [[ "${{ needs.test-suite.result }}" == "failure" || "${{ needs.test-suite.result }}" == "cancelled" ]]; then
             echo "❌ Test suite failed or was cancelled" >&2
             exit 1
           fi
-          
+
           exit 1
 
       # ————————————————————————————————————————————————————————————————
