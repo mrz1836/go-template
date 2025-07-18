@@ -131,7 +131,8 @@ jobs:
             echo ""
 
             # Process cache statistics if available
-            if ls cache-stats-*.json >/dev/null 2>&1; then
+            # Use a more robust file existence check
+            if compgen -G "cache-stats-*.json" >/dev/null 2>&1; then
               echo "### 💾 Cache Performance" >> $GITHUB_STEP_SUMMARY
               echo "| OS | Go Version | Module Cache | Build Cache | Module Size | Build Size |" >> $GITHUB_STEP_SUMMARY
               echo "|----|------------|--------------|-------------|-------------|------------|" >> $GITHUB_STEP_SUMMARY
@@ -161,7 +162,8 @@ jobs:
             fi
 
             # Process benchmark statistics if available
-            if ls benchmark-stats-*.json >/dev/null 2>&1; then
+            # Use a more robust file existence check
+            if compgen -G "benchmark-stats-*.json" >/dev/null 2>&1; then
               echo "" >> $GITHUB_STEP_SUMMARY
               echo "### 🏃 Benchmark Performance" >> $GITHUB_STEP_SUMMARY
               echo "| Benchmark Suite | Duration | Benchmarks | Status |" >> $GITHUB_STEP_SUMMARY
@@ -205,7 +207,8 @@ jobs:
             fi
 
             # Process test statistics if available
-            if ls test-stats-*.json >/dev/null 2>&1; then
+            # Use a more robust file existence check
+            if compgen -G "test-stats-*.json" >/dev/null 2>&1; then
               echo "" >> $GITHUB_STEP_SUMMARY
               echo "### 🧪 Test Execution Performance" >> $GITHUB_STEP_SUMMARY
               echo "| Test Suite | Duration | Tests | Examples | Status | Race | Coverage | Fuzz |" >> $GITHUB_STEP_SUMMARY
