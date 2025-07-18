@@ -196,12 +196,28 @@ jobs:
       github-token: ${{ secrets.GH_PAT_TOKEN != '' && secrets.GH_PAT_TOKEN || secrets.GITHUB_TOKEN }}
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
   # ----------------------------------------------------------------------------------
+  # Benchmark Suite
+  # ----------------------------------------------------------------------------------
+  benchmarks:
+    name: 🏃 Benchmarks
+    needs: [load-env, setup, warm-cache, test-makefile]
+    if: needs.setup.outputs.benchmarks-enabled == 'true'
+    uses: ./.github/workflows/fortress-benchmarks.yml
+    with:
+      env-json: ${{ needs.load-env.outputs.env-json }}
+      benchmark-matrix: ${{ needs.setup.outputs.benchmark-matrix }}
+      primary-runner: ${{ needs.setup.outputs.primary-runner }}
+      go-primary-version: ${{ needs.setup.outputs.go-primary-version }}
+      go-secondary-version: ${{ needs.setup.outputs.go-secondary-version }}
+    secrets:
+      github-token: ${{ secrets.GH_PAT_TOKEN != '' && secrets.GH_PAT_TOKEN || secrets.GITHUB_TOKEN }}
+  # ----------------------------------------------------------------------------------
   # Final Status Check
   # ----------------------------------------------------------------------------------
   status-check:
     name: 🎯 All Tests Passed
     if: ${{ always() }}
-    needs: [setup, test-makefile, security, code-quality, test-suite]
+    needs: [setup, test-makefile, security, code-quality, test-suite, benchmarks]
     runs-on: ${{ needs.setup.outputs.primary-runner }}
     steps:
       # ————————————————————————————————————————————————————————————————
@@ -219,16 +235,51 @@ jobs:
             echo "| 🔒 Security | ${{ needs.security.result }} |"
             echo "| 📊 Code Quality | ${{ needs.code-quality.result }} |"
             echo "| 🧪 Test Suite | ${{ needs.test-suite.result }} |"
+            echo "| 🏃 Benchmarks | ${{ needs.benchmarks.result }} |"
           } >> "$GITHUB_STEP_SUMMARY"
 
       # ————————————————————————————————————————————————————————————————
       # Fail the workflow *only* when a dependency actually failed/canceled
       # - 'skipped' is OK (e.g. feature flag off)
+      # - Only check benchmarks result if benchmarks are enabled
       # ————————————————————————————————————————————————————————————————
       - name: ❌ Fail if any required job errored
         if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
         run: |
           echo "❌ One or more jobs failed or were cancelled – see summary above." >&2
+
+          # Check if benchmarks failed only if they were enabled
+          if [[ "${{ needs.setup.outputs.benchmarks-enabled }}" == "true" && "${{ needs.benchmarks.result }}" == "failure" ]]; then
+            echo "❌ Benchmarks failed and were enabled" >&2
+            exit 1
+          fi
+
+          # Check other required jobs
+          if [[ "${{ needs.setup.result }}" == "failure" || "${{ needs.setup.result }}" == "cancelled" ]]; then
+            echo "❌ Setup failed or was cancelled" >&2
+            exit 1
+          fi
+
+          if [[ "${{ needs.test-makefile.result }}" == "failure" || "${{ needs.test-makefile.result }}" == "cancelled" ]]; then
+            echo "❌ Test makefile failed or was cancelled" >&2
+            exit 1
+          fi
+
+          if [[ "${{ needs.security.result }}" == "failure" || "${{ needs.security.result }}" == "cancelled" ]]; then
+            echo "❌ Security scans failed or were cancelled" >&2
+            exit 1
+          fi
+
+          if [[ "${{ needs.code-quality.result }}" == "failure" || "${{ needs.code-quality.result }}" == "cancelled" ]]; then
+            echo "❌ Code quality checks failed or were cancelled" >&2
+            exit 1
+          fi
+
+          if [[ "${{ needs.test-suite.result }}" == "failure" || "${{ needs.test-suite.result }}" == "cancelled" ]]; then
+            echo "❌ Test suite failed or was cancelled" >&2
+            exit 1
+          fi
+
           exit 1
 
       # ————————————————————————————————————————————————————————————————
@@ -264,9 +315,10 @@ jobs:
   performance-summary:
     name: 📊 Performance Summary
     if: always()
-    needs: [load-env, setup, test-makefile, security, code-quality, test-suite, release]
+    needs: [load-env, setup, test-makefile, security, code-quality, test-suite, benchmarks, release]
     uses: ./.github/workflows/fortress-performance-summary.yml
     with:
+      benchmarks-result: ${{ needs.benchmarks.result }}
       code-quality-result: ${{ needs.code-quality.result }}
       env-json: ${{ needs.load-env.outputs.env-json }}
       primary-runner: ${{ needs.setup.outputs.primary-runner }}
