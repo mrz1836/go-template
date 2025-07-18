@@ -179,10 +179,10 @@ jobs:
         id: run-benchmarks
         run: |
           echo "🏃 Running benchmarks..."
-          
+
           # Create output file for raw benchmark results
           BENCH_OUTPUT_FILE="benchmark-results-${{ matrix.os }}-${{ matrix.go-version }}.txt"
-          
+
           # Run benchmarks and capture output
           if make bench > "$BENCH_OUTPUT_FILE" 2>&1; then
             echo "✅ Benchmarks completed successfully"
@@ -191,11 +191,11 @@ jobs:
             echo "❌ Benchmarks failed"
             BENCH_STATUS="failure"
           fi
-          
+
           # Display benchmark output
           echo "📊 Benchmark Results:"
           cat "$BENCH_OUTPUT_FILE"
-          
+
           # Save status for later
           echo "bench_status=$BENCH_STATUS" >> $GITHUB_OUTPUT
 
@@ -208,17 +208,17 @@ jobs:
         run: |
           BENCH_END=$(date +%s)
           BENCH_DURATION=$((BENCH_END - ${{ steps.bench-timer.outputs.bench-start }}))
-          
+
           # Count benchmarks
           BENCHMARK_COUNT=$(find . -type f -name '*_test.go' \
             -not -path './vendor/*' \
             -not -path './third_party/*' \
             -exec grep -h '^func Benchmark' {} + | wc -l)
-          
+
           # Parse benchmark results
           BENCH_OUTPUT_FILE="benchmark-results-${{ matrix.os }}-${{ matrix.go-version }}.txt"
           STATS_FILE="benchmark-stats-${{ matrix.os }}-${{ matrix.go-version }}.json"
-          
+
           # Create a pretty summary of benchmark results
           BENCH_SUMMARY=""
           if [ -f "$BENCH_OUTPUT_FILE" ]; then
@@ -240,10 +240,10 @@ jobs:
               done)
             fi
           fi
-          
+
           # Escape the summary for JSON
           BENCH_SUMMARY_JSON=$(echo "$BENCH_SUMMARY" | jq -Rsa .)
-          
+
           # Create statistics file
           cat > "$STATS_FILE" << EOF
           {
@@ -257,7 +257,7 @@ jobs:
             "benchmark_summary": $BENCH_SUMMARY_JSON
           }
           EOF
-          
+
           echo "📊 Benchmark statistics:"
           jq . "$STATS_FILE"
 
