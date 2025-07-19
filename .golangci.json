@@ -40,8 +40,8 @@
 	},
 	"linters": {
 		"enable": [
-			"arangolint",
-			"asasalint",
+      "asasalint",
+      "arangolint",
 			"asciicheck",
 			"bidichk",
 			"bodyclose",
