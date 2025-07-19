@@ -467,7 +467,7 @@ All GitHub Actions workflows in this repository are powered by a single configur
 This magical file controls everything from:
 - **🚀 Go version matrix** (test on multiple versions or just one)
 - **🏃 Runner selection** (Ubuntu or macOS, your wallet decides)
-- **🔬 Feature toggles** (coverage, fuzzing, linting, race detection)
+- **🔬 Feature toggles** (coverage, fuzzing, linting, race detection, benchmarks)
 - **🛡️ Security tool versions** (gitleaks, nancy, govulncheck)
 - **🤖 Auto-merge behaviors** (how aggressive should the bots be?)
 - **🏷️ PR management rules** (size labels, auto-assignment, welcome messages)
