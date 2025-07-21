@@ -128,8 +128,13 @@ jobs:
             exit 1
           fi
 
+          # Create unique branch name with timestamp to avoid conflicts
+          TIMESTAMP=$(date -u +%Y%m%d-%H%M)
+          UNIQUE_BRANCH_NAME="${BRANCH_NAME}-${TIMESTAMP}"
+
           # Set as environment variables for all subsequent steps
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "BRANCH_NAME=$UNIQUE_BRANCH_NAME" >> $GITHUB_ENV
+          echo "BASE_BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
           echo "CONFIG_FILE=$CONFIG_FILE" >> $GITHUB_ENV
           echo "PR_LABELS=$PR_LABELS" >> $GITHUB_ENV
           echo "PR_ASSIGNEE=$PR_ASSIGNEE" >> $GITHUB_ENV
@@ -151,7 +156,8 @@ jobs:
           # Log configuration
           echo "🔍 Configuration loaded:"
           echo "  📁 Config file: $CONFIG_FILE"
-          echo "  🌿 Update branch: $BRANCH_NAME"
+          echo "  🌿 Base branch pattern: $BRANCH_NAME"
+          echo "  🌿 Unique branch name: $UNIQUE_BRANCH_NAME"
           echo "  📁 Pip directory: $PIP_DIR"
           echo "  🔀 Create PR: ${{ env.CREATE_PR }}"
           echo "  🧪 Test hooks: ${{ env.TEST_HOOKS }}"
@@ -254,6 +260,10 @@ jobs:
           echo "📦 Running pre-commit autoupdate --freeze..."
           pre-commit autoupdate --freeze
 
+          # Fix YAML formatting - ensure single space before frozen comments
+          echo "🔧 Fixing YAML formatting for prettier compliance..."
+          sed -i 's/  # frozen:/ # frozen:/g' "${{ env.CONFIG_FILE }}"
+
           # Migrate config if needed
           echo "🔧 Running config migration..."
           pre-commit migrate-config
@@ -317,33 +327,26 @@ jobs:
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       # ————————————————————————————————————————————————————————————————
-      # Check if PR branch already exists
+      # Check for existing PRs with base branch pattern
       # ————————————————————————————————————————————————————————————————
-      - name: 🔍 Check for existing PR branch
+      - name: 🔍 Check for existing PRs
         id: check_branch
         if: steps.check_changes.outputs.has_changes == 'true' && env.CREATE_PR == 'true'
         run: |
-          echo "🔍 Checking for existing branch and PR..."
+          echo "🔍 Checking for existing PRs with similar branch pattern..."
 
-          # Check if branch exists remotely
-          if git ls-remote --exit-code --heads origin "${{ env.BRANCH_NAME }}" >/dev/null 2>&1; then
-            echo "🌿 Branch ${{ env.BRANCH_NAME }} already exists remotely"
-            echo "branch_exists=true" >> $GITHUB_OUTPUT
+          # Since we use unique timestamped branches, this branch is always new
+          echo "🆕 Using unique branch: ${{ env.BRANCH_NAME }}"
+          echo "branch_exists=false" >> $GITHUB_OUTPUT
+          echo "pr_exists=false" >> $GITHUB_OUTPUT
 
-            # Check if there's already an open PR
-            pr_number=$(gh pr list --head "${{ env.BRANCH_NAME }}" --json number --jq '.[0].number // empty')
-            if [ -n "$pr_number" ]; then
-              echo "📋 Open PR already exists: #$pr_number"
-              echo "pr_exists=true" >> $GITHUB_OUTPUT
-              echo "pr_number=$pr_number" >> $GITHUB_OUTPUT
-            else
-              echo "🌿 Branch exists but no open PR found"
-              echo "pr_exists=false" >> $GITHUB_OUTPUT
-            fi
+          # Check if there are other open PRs for pre-commit updates (for info only)
+          existing_prs=$(gh pr list --head "${{ env.BASE_BRANCH_NAME }}*" --json number,title,headRefName --jq '.[] | select(.headRefName | startswith("${{ env.BASE_BRANCH_NAME }}")) | .number' || echo "")
+          if [ -n "$existing_prs" ]; then
+            echo "ℹ️ Found existing pre-commit update PRs: $existing_prs"
+            echo "💡 These will remain open - consider closing them if this update supersedes them"
           else
-            echo "🆕 Branch ${{ env.BRANCH_NAME }} does not exist"
-            echo "branch_exists=false" >> $GITHUB_OUTPUT
-            echo "pr_exists=false" >> $GITHUB_OUTPUT
+            echo "✅ No existing pre-commit update PRs found"
           fi
         env:
           GH_TOKEN: ${{ secrets.GH_PAT_TOKEN || secrets.GITHUB_TOKEN }}
@@ -356,16 +359,9 @@ jobs:
         run: |
           echo "🌿 Preparing to commit changes..."
 
-          # Create or switch to the branch
-          if [ "${{ steps.check_branch.outputs.branch_exists }}" = "true" ]; then
-            echo "🔄 Switching to existing branch..."
-            git fetch origin "${{ env.BRANCH_NAME }}"
-            git checkout "${{ env.BRANCH_NAME }}"
-            git merge origin/main --no-edit || echo "⚠️ Merge conflicts may need manual resolution"
-          else
-            echo "🆕 Creating new branch..."
-            git checkout -b "${{ env.BRANCH_NAME }}"
-          fi
+          # Create unique timestamped branch (always new)
+          echo "🆕 Creating unique timestamped branch: ${{ env.BRANCH_NAME }}"
+          git checkout -b "${{ env.BRANCH_NAME }}"
 
           # Stage the changes
           git add "${{ env.CONFIG_FILE }}"
@@ -425,10 +421,17 @@ jobs:
       # ————————————————————————————————————————————————————————————————
       # Create a new pull request using GitHub CLI
       # ————————————————————————————————————————————————————————————————
-      - name: 🔀 Create new pull request
-        if: steps.check_changes.outputs.has_changes == 'true' && env.CREATE_PR == 'true' && steps.check_branch.outputs.pr_exists != 'true'
+      - name: 🔀 Create pull request
+        if: steps.check_changes.outputs.has_changes == 'true' && env.CREATE_PR == 'true'
         run: |
           echo "🔀 Creating new pull request..."
+
+          # Verify we have commits to create PR with
+          if ! git log --oneline origin/master..HEAD | grep -q .; then
+            echo "❌ No commits found between origin/master and HEAD"
+            echo "This might indicate the branch was created but no changes were committed"
+            exit 1
+          fi
 
           # Generate detailed PR body
           pr_body="## 🤖 Automated Pre-commit Hooks Update
@@ -463,6 +466,7 @@ jobs:
           2. **Check CI status** - automated tests will verify compatibility
           3. **Test locally** with \`pre-commit run --all-files\` if desired
           4. **Merge when ready** - no manual action needed unless issues arise
+          5. **Close older pre-commit PRs** if this update supersedes them
 
           ### 🔐 Security Notes
           - All Python packages installed use hash verification (\`--require-hashes\`)
@@ -472,6 +476,7 @@ jobs:
           ### 🤖 Automation Details
           - **Workflow:** \`${{ github.workflow }}\`
           - **Trigger:** ${{ github.event_name }}
+          - **Branch:** \`${{ env.BRANCH_NAME }}\` (timestamped for uniqueness)
           - **Run ID:** [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
           ---
@@ -486,7 +491,7 @@ jobs:
             --title "chore(deps): update pre-commit hooks" \
             --body "$pr_body" \
             --head "${{ env.BRANCH_NAME }}" \
-            --base main \
+            --base master \
             --label "${{ env.PR_LABELS }}" \
             --assignee "${{ env.PR_ASSIGNEE }}")
 
@@ -496,7 +501,7 @@ jobs:
           gh pr comment "$pr_url" --body "### 📊 Configuration Changes
 
           \`\`\`diff
-          $(git diff origin/main...HEAD -- "${{ env.CONFIG_FILE }}" | head -100)
+          $(git diff origin/master...HEAD -- "${{ env.CONFIG_FILE }}" | head -100)
           \`\`\`
 
           ### 💡 Tips for Testing
@@ -516,35 +521,6 @@ jobs:
           pre-commit autoupdate
           \`\`\`"
 
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT_TOKEN || secrets.GITHUB_TOKEN }}
-
-      # ————————————————————————————————————————————————————————————————
-      # Update existing PR if changes detected
-      # ————————————————————————————————————————————————————————————————
-      - name: 🔄 Update existing PR
-        if: steps.check_changes.outputs.has_changes == 'true' && env.CREATE_PR == 'true' && steps.check_branch.outputs.pr_exists == 'true'
-        run: |
-          pr_number="${{ steps.check_branch.outputs.pr_number }}"
-
-          echo "🔄 Updating existing PR #$pr_number with new changes..."
-
-          # Add comment about the update
-          gh pr comment "$pr_number" --body "### 🔄 Pre-commit Hooks Updated Again
-
-          New changes detected and committed to this PR:
-          - Updated on $(date -u '+%Y-%m-%d %H:%M:%S UTC')
-          - Number of hooks updated: **${{ steps.analyze_changes.outputs.hooks_updated }}**
-          - Run ID: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-
-          ### Latest Changes:
-          \`\`\`diff
-          $(git diff HEAD~1 -- "${{ env.CONFIG_FILE }}" | head -50)
-          \`\`\`
-
-          The PR now contains the most recent hook versions available."
-
-          echo "✅ Existing PR #$pr_number updated with new changes"
         env:
           GH_TOKEN: ${{ secrets.GH_PAT_TOKEN || secrets.GITHUB_TOKEN }}
 
@@ -584,13 +560,8 @@ jobs:
             BRANCH_NAME=$(echo "$ENV_JSON" | jq -r '.UPDATE_PRE_COMMIT_HOOKS_BRANCH')
 
             echo "| **Config File** | \`$CONFIG_FILE\` |" >> $GITHUB_STEP_SUMMARY
-            echo "| **Branch** | \`$BRANCH_NAME\` |" >> $GITHUB_STEP_SUMMARY
-
-            if [ "${{ needs.update-hooks.outputs.pr_exists }}" = "true" ]; then
-              echo "| **Action** | Updated existing PR #${{ needs.update-hooks.outputs.pr_number }} |" >> $GITHUB_STEP_SUMMARY
-            else
-              echo "| **Action** | Created new pull request |" >> $GITHUB_STEP_SUMMARY
-            fi
+            echo "| **Branch Pattern** | \`$BRANCH_NAME\` |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Action** | Created new timestamped pull request |" >> $GITHUB_STEP_SUMMARY
           else
             echo "## ℹ️ No Updates Available" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
@@ -616,11 +587,7 @@ jobs:
           echo "=== 🪝 Pre-commit Hooks Update Summary ==="
           if [ "${{ needs.update-hooks.result }}" = "success" ]; then
             if [ "${{ needs.update-hooks.outputs.has_changes }}" = "true" ]; then
-              if [ "${{ needs.update-hooks.outputs.pr_exists }}" = "true" ]; then
-                echo "✅ Status: Updated existing PR #${{ needs.update-hooks.outputs.pr_number }}"
-              else
-                echo "✅ Status: Created new pull request"
-              fi
+              echo "✅ Status: Created new timestamped pull request"
               echo "📊 Hooks updated: ${{ needs.update-hooks.outputs.hooks_updated }}"
             else
               echo "ℹ️ Status: No changes detected - hooks are up to date"

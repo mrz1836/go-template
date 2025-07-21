@@ -37,7 +37,7 @@ repos:
 
   # ------------------------ Security scans ---------------------------
   - repo: https://github.com/zricethezav/gitleaks
-    rev: 47218a628da59ef6b24197d15f4b0248ca87f4f0 # frozen: v8.27.2
+    rev: 39fdb480a06768cc41a84ef86959c07ff33091c4 # frozen: v8.28.0
     hooks:
       - id: gitleaks
         stages: [pre-commit, pre-push]
@@ -60,8 +60,8 @@ repos:
         types: [go, markdown]
         pass_filenames: true
         additional_dependencies:
-          - regex==2025.6
-          - ruamel.yaml==0.18
+          - regex==2024.11.6
+          - ruamel.yaml==0.18.18
 
   # --------------------- Commit‑msg validation -----------------------
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
