@@ -19,7 +19,9 @@ concurrency:
   cancel-in-progress: true
 
 # Declare default permissions as read-only.
-permissions: read-all
+permissions:
+  contents: read
+  security-events: read # For scorecard analysis
 
 jobs:
   analysis:
