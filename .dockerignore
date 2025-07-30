@@ -68,6 +68,7 @@ tmp
 .goreleaser.yml
 .pre-commit-config.yaml
 .vscode
+docs
 LICENSE
 README.md
 codecov.yml
