@@ -26,7 +26,7 @@ repos:
 
   # ------------------------- Go toolchain -----------------------------
   - repo: https://github.com/TekWizely/pre-commit-golang
-    rev: 302c7fd28cdbb62d5fd1e3965fe36e33a5f77803 # frozen: v1.0.0-rc.1
+    rev: bf2137dcd61fa219107613e4a4103cf24540cd93 # frozen: v1.0.0-rc.2
     hooks:
       - id: go-fmt
       - id: go-vet
