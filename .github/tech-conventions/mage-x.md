@@ -22,15 +22,15 @@
 
 ## 🎯 Why MAGE-X Over Makefiles?
 
-| Traditional Makefiles | MAGE-X |
-|------------------------|--------|
-| Platform-specific (issues on Windows) | Cross-platform (Linux, macOS, Windows) |
-| Requires writing boilerplate for each project | 240+ commands available instantly |
-| Complex dependency management | Automatic dependency resolution |
-| Limited parameter support | Rich parameter syntax with validation |
-| No built-in testing/linting workflows | Enterprise-ready quality workflows |
-| Manual tool management | Automatic tool discovery and management |
-| Shell-based (brittle) | Go-native (type-safe and robust) |
+| Traditional Makefiles                         | MAGE-X                                  |
+|-----------------------------------------------|-----------------------------------------|
+| Platform-specific (issues on Windows)         | Cross-platform (Linux, macOS, Windows)  |
+| Requires writing boilerplate for each project | 240+ commands available instantly       |
+| Complex dependency management                 | Automatic dependency resolution         |
+| Limited parameter support                     | Rich parameter syntax with validation   |
+| No built-in testing/linting workflows         | Enterprise-ready quality workflows      |
+| Manual tool management                        | Automatic tool discovery and management |
+| Shell-based (brittle)                         | Go-native (type-safe and robust)        |
 
 <br><br>
 
@@ -560,13 +560,13 @@ environments:
 
 ### Execution Speed Comparison
 
-| Operation | Traditional Tools | MAGE-X | Improvement |
-|-----------|------------------|---------|-------------|
-| Build | 2.3s | 1.1s | 52% faster |
-| Test Suite | 45s | 23s | 49% faster |
-| Linting | 12s | 3.2s | 73% faster |
-| Dependency Check | 8s | 2.1s | 74% faster |
-| Full CI Pipeline | 180s | 95s | 47% faster |
+| Operation        | Traditional Tools | MAGE-X | Improvement |
+|------------------|-------------------|--------|-------------|
+| Build            | 2.3s              | 1.1s   | 52% faster  |
+| Test Suite       | 45s               | 23s    | 49% faster  |
+| Linting          | 12s               | 3.2s   | 73% faster  |
+| Dependency Check | 8s                | 2.1s   | 74% faster  |
+| Full CI Pipeline | 180s              | 95s    | 47% faster  |
 
 ### Memory Efficiency
 
