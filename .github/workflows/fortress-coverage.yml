@@ -1605,43 +1605,6 @@ jobs:
             echo "✅ Created new gh-pages branch"
           fi
 
-          # Install GitHub Pages .gitignore filter FIRST to prevent tracking unwanted files
-          echo ""
-          echo "🔧 Installing GitHub Pages .gitignore filter (EARLY APPLICATION)..."
-          GH_PAGES_GITIGNORE="$REPO_ROOT/internal/analytics/assets/gh-pages.gitignore"
-          if [[ -f "$GH_PAGES_GITIGNORE" ]]; then
-            cp "$GH_PAGES_GITIGNORE" .gitignore
-            echo "✅ Copied GitHub Pages .gitignore filter"
-            echo "📝 This ensures only coverage files are tracked in gh-pages branch"
-
-            # Apply the gitignore immediately to current content (additional cleanup)
-            echo "🧹 Applying .gitignore filter to remaining content..."
-            git clean -fX . 2>/dev/null || true
-            echo "✅ Applied .gitignore filter to existing content"
-
-            # Final verification of cleanup
-            echo ""
-            echo "🔍 Final cleanup verification:"
-            FINAL_UNWANTED=0
-            for ext in "${UNWANTED_EXTENSIONS[@]}"; do
-              if [[ "$ext" != ".json" ]]; then  # Skip JSON check as some are needed
-                count=$(find . -name "*$ext" -not -path './.git/*' | wc -l)
-                if [[ $count -gt 0 ]]; then
-                  echo "  ⚠️ Still found $count $ext files"
-                  FINAL_UNWANTED=$((FINAL_UNWANTED + count))
-                fi
-              fi
-            done
-
-            if [[ $FINAL_UNWANTED -eq 0 ]]; then
-              echo "  ✅ Cleanup successful - no unwanted file types remaining"
-            else
-              echo "  ⚠️ $FINAL_UNWANTED unwanted files still present after cleanup"
-            fi
-          else
-            echo "⚠️ GitHub Pages .gitignore not found at: $GH_PAGES_GITIGNORE"
-            echo "📝 Will proceed without filter - consider creating the file for cleaner deployments"
-          fi
 
           # Apply selective content filtering before merging
           echo ""

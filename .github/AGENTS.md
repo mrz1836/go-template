@@ -46,6 +46,5 @@ Our technical standards are organized into focused, portable documents in the `.
 |------------------|-----------------------------------------------------------------------------------|
 | `.github/`       | Issue templates, workflows, and community documentation                           |
 | `.vscode/`       | VS Code settings and extensions for development                                   |
-| `.make/`         | Shared Makefile targets used by `Makefile`                                        |
 | `examples/`      | Example program demonstrating package usage                                       |
 | `.` (root)       | Source files and tests for the local package                                      |
