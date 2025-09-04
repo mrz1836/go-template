@@ -93,33 +93,33 @@
 
 ## 🧩 What's Inside
 <!-- remove-this-section:start -->
-**go-template** is a plug-and-play scaffold that lets you skip the boilerplate and jump straight to building your Go library. 
+**go-template** is a plug-and-play scaffold that lets you skip the boilerplate and jump straight to building your Go library.
 Clone it, [rename a few placeholders](#-template-kick-off-guide-3-easy-steps), and you instantly inherit a production-grade setup:
 
 <br/>
 
-- **📚 Go Best Practices & Examples**  
+- **📚 Go Best Practices & Examples**
   _Includes idiomatic Go patterns, [table-driven tests](template_test.go), [benchmarks](template_benchmark_test.go), [example functions](template_example_test.go), and [fuzz tests](template_fuzz_test.go)—demonstrating how to write robust, maintainable, and production-grade Go code._
 
-- **⚡ Zero-config CI/CD**  
+- **⚡ Zero-config CI/CD**
   _[GitHub Actions](#-documentation) run tests, upload coverage, and enforce linting on every push—so you never forget to run the checks._
 
-- **🛠️ One-command via [MAGE-X](https://github.com/mrz1836/mage-x)**  
+- **🛠️ One-command via [MAGE-X](https://github.com/mrz1836/mage-x)**
   _`magex test`, `magex lint`, `magex bench`, and more—common tasks stay muscle-memory simple._
 
-- **🚢 Automated Releases**  
+- **🚢 Automated Releases**
   _[GoReleaser](https://goreleaser.com/) cuts signed, versioned artifacts the moment you push a tag—shipping new versions becomes a 10-second ritual._
 
-- **🛡️ Security & Supply-chain Guardrails**  
+- **🛡️ Security & Supply-chain Guardrails**
   _[Dependabot](https://dependabot.com), [Nancy](https://github.com/sonatype-nexus-community/nancy), [govulncheck](https://pkg.go.dev/golang.org/x/vuln/cmd/govulncheck), [CodeQL](https://docs.github.com/en/github/finding-security-vulnerabilities-and-errors-in-your-code/about-code-scanning), [OpenSSF Scorecard](https://openssf.org) and [gitleaks](https://github.com/gitleaks/gitleaks) give early warnings before bad things reach production._
 
-- **🎨 Style & Quality Enforcement**  
+- **🎨 Style & Quality Enforcement**
   _[golangci-lint](https://github.com/golangci/golangci-lint) with 50+ linters and [gofumpt](https://github.com/mvdan/gofumpt) keeps the codebase clean and idiomatic - no bikeshedding required._
 
-- **🤖 AI-Friendly Policies**  
+- **🤖 AI-Friendly Policies**
   _[AGENTS.md](.github/AGENTS.md), [CLAUDE.md](.github/CLAUDE.md), [cursorrules](.cursorrules), and [sweep.yaml](.github/sweep.yaml) ensure [ChatGPT](https://openai.com), [Claude](https://claude.ai/), [Cursor](https://www.cursor.com/) & [Sweep](https://sweep.dev/) follow the same house rules._
 
-- **🌍 Community-Ready Meta**  
+- **🌍 Community-Ready Meta**
   _[Issue/PR templates](.github/ISSUE_TEMPLATE), [CODEOWNERS](.github/CODEOWNERS), [CITATION](CITATION.cff), [label sync](.github/labels.yml), and a welcome bot to show contributors exactly how to get involved._
 
 <br/>
@@ -257,7 +257,7 @@ go install github.com/mrz1836/mage-x/cmd/magex@latest
 - **Benchmarks** – Check the latest numbers in the [benchmark results](#benchmark-results)
 - **Test Suite** – Review both the [unit tests](template_test.go) and [fuzz tests](template_fuzz_test.go) (powered by [`testify`](https://github.com/stretchr/testify))
 
-> **Good to know:** `go-template` ships with *zero* runtime dependencies.  
+> **Good to know:** `go-template` ships with *zero* runtime dependencies.
 > The only external package we use is `testify` and `magefile` — and that's strictly for tests and dev.
 
 <br/>
