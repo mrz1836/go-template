@@ -18,11 +18,11 @@ indent_size  = 2
 
 [*.{json,prettierrc}]
 indent_style = space
-indent_size  = 2
+indent_size  = 4
 
 [*.{js,mjs,cjs,ts}]
 indent_style = space
-indent_size  = 2
+indent_size  = 4
 
 [*.py]
 indent_style = space
