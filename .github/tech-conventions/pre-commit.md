@@ -119,7 +119,7 @@ go-pre-commit provides 5 core checks that cover the most important code quality 
 
 **Code Formatting (fumpt):**
 - Uses [gofumpt](https://github.com/mvdan/gofumpt) for stricter formatting than `gofmt`
-- Integrates with your existing `magex format` or `make fmt` targets
+- Integrates with your existing `magex format` target
 - Automatically fixes formatting issues when possible
 
 **Linting (lint):**
