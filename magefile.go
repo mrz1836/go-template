@@ -78,7 +78,7 @@ func processFile(path string, replacements []struct{ from, to string }, dryRun, 
 
 	// Write back if modified and not dry run
 	if modified && !dryRun {
-		if err = os.WriteFile(path, []byte(newContent), 0644); err != nil {
+		if err = os.WriteFile(path, []byte(newContent), 0o644); err != nil {
 			return false, err
 		}
 	}
@@ -144,7 +144,6 @@ func InstallTemplate() error {
 
 		return nil
 	})
-
 	if err != nil {
 		return fmt.Errorf("error walking files: %w", err)
 	}
