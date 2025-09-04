@@ -131,7 +131,7 @@ Clone it, [rename a few placeholders](#-template-kick-off-guide-3-easy-steps), a
 * **Battery-Included Examples**: ready-to-run demos, benchmarks, fuzz and race tests.
 * **Flexible, Not Fragile**: swap or remove any piece without breaking the whole.
 
-> **Tip:** Run `make help` right after cloning to see every command the template unlocks.
+> **Tip:** Run `magex help` right after cloning to see every command the template unlocks.
 
 <br/>
 <br/>
