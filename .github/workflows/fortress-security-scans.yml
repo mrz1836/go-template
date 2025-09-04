@@ -114,7 +114,7 @@ jobs:
         run: |
           echo "## 🛡️ Nancy Security Scan Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| 🔍 Scan Details | ✅ Status |" >> $GITHUB_STEP_SUMMARY
+          echo "| Scan Details | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
           echo "| **Tool** | Nancy Sleuth |" >> $GITHUB_STEP_SUMMARY
           echo "| **Mode** | Loud mode with exclusions |" >> $GITHUB_STEP_SUMMARY
@@ -248,7 +248,7 @@ jobs:
         run: |
           echo "## 🔐 govulncheck Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| 🔍 Analysis Details | ✅ Status |" >> $GITHUB_STEP_SUMMARY
+          echo "| Analysis Details | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
           echo "| **Tool** | govulncheck (Official Go Security Tool) |" >> $GITHUB_STEP_SUMMARY
           echo "| **Installation** | $( [[ '${{ steps.govuln-cache.outputs.cache-hit }}' == 'true' ]] && echo '💾 From cache' || echo '📥 Fresh install' ) |" >> $GITHUB_STEP_SUMMARY
@@ -355,7 +355,7 @@ jobs:
         run: |
           echo "## 🕵️ Gitleaks Secret Scan Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| 🕵️ Scan Details | ✅ Status |" >> $GITHUB_STEP_SUMMARY
+          echo "| Scan Details | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
           echo "| **Tool** | Gitleaks |" >> $GITHUB_STEP_SUMMARY
           echo "| **Version** | ${{ env.GITLEAKS_VERSION }} |" >> $GITHUB_STEP_SUMMARY
