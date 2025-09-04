@@ -268,7 +268,7 @@ go install github.com/mrz1836/mage-x/cmd/magex@latest
 
 * **Continuous Integration on Autopilot** with [GitHub Actions](https://github.com/features/actions) – every push is built, tested, and reported in minutes.
 * **Pull‑Request Flow That Merges Itself** thanks to [auto‑merge](.github/workflows/auto-merge-on-approval.yml) and hands‑free [Dependabot auto‑merge](.github/workflows/dependabot-auto-merge.yml).
-* **One‑Command Builds** powered by battle‑tested [Make](https://www.gnu.org/software/make) targets for linting, testing, releases, and more.
+* **One‑Command Builds** powered by battle‑tested [MAGE-X](https://github.com/mrz1836/mage-x) targets for linting, testing, releases, and more.
 * **First‑Class Dependency Management** using native [Go Modules](https://github.com/golang/go/wiki/Modules).
 * **Uniform Code Style** via [gofumpt](https://github.com/mvdan/gofumpt) plus zero‑noise linting with [golangci‑lint](https://github.com/golangci/golangci-lint).
 * **Confidence‑Boosting Tests** with [testify](https://github.com/stretchr/testify), the Go [race detector](https://blog.golang.org/race-detector), crystal‑clear [HTML coverage](https://blog.golang.org/cover) snapshots, and automatic uploads to [Codecov](https://codecov.io/).
@@ -287,6 +287,8 @@ go install github.com/mrz1836/mage-x/cmd/magex@latest
 * **Out‑of‑the‑Box VS Code Happiness** with a preconfigured [Go](https://code.visualstudio.com/docs/languages/go) workspace and [`.vscode`](.vscode) folder with all the right settings.
 * **Optional Release Broadcasts** to your community via [Slack](https://slack.com), [Discord](https://discord.com), or [Twitter](https://twitter.com) – plug in your webhook.
 * **AI Compliance Playbook** – machine‑readable guidelines ([AGENTS.md](.github/AGENTS.md), [CLAUDE.md](.github/CLAUDE.md), [.cursorrules](.cursorrules), [sweep.yaml](.github/sweep.yaml)) keep ChatGPT, Claude, Cursor & Sweep aligned with your repo's rules.
+* **Go-Pre-commit System** - [High-performance Go-native pre-commit hooks](https://github.com/mrz1836/go-pre-commit) with 17x faster execution—run the same formatting, linting, and tests before every commit, just like CI.
+* **Zero Python Dependencies** - Pure Go implementation with environment-based configuration via [.env.base](.github/.env.base).
 * **DevContainers for Instant Onboarding** – Launch a ready-to-code environment in seconds with [VS Code DevContainers](https://containers.dev/) and the included [.devcontainer.json](.devcontainer.json) config.
 
 </details>
@@ -306,8 +308,6 @@ This glossary describes each tracked file in the repository and notes if it is r
 | [.gitattributes](.gitattributes)                                                               | Git attributes and export settings              | Git              |
 | [.github/.env.base](.github/.env.base)                                                         | Shared environment variables for GitHub Actions | GitHub Actions   |
 | [.github/.env.custom](.github/.env.custom)                                                     | Custom environment variables for GitHub Actions | GitHub Actions   |
-| [.prettierignore](.github/.prettierignore)                                                     | Paths ignored by Prettier formatting            | Prettier         |
-| [.prettierrc.yml](.github/.prettierrc.yml)                                                     | Prettier configuration file                     | Prettier         |
 | [.github/AGENTS.md](.github/AGENTS.md)                                                         | Contribution rules and guidelines               | GitHub           |
 | [.github/CLAUDE.md](.github/CLAUDE.md)                                                         | Claude agent instructions                       | Claude           |
 | [.github/CODEOWNERS](.github/CODEOWNERS)                                                       | Code ownership declarations for GitHub          | GitHub           |
@@ -337,6 +337,8 @@ This glossary describes each tracked file in the repository and notes if it is r
 | [.gitpod.yml](.gitpod.yml)                                                                     | Gitpod workspace configuration                  | Gitpod           |
 | [.golangci.json](.golangci.json)                                                               | GolangCI-Lint configuration                     | GolangCI-Lint    |
 | [.goreleaser.yml](.goreleaser.yml)                                                             | GoReleaser configuration for release automation | GoReleaser       |
+| [.prettierignore](.github/.prettierignore)                                                     | Paths ignored by Prettier formatting            | Prettier         |
+| [.prettierrc.yml](.github/.prettierrc.yml)                                                     | Prettier configuration file                     | Prettier         |
 | [.vscode/extensions.json](.vscode/extensions.json)                                             | Recommended VS Code extensions                  | VS Code          |
 | [.vscode/launch.json](.vscode/launch.json)                                                     | VS Code debugging configuration                 | VS Code          |
 | [.vscode/settings.json](.vscode/settings.json)                                                 | VS Code workspace settings                      | VS Code          |
@@ -349,6 +351,7 @@ This glossary describes each tracked file in the repository and notes if it is r
 | [examples/example.go](examples/example.go)                                                     | Example usage of the library                    | None             |
 | [go.mod](go.mod)                                                                               | Go module definition                            | Go               |
 | [go.sum](go.sum)                                                                               | Dependency checksums generated by Go            | Go               |
+| [magefile.go](magefile.go)                                                                     | Magefile with MAGE-X targets                    | MAGE-X           |
 | [template.go](template.go)                                                                     | Main package source code                        | Yours!           |
 | [template_benchmark_test.go](template_benchmark_test.go)                                       | Go benchmark tests                              | Go test          |
 | [template_example_test.go](template_example_test.go)                                           | Example tests for documentation                 | Go test          |
