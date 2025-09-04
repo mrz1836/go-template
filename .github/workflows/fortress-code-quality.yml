@@ -113,10 +113,10 @@ jobs:
         run: |
           echo "## 📊 Go Vet Static Analysis Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| 🔍 Analysis Details | ✅ Status |" >> $GITHUB_STEP_SUMMARY
+          echo "| Analysis Details | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
           echo "| **Tool** | go vet (Official Go Static Analyzer) |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Execution** | 🚀 Project packages only |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Execution** | Project packages only |" >> $GITHUB_STEP_SUMMARY
           echo "| **Scope** | ./... (excludes dependencies) |" >> $GITHUB_STEP_SUMMARY
           echo "| **Result** | ✅ No issues found |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -252,7 +252,7 @@ jobs:
         run: |
           echo "## ✨ Code Linting Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| 🧹 Linting Details | ✅ Status |" >> $GITHUB_STEP_SUMMARY
+          echo "| Linting Details | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
           echo "| **Configuration** | Custom ruleset via .golangci.json |" >> $GITHUB_STEP_SUMMARY
           echo "| **Version** | ${{ steps.golangci-lint-version.outputs.version }} |" >> $GITHUB_STEP_SUMMARY
@@ -497,7 +497,7 @@ jobs:
         run: |
           echo "## 📐 YAML Validation Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| 🔍 Validation Details | ✅ Status |" >> $GITHUB_STEP_SUMMARY
+          echo "| Validation Details | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
           echo "| **Tool** | Prettier (EditorConfig-aware) |" >> $GITHUB_STEP_SUMMARY
           echo "| **Version** | ${{ steps.prettier-version.outputs.version }} |" >> $GITHUB_STEP_SUMMARY
@@ -505,13 +505,13 @@ jobs:
           echo "| **Scope** | All .yml and .yaml files |" >> $GITHUB_STEP_SUMMARY
           echo "| **Result** | ✅ All files properly formatted |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📊 File Processing Statistics" >> $GITHUB_STEP_SUMMARY
+          echo "### File Processing Statistics" >> $GITHUB_STEP_SUMMARY
           echo "- **Total YAML files found**: ${{ env.TOTAL_YAML }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Files processed by prettier**: ${{ env.PROCESSED_YAML }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Files needing formatting**: ${{ env.CHECKED_YAML }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Files ignored by prettier**: $((${{ env.TOTAL_YAML }} - ${{ env.PROCESSED_YAML }}))" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📋 EditorConfig YAML Rules Applied" >> $GITHUB_STEP_SUMMARY
+          echo "### EditorConfig YAML Rules Applied" >> $GITHUB_STEP_SUMMARY
           echo "- **Indent Style**: Spaces" >> $GITHUB_STEP_SUMMARY
           echo "- **Indent Size**: 2" >> $GITHUB_STEP_SUMMARY
           echo "- **Line Endings**: LF" >> $GITHUB_STEP_SUMMARY

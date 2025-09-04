@@ -555,14 +555,14 @@ jobs:
           echo "## 🪝 Pre-commit Checks Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          echo "| 🔍 Pre-commit System Details | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "| Pre-commit System Details | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
           echo "| **Tool** | github.com/mrz1836/go-pre-commit |" >> $GITHUB_STEP_SUMMARY
           echo "| **Version** | ${{ steps.pre-commit-version.outputs.version || env.GO_PRE_COMMIT_VERSION }} |" >> $GITHUB_STEP_SUMMARY
           echo "| **Binary Cache** | ${{ steps.go-pre-commit-cache.outputs.cache-hit == 'true' && '✅ Cache Hit' || '⬇️ Cache Miss' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| **Tools Cache** | ${{ steps.go-pre-commit-tools-cache.outputs.cache-hit == 'true' && '✅ Cache Hit' || '⬇️ Cache Miss' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| **Installation** | ${{ (steps.install-pre-commit.outputs.install_success == 'true' || steps.install-pre-commit-cached.outputs.install_success == 'true') && '✅ Success' || '❌ Failed (using fallback)' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Fail Fast Mode** | ${{ env.GO_PRE_COMMIT_FAIL_FAST == 'true' && '⚡ Enabled' || '📝 Disabled' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Fail Fast Mode** | ${{ env.GO_PRE_COMMIT_FAIL_FAST == 'true' && '⚡ Enabled' || 'Disabled' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| **Timeout** | ${{ env.GO_PRE_COMMIT_TIMEOUT_SECONDS }} seconds |" >> $GITHUB_STEP_SUMMARY
 
           # Add file detection information

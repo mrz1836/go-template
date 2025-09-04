@@ -415,7 +415,7 @@ jobs:
 
           # Show per-suite breakdown if statistics available
           if [[ $TEST_SUITE_COUNT -gt 0 ]]; then
-            echo "### 📊 Test Suite Breakdown" >> $GITHUB_STEP_SUMMARY
+            echo "### Test Suite Breakdown" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
 
             for stats_file in test-results/test-stats-*.json; do
@@ -436,7 +436,7 @@ jobs:
 
           if [[ $FUZZ_SUITE_COUNT -gt 0 ]]; then
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### 🎯 Fuzz Test Breakdown" >> $GITHUB_STEP_SUMMARY
+            echo "### Fuzz Test Breakdown" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
 
             for stats_file in test-results/fuzz-stats-*.json; do

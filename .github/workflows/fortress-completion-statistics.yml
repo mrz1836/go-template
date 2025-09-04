@@ -135,7 +135,7 @@ jobs:
           continue-on-error: ${{ env.ARTIFACT_DOWNLOAD_CONTINUE_ON_ERROR }}
 
       - name: 📥 Download internal coverage statistics
-        if: always()
+        if: always() && env.GO_COVERAGE_PROVIDER == 'internal'
         uses: ./.github/actions/download-artifact-resilient
         with:
           pattern: "coverage-stats-internal"
@@ -153,18 +153,6 @@ jobs:
           pattern: "coverage-stats-codecov"
           path: ./artifacts/
           merge-multiple: false
-          max-retries: ${{ env.ARTIFACT_DOWNLOAD_RETRIES }}
-          retry-delay: ${{ env.ARTIFACT_DOWNLOAD_RETRY_DELAY }}
-          timeout: ${{ env.ARTIFACT_DOWNLOAD_TIMEOUT }}
-          continue-on-error: true
-
-      - name: 📥 Download coverage statistics (fallback)
-        if: always()
-        uses: ./.github/actions/download-artifact-resilient
-        with:
-          pattern: "coverage-stats-*"
-          path: ./artifacts/
-          merge-multiple: true
           max-retries: ${{ env.ARTIFACT_DOWNLOAD_RETRIES }}
           retry-delay: ${{ env.ARTIFACT_DOWNLOAD_RETRY_DELAY }}
           timeout: ${{ env.ARTIFACT_DOWNLOAD_TIMEOUT }}

@@ -1112,23 +1112,18 @@ jobs:
             "index.html"
             "coverage.html"
             "coverage.svg"
-            "branches.html"
-            "favicon.ico"
-            "favicon.svg"
-            ".nojekyll"
           )
 
           # Selectively copy coverage files to avoid nested directory structures
           COVERAGE_DIRS_TO_COPY=(
             "data"
-            "badges"
             "assets"
           )
 
           # Define coverage directory structure to copy selectively (avoid duplication)
           COVERAGE_SELECTIVE_COPY=true
 
-          echo "🗋 Copying ONLY coverage files to clean deployment:"
+          echo "Copying ONLY coverage files to clean deployment:"
 
           # Copy individual coverage files
           for file in "${COVERAGE_FILES_TO_COPY[@]}"; do
@@ -1438,13 +1433,13 @@ jobs:
           echo "  - Total deployment size: $TOTAL_SIZE"
           echo "  - Jekyll processing: ❌ DISABLED (.nojekyll present)"
           echo "  - Expected URLs after deployment:"
-          echo "    - https://mrz1836.github.io/go-broadcast/ (dashboard)"
-          echo "    - https://mrz1836.github.io/go-broadcast/coverage.html (detailed report) ← MAIN 404 ISSUE"
-          echo "    - https://mrz1836.github.io/go-broadcast/data/build-status.json (build status)"
-          echo "    - https://mrz1836.github.io/go-broadcast/coverage.svg (coverage badge)"
+          echo "    - https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/ (dashboard)"
+          echo "    - https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/coverage.html (detailed report)"
+          echo "    - https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/data/build-status.json (build status)"
+          echo "    - https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/coverage.svg (coverage badge)"
           echo "  - Alternative paths to check:"
-          echo "    - https://mrz1836.github.io/go-broadcast/coverage/coverage.html"
-          echo "    - https://mrz1836.github.io/go-broadcast/coverage/index.html"
+          echo "    - https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/coverage.html"
+          echo "    - https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/index.html"
 
           echo ""
           echo "✅ Deployment directory prepared and verified"
@@ -2036,38 +2031,64 @@ jobs:
           echo "🌿 Branch: $BRANCH_NAME"
           echo "🚀 First run: $IS_FIRST_RUN"
 
-          # Test critical URLs (must pass)
+          # Enhanced URL verification with progressive backoff and configurable timeout
+          TIMEOUT_SECONDS="${{ env.GO_COVERAGE_URL_CHECK_TIMEOUT }}"
+          FAIL_ON_ERRORS="${{ env.GO_COVERAGE_FAIL_ON_URL_ERRORS }}"
+          START_TIME=$(date +%s)
+
+          echo "⚙️ URL verification settings:"
+          echo "  - Total timeout: ${TIMEOUT_SECONDS}s"
+          echo "  - Fail on errors: $FAIL_ON_ERRORS"
+
+          # Test critical URLs with progressive backoff
           CRITICAL_SUCCESS=0
           CRITICAL_TOTAL=${#CRITICAL_URLS[@]}
 
           echo ""
-          echo "📋 Testing critical URLs..."
+          echo "📋 Testing critical URLs with progressive backoff..."
+
           for url in "${CRITICAL_URLS[@]}"; do
             echo ""
             echo "🔗 Testing: $url"
 
-            # Test with 3 attempts, with longer waits for first run
+            # Progressive backoff retry logic with configurable timeout
             HTTP_STATUS=""
-            for attempt in 1 2 3; do
+            ATTEMPT=1
+            BACKOFF_DELAYS=(5 10 20 30 45)  # Progressive delays in seconds
+            URL_SUCCESS=false
+
+            while [[ $ATTEMPT -le 5 ]]; do
+              # Check if we've exceeded the total timeout
+              CURRENT_TIME=$(date +%s)
+              ELAPSED=$((CURRENT_TIME - START_TIME))
+              if [[ $ELAPSED -ge $TIMEOUT_SECONDS ]]; then
+                echo "  ⏰ Total timeout (${TIMEOUT_SECONDS}s) exceeded, stopping retries"
+                break
+              fi
+
               HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 --max-time 10 "$url" 2>/dev/null || echo "000")
 
               if [[ "$HTTP_STATUS" == "200" ]]; then
-                echo "  ✅ SUCCESS ($HTTP_STATUS)"
+                echo "  ✅ SUCCESS ($HTTP_STATUS) on attempt $ATTEMPT"
                 CRITICAL_SUCCESS=$((CRITICAL_SUCCESS + 1))
+                URL_SUCCESS=true
                 break
               else
-                echo "  ❌ FAILED ($HTTP_STATUS)"
-                if [[ $attempt -lt 3 ]]; then
-                  if [[ "$IS_FIRST_RUN" == "true" ]]; then
-                    echo "  ⏳ First run - retrying in 20 seconds..."
-                    sleep 20
-                  else
-                    echo "  ⏳ Retrying in 5 seconds..."
-                    sleep 5
-                  fi
+                echo "  ❌ FAILED ($HTTP_STATUS) on attempt $ATTEMPT"
+
+                if [[ $ATTEMPT -lt 5 ]]; then
+                  DELAY=${BACKOFF_DELAYS[$((ATTEMPT - 1))]}
+                  echo "  ⏳ Retrying in ${DELAY}s... (progressive backoff)"
+                  sleep $DELAY
                 fi
               fi
+
+              ATTEMPT=$((ATTEMPT + 1))
             done
+
+            if [[ "$URL_SUCCESS" == "false" ]]; then
+              echo "  💥 Final result: FAILED after $((ATTEMPT - 1)) attempts"
+            fi
           done
 
           # Test optional URLs (failures are warnings only)
@@ -2092,17 +2113,22 @@ jobs:
             done
           fi
 
+          # Calculate final elapsed time
+          END_TIME=$(date +%s)
+          TOTAL_ELAPSED=$((END_TIME - START_TIME))
+
           # Summary
           echo ""
           echo "📊 RESULTS:"
-          echo "  - Critical URLs: $CRITICAL_SUCCESS/$CRITICAL_TOTAL (must be 100%)"
+          echo "  - Critical URLs: $CRITICAL_SUCCESS/$CRITICAL_TOTAL"
           echo "  - Optional URLs: $OPTIONAL_SUCCESS/$OPTIONAL_TOTAL (informational)"
+          echo "  - Total time elapsed: ${TOTAL_ELAPSED}s / ${TIMEOUT_SECONDS}s"
 
           if [[ "$IS_FIRST_RUN" == "true" ]]; then
             echo "  - First deployment: Some URLs may take time to propagate"
           fi
 
-          # Determine success based on critical URLs only
+          # Determine success based on critical URLs and configuration
           if [[ $CRITICAL_SUCCESS -eq $CRITICAL_TOTAL ]]; then
             echo ""
             echo "🎉 DEPLOYMENT SUCCESSFUL! All critical URLs are accessible."
@@ -2131,18 +2157,23 @@ jobs:
             fi
           else
             echo ""
-            echo "❌ DEPLOYMENT VERIFICATION FAILED"
-            echo "🚨 Critical URLs are not accessible after multiple retries"
+            if [[ "$FAIL_ON_ERRORS" == "true" ]]; then
+              echo "❌ DEPLOYMENT VERIFICATION FAILED"
+              echo "🚨 Critical URLs are not accessible after progressive backoff retries"
+            else
+              echo "⚠️ DEPLOYMENT VERIFICATION WARNING"
+              echo "🔔 Some critical URLs are not accessible, but continuing due to GO_COVERAGE_FAIL_ON_URL_ERRORS=false"
+            fi
 
             # Add detailed URL failure analysis
             echo ""
-            echo "📝 Specific URL failures (main issues):"
+            echo "📝 Specific URL failures:"
             for url in "${CRITICAL_URLS[@]}"; do
               STATUS=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 --max-time 10 "$url" 2>/dev/null || echo "000")
               if [[ "$STATUS" != "200" ]]; then
                 echo "    ❌ $url (HTTP $STATUS)"
                 if [[ "$url" =~ coverage\.html$ ]]; then
-                  echo "      ℹ️ This was the main reported issue - coverage.html 404ing"
+                  echo "      ℹ️ This is typically the main coverage report file"
                 fi
               fi
             done
@@ -2153,6 +2184,8 @@ jobs:
             echo "  - Is this a first deployment? $IS_FIRST_RUN"
             echo "  - Branch being deployed: $BRANCH_NAME"
             echo "  - Failed critical URLs: $((CRITICAL_TOTAL - CRITICAL_SUCCESS))"
+            echo "  - Total verification time: ${TOTAL_ELAPSED}s"
+            echo "  - Configuration: FAIL_ON_ERRORS=$FAIL_ON_ERRORS, TIMEOUT=${TIMEOUT_SECONDS}s"
             echo ""
             echo "💡 Common causes:"
             echo "  - GitHub Pages not enabled for the repository"
@@ -2169,8 +2202,7 @@ jobs:
 
             # Test alternative paths that might exist
             ALT_PATHS=(
-              "$BASE_URL/coverage/coverage.html"
-              "$BASE_URL/coverage/index.html"
+              "$BASE_URL/coverage.html"
               "$BASE_URL/index.html"
             )
 
@@ -2185,7 +2217,16 @@ jobs:
               fi
             done
 
-            exit 1
+            # Exit with error only if configured to fail on URL errors
+            if [[ "$FAIL_ON_ERRORS" == "true" ]]; then
+              echo ""
+              echo "💡 To allow the job to continue despite URL verification failures, set:"
+              echo "   GO_COVERAGE_FAIL_ON_URL_ERRORS=false in .github/.env.custom"
+              exit 1
+            else
+              echo ""
+              echo "✅ Continuing despite URL verification issues due to configuration"
+            fi
           fi
 
       # ————————————————————————————————————————————————————————————————
