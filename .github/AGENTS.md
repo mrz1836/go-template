@@ -1153,8 +1153,6 @@ brew install gitleaks
 gitleaks detect --source . --log-opts="--all" --verbose
 ```
 
-* Run [OSSAR](https://github.com/github/ossar-action) to perform additional static analysis security checks (see `.github/workflows/ossar.yml`).
-
 * Address critical advisories before merging changes into `master`
 
 * Document any intentionally ignored vulnerabilities with clear justification and issue tracking
