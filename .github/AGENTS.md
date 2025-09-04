@@ -18,18 +18,18 @@ Additional `AGENTS.md` files **may exist in subdirectories** to provide more con
 
 ## 🔍 Project Overview
 
-**go-template** is a production-ready scaffold for building new Go libraries with zero setup friction. 
-It ships with opinionated defaults that reflect current best practices—clean project layout, 
-module-aware dependency management, and Makefiles that automate everything from linting and race-condition 
-testing to snapshot releases. Out of the box, GitHub Actions orchestrate CI/CD: unit tests (with `testify`), 
-coverage upload to Codecov, static analysis via golangci-lint and CodeQL, vulnerability auditing with Nancy, 
+**go-template** is a production-ready scaffold for building new Go libraries with zero setup friction.
+It ships with opinionated defaults that reflect current best practices—clean project layout,
+module-aware dependency management, and Makefiles that automate everything from linting and race-condition
+testing to snapshot releases. Out of the box, GitHub Actions orchestrate CI/CD: unit tests (with `testify`),
+coverage upload to Codecov, static analysis via golangci-lint and CodeQL, vulnerability auditing with Nancy,
 and one-command releases through GoReleaser.
 
-Beyond automation, the template supplies all the "undifferentiated heavy lifting" a maintainer usually 
-adds manually: standard README and license, issue and PR templates, CODEOWNERS, semantic version tagging helpers, 
-label synchronization, and optional Slack/Discord/Twitter release announcements. Example functions, fuzz tests and 
-benchmarks are already wired in, so you can focus on writing library code instead of plumbing. 
-Clone, rename a few placeholders, and you have a fully instrumented Go library that is ready for continuous 
+Beyond automation, the template supplies all the "undifferentiated heavy lifting" a maintainer usually
+adds manually: standard README and license, issue and PR templates, CODEOWNERS, semantic version tagging helpers,
+label synchronization, and optional Slack/Discord/Twitter release announcements. Example functions, fuzz tests and
+benchmarks are already wired in, so you can focus on writing library code instead of plumbing.
+Clone, rename a few placeholders, and you have a fully instrumented Go library that is ready for continuous
 delivery and open-source collaboration from day one.
 
 <br/>
@@ -97,7 +97,7 @@ func ProcessUserData(ctx context.Context, userID string) error {
         return ctx.Err()
     default:
     }
-    
+
     // Pass context down the call chain
     return database.FetchUser(ctx, userID)
 }
@@ -171,7 +171,7 @@ Goroutines are cheap to create but expensive to debug when mismanaged.
 func ProcessBatch(ctx context.Context, items []Item) error {
     var wg sync.WaitGroup
     errCh := make(chan error, len(items))
-    
+
     for _, item := range items {
         wg.Add(1)
         go func(item Item) {
@@ -181,23 +181,23 @@ func ProcessBatch(ctx context.Context, items []Item) error {
                     errCh <- fmt.Errorf("panic processing item %v: %v", item.ID, r)
                 }
             }()
-            
+
             select {
             case <-ctx.Done():
                 errCh <- ctx.Err()
                 return
             default:
             }
-            
+
             if err := processItem(ctx, item); err != nil {
                 errCh <- fmt.Errorf("failed to process item %v: %w", item.ID, err)
             }
         }(item)
     }
-    
+
     wg.Wait()
     close(errCh)
-    
+
     for err := range errCh {
         if err != nil {
             return err // Return first error encountered
@@ -342,7 +342,7 @@ func ProcessPayment(ctx context.Context, payment Payment) error {
     if payment.Amount <= 0 {
         return errors.New("payment amount must be positive")
     }
-    
+
     user, err := userRepo.GetUser(ctx, payment.UserID)
     if err != nil {
         if errors.Is(err, ErrUserNotFound) {
@@ -350,35 +350,35 @@ func ProcessPayment(ctx context.Context, payment Payment) error {
         }
         return fmt.Errorf("failed to fetch user %s: %w", payment.UserID, err)
     }
-    
+
     if err := validatePaymentMethod(ctx, payment.Method); err != nil {
         return fmt.Errorf("invalid payment method: %w", err)
     }
-    
+
     txn, err := chargePayment(ctx, payment)
     if err != nil {
         return fmt.Errorf("payment charge failed for user %s: %w", user.ID, err)
     }
-    
+
     if err := auditRepo.LogTransaction(ctx, txn); err != nil {
         // Log but don't fail the payment
         log.Error("failed to audit transaction", "txnID", txn.ID, "error", err)
     }
-    
+
     return nil
 }
 
 // 🚫 Poor error handling
 func ProcessPayment(ctx context.Context, payment Payment) error {
     user, _ := userRepo.GetUser(ctx, payment.UserID) // Ignored error
-    
+
     validatePaymentMethod(ctx, payment.Method) // Ignored return value
-    
+
     txn, err := chargePayment(ctx, payment)
     if err != nil {
         return err // No context about what failed
     }
-    
+
     auditRepo.LogTransaction(ctx, txn) // Ignored error
     return nil
 }
@@ -445,7 +445,7 @@ Write code that performs well by default, and measure when optimization is neede
 // ✅ Performance-conscious code with benchmarks
 func BenchmarkUserProcessing(b *testing.B) {
     users := generateTestUsers(1000)
-    
+
     b.ResetTimer()
     for i := 0; i < b.N; i++ {
         processUsers(users)
@@ -455,7 +455,7 @@ func BenchmarkUserProcessing(b *testing.B) {
 func processUsers(users []User) []ProcessedUser {
     // Pre-allocate slice to avoid repeated allocations
     result := make([]ProcessedUser, 0, len(users))
-    
+
     for _, user := range users {
         processed := ProcessedUser{
             ID:   user.ID,
@@ -463,7 +463,7 @@ func processUsers(users []User) []ProcessedUser {
         }
         result = append(result, processed)
     }
-    
+
     return result
 }
 ```
@@ -688,7 +688,7 @@ Great engineers write great comments. You're not here to state the obvious—you
 * **Your comments are part of the product**
 
   > Treat them like UX copy. Make them clear, concise, and professional. You're writing for peers, not compilers.
-  
+
 <br/><br/>
 
 ### 🔤 Function Comments (Exported)
@@ -987,7 +987,7 @@ Every PR must include the following **four** sections in the description:
 
 ## 🚀 Release Workflow & Versioning
 
-We follow **Semantic Versioning (✧ SemVer)**:  
+We follow **Semantic Versioning (✧ SemVer)**:
 `MAJOR.MINOR.PATCH` → `1.2.3`
 
 | Segment   | Bumps When …                          | Examples        |
@@ -1001,7 +1001,7 @@ We follow **Semantic Versioning (✧ SemVer)**:
 ### 📦 Tooling
 
 * Releases are driven by **[goreleaser]** and configured in `.goreleaser.yml`.
-* Install locally with Homebrew (Mac):  
+* Install locally with Homebrew (Mac):
 ```bash
   brew install goreleaser
 ````
