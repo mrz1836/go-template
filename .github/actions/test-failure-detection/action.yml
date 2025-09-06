@@ -99,10 +99,11 @@ runs:
           fi
         }
 
-        # Smart and efficient JSON failure detection
+        # Smart and efficient JSON failure detection with unique signatures
         detect_failures_from_json() {
           local json_file="$1"
           local failures_file="$2"
+          local signatures_file="${failures_file%.txt}-signatures.json"
 
           echo "🔍 Using smart JSON-based failure detection on $json_file"
 
@@ -115,19 +116,110 @@ runs:
 
           echo "✅ JSON content detected, processing efficiently..."
 
-          # Fast single-pass JSON extraction (< 1s for 10K lines)
+          # Initialize JSON array for structured failures with signatures
+          echo '[]' > "$signatures_file"
+
+          # Fast single-pass JSON extraction for test failures with line numbers (< 1s for 10K lines)
           # Filter JSON lines and parse in one pass - eliminates 2-minute hang
+          # Extract line numbers from Output field when available
           grep '^{' "$json_file" 2>/dev/null | \
-            jq -r 'select(.Action == "fail") | "--- FAIL: \(.Test) (\(.Package))"' \
+            jq -r 'select(.Action == "fail") |
+              if (.Output and .Output != null and .Output != "") then
+                # Try to extract file:line from Output field
+                (.Output | match("([^:]+\\.go):(\\d+):"; "g") |
+                  "--- FAIL: \(if (.Test and .Test != null and .Test != "null") then .Test else "unknown" end) (\(.Package):\(.captures[1].string))")
+                // "--- FAIL: \(if (.Test and .Test != null and .Test != "null") then .Test else "unknown" end) (\(.Package))"
+              else
+                "--- FAIL: \(if (.Test and .Test != null and .Test != "null") then .Test else "unknown" end) (\(.Package))"
+              end' \
             2>/dev/null > "$failures_file"
+
+          # Create structured test failure entries with unique signatures
+          if grep '^{' "$json_file" 2>/dev/null | jq -r 'select(.Action == "fail")' 2>/dev/null | head -1 | grep -q .; then
+            echo "📝 Creating structured test failure entries..."
+            grep '^{' "$json_file" 2>/dev/null | \
+              jq -r 'select(.Action == "fail") | {
+                type: "test",
+                package: .Package,
+                test: (if (.Test and .Test != null and .Test != "null") then .Test else "unknown" end),
+                output: .Output // "",
+                line_number: (if (.Output and .Output != null and .Output != "") then (.Output | match("([^:]+\\.go):(\\d+):"; "g") | .captures[1].string) // null else null end),
+                signature: (.Package + ":" + (if (.Test and .Test != null and .Test != "null") then .Test else "unknown" end)),
+                unique_id: (.Package + ":" + (if (.Test and .Test != null and .Test != "null") then .Test else "unknown" end) | gsub("[^a-zA-Z0-9_/.-]"; "_"))
+              }' 2>/dev/null | \
+              jq -s '.' >> "$signatures_file.tmp" 2>/dev/null && \
+              mv "$signatures_file.tmp" "$signatures_file" || echo '[]' > "$signatures_file"
+          fi
+
+          # Also check for build failures which have FailedBuild field but no Test field
+          local build_failures
+          build_failures=$(grep '^{' "$json_file" 2>/dev/null | \
+            jq -r 'select(.FailedBuild) | .Package // .ImportPath' 2>/dev/null | sort -u)
+
+          if [[ -n "$build_failures" ]]; then
+            echo "🔨 Processing build failures with signatures..."
+
+            # Create temporary array for build failures
+            echo '[]' > "${signatures_file}.build"
+
+            while IFS= read -r pkg; do
+              if [[ -n "$pkg" ]]; then
+                echo "--- BUILD FAILED: $pkg" >> "$failures_file"
+
+                # Extract build error messages for this package
+                local build_errors
+                build_errors=$(grep '^{' "$json_file" 2>/dev/null | \
+                  jq -r --arg pkg "$pkg" 'select(.ImportPath and (.ImportPath | startswith($pkg + " ")) and .Action == "build-output") | .Output' 2>/dev/null | \
+                  grep -E "^[^[:space:]]" | head -10)  # Limit to first 10 error lines
+
+                local error_output=""
+                if [[ -n "$build_errors" ]]; then
+                  echo "$build_errors" | sed 's/^/    /' >> "$failures_file"
+                  error_output="$build_errors"
+                else
+                  echo "    Build failed (no detailed error available)" >> "$failures_file"
+                  error_output="Build failed (no detailed error available)"
+                fi
+
+                # Create structured build failure entry
+                jq -n --arg pkg "$pkg" --arg errors "$error_output" '{
+                  type: "build",
+                  package: $pkg,
+                  test: "build_compilation",
+                  output: $errors,
+                  signature: ($pkg + ":build_compilation"),
+                  unique_id: ($pkg + ":build_compilation" | gsub("[^a-zA-Z0-9_/.-]"; "_"))
+                }' >> "${signatures_file}.build" 2>/dev/null
+              fi
+            done <<< "$build_failures"
+
+            # Merge build failures into main signatures file
+            if [[ -s "${signatures_file}.build" ]]; then
+              jq -s 'add' "$signatures_file" "${signatures_file}.build" > "${signatures_file}.tmp" 2>/dev/null && \
+                mv "${signatures_file}.tmp" "$signatures_file" || echo '[]' > "$signatures_file"
+            fi
+            rm -f "${signatures_file}.build"
+          fi
 
           local failure_count
           failure_count=$(wc -l < "$failures_file" 2>/dev/null | tr -d '\n\r' | xargs)
           [[ "$failure_count" =~ ^[0-9]+$ ]] || failure_count=0
 
-          # Only report actual failures from JSON Action=fail, not log messages
-          if [[ "$failure_count" -gt 0 ]]; then
-            echo "✅ Found $failure_count test failures in JSON output"
+          # Count distinct failures (test failures + build failures)
+          local test_failure_count build_failure_count
+          test_failure_count=$(grep -c "^--- FAIL:" "$failures_file" 2>/dev/null || echo "0")
+          build_failure_count=$(grep -c "^--- BUILD FAILED:" "$failures_file" 2>/dev/null || echo "0")
+
+          # Validate signatures file
+          local unique_failure_count=0
+          if [[ -s "$signatures_file" ]]; then
+            unique_failure_count=$(jq 'length' "$signatures_file" 2>/dev/null || echo "0")
+            echo "📊 Generated $unique_failure_count unique failure signatures"
+          fi
+
+          if [[ $test_failure_count -gt 0 ]] || [[ $build_failure_count -gt 0 ]]; then
+            echo "✅ Found $test_failure_count test failures and $build_failure_count build failures in JSON output"
+            echo "🔍 Created $unique_failure_count unique signatures for deduplication"
             return 0
           else
             echo "ℹ️ No failures detected in JSON output"
@@ -135,13 +227,17 @@ runs:
           fi
         }
 
-        # Enhanced text-based failure detection
+        # Enhanced text-based failure detection with signatures
         detect_failures_from_text() {
           local text_file="$1"
           local failures_file="$2"
           local detailed_failures_file="${failures_file%.txt}-detailed.txt"
+          local signatures_file="${failures_file%.txt}-signatures.json"
 
           echo "🔍 Using enhanced text-based failure detection on $text_file"
+
+          # Initialize JSON array for structured failures with signatures
+          echo '[]' > "$signatures_file"
 
           # Enhanced pattern matching for various failure formats
           # Patterns handle: FAIL, --- FAIL, --FAIL, [FAIL], FAIL:, etc.
@@ -224,7 +320,63 @@ runs:
 
             # Remove duplicates and sort for the summary file
             sort -u "$temp_failures" > "$failures_file"
-            echo "✅ Text parsing found $(wc -l < "$failures_file") unique failures with detailed error messages"
+
+            # Generate signatures from text failures
+            echo "📝 Generating failure signatures from text output..."
+            local temp_signatures=$(mktemp)
+            echo '[]' > "$temp_signatures"
+
+            while IFS= read -r failure_line; do
+              if [[ -n "$failure_line" && "$failure_line" != *"Generic test failure"* ]]; then
+                # Extract package and test info from failure line
+                # Pattern: --- FAIL: TestName (package.name) or --- FAIL: TestName (package.name:123)
+                if [[ "$failure_line" =~ "FAIL:" ]]; then
+                  local test_name=$(echo "$failure_line" | sed -E 's/^.*FAIL: ([^ ]+).*$/\1/' | head -c 200)
+                  local package_name=$(echo "$failure_line" | sed -E 's/^.*\(([^):]+)[^)]*\).*$/\1/' | head -c 200)
+                  local line_number=$(echo "$failure_line" | sed -E 's/^.*\([^:]+:([0-9]+)\).*$/\1/' | head -c 10)
+                  # If line_number extraction didn't work, it will be same as input - set to empty
+                  [[ "$line_number" == "$failure_line" ]] && line_number=""
+
+                  # Handle build failures
+                  if [[ "$failure_line" =~ "BUILD FAILED:" ]]; then
+                    package_name=$(echo "$failure_line" | sed 's/^--- BUILD FAILED: //' | head -c 200)
+                    test_name="build_compilation"
+
+                    jq -n --arg pkg "$package_name" --arg test "$test_name" --arg output "$failure_line" '{
+                      type: "build",
+                      package: $pkg,
+                      test: $test,
+                      output: $output,
+                      line_number: null,
+                      signature: ($pkg + ":" + $test),
+                      unique_id: (($pkg + ":" + $test) | gsub("[^a-zA-Z0-9_/.-]"; "_"))
+                    }' >> "$temp_signatures.items"
+                  else
+                    # Regular test failure
+                    if [[ -n "$test_name" && -n "$package_name" && "$test_name" != "$package_name" ]]; then
+                      jq -n --arg pkg "$package_name" --arg test "$test_name" --arg output "$failure_line" --arg line "$line_number" '{
+                        type: "test",
+                        package: $pkg,
+                        test: $test,
+                        output: $output,
+                        line_number: (if ($line != "") then ($line | tonumber) else null end),
+                        signature: ($pkg + ":" + $test),
+                        unique_id: (($pkg + ":" + $test) | gsub("[^a-zA-Z0-9_/.-]"; "_"))
+                      }' >> "$temp_signatures.items"
+                    fi
+                  fi
+                fi
+              fi
+            done < "$failures_file"
+
+            # Combine signatures into array
+            if [[ -f "$temp_signatures.items" ]]; then
+              jq -s '.' "$temp_signatures.items" > "$signatures_file" 2>/dev/null || echo '[]' > "$signatures_file"
+            fi
+            rm -f "$temp_signatures" "$temp_signatures.items"
+
+            local unique_signature_count=$(jq 'length' "$signatures_file" 2>/dev/null || echo "0")
+            echo "✅ Text parsing found $(wc -l < "$failures_file") failures with $unique_signature_count unique signatures"
 
             # Clean up
             rm -f "$temp_failures" "$temp_detailed"

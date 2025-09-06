@@ -309,6 +309,27 @@ jobs:
           fi
 
       # ————————————————————————————————————————————————————————————————
+      # Inject matrix job info into failure signatures for deduplication tracking
+      # ————————————————————————————————————————————————————————————————
+      - name: 🏷️ Add matrix job info to signatures
+        if: always()
+        run: |
+          # Add matrix job information to signatures for tracking across matrix jobs
+          if [[ -f test-failures-signatures.json ]]; then
+            echo "🏷️ Adding matrix job information to failure signatures..."
+            MATRIX_JOB_ID="${{ matrix.name }}"
+
+            # Add matrix_job field to each signature entry
+            jq --arg matrix_job "$MATRIX_JOB_ID" 'map(. + {matrix_job: $matrix_job})' test-failures-signatures.json > test-failures-signatures.tmp && \
+              mv test-failures-signatures.tmp test-failures-signatures.json
+
+            echo "✅ Added matrix job info ($MATRIX_JOB_ID) to $(jq 'length' test-failures-signatures.json 2>/dev/null || echo '0') signatures"
+          else
+            echo "ℹ️ No signatures file found - creating empty file"
+            echo '[]' > test-failures-signatures.json
+          fi
+
+      # ————————————————————————————————————————————————————————————————
       # Create test failure summary if failures occurred
       # ————————————————————————————————————————————————————————————————
       - name: 🚨 Create Test Failure Summary
@@ -332,25 +353,28 @@ jobs:
             # Process each unique package that had failures
             TEMP_PACKAGES=$(mktemp)
 
-            # Extract package names from failure lines and create unique list
+            # Process both test failures and build failures
+
+            # First handle regular test failures
             if grep -oE '\([^)]+\)' test-failures.txt 2>/dev/null | sed 's/[()]//g' | sort -u > "$TEMP_PACKAGES"; then
-              echo "📦 Found packages with failures:"
+              echo "📦 Found packages with test failures:"
               cat "$TEMP_PACKAGES"
 
-              # Process each package
+              # Process each package with test failures
               while IFS= read -r package; do
                 if [[ -n "$package" ]]; then
-                  echo "🔍 Processing package: $package"
+                  echo "🔍 Processing test failures for package: $package"
 
                   # Extract failures for this specific package
                   PACKAGE_FAILURES=$(grep "($package)" test-failures.txt 2>/dev/null || true)
                   if [[ -n "$PACKAGE_FAILURES" ]]; then
-                    # Create package failure entry
+                    # Create package failure entry for test failures
                     PACKAGE_JSON=$(jq -n \
                       --arg pkg "$package" \
                       --arg failures "$PACKAGE_FAILURES" \
                       '{
                         Package: $pkg,
+                        Type: "test",
                         failures: [
                           $failures | split("\n")[] | select(length > 0) | {
                             Test: (. | gsub("^.*FAIL: "; "") | gsub(" \\(.*\\)$"; "")),
@@ -369,6 +393,54 @@ jobs:
             fi
 
             rm -f "$TEMP_PACKAGES"
+
+            # Now handle build failures separately
+            TEMP_BUILD_PACKAGES=$(mktemp)
+
+            if grep "^--- BUILD FAILED:" test-failures.txt 2>/dev/null | sed 's/^--- BUILD FAILED: //' | sort -u > "$TEMP_BUILD_PACKAGES"; then
+              echo "📦 Found packages with build failures:"
+              cat "$TEMP_BUILD_PACKAGES"
+
+              # Process each package with build failures
+              while IFS= read -r package; do
+                if [[ -n "$package" ]]; then
+                  echo "🔨 Processing build failures for package: $package"
+
+                  # Extract build error details for this package
+                  BUILD_ERRORS=$(awk -v pkg="$package" '
+                    BEGIN { capture = 0; errors = "" }
+                    $0 == "--- BUILD FAILED: " pkg { capture = 1; next }
+                    /^--- (FAIL|BUILD FAILED):/ && $0 != "--- BUILD FAILED: " pkg { capture = 0 }
+                    capture && /^    / {
+                      if (errors) errors = errors "\n" substr($0, 5)
+                      else errors = substr($0, 5)
+                    }
+                    END { print errors }
+                  ' test-failures.txt)
+
+                  # Create package failure entry for build failures
+                  BUILD_JSON=$(jq -n \
+                    --arg pkg "$package" \
+                    --arg errors "$BUILD_ERRORS" \
+                    '{
+                      Package: $pkg,
+                      Type: "build",
+                      BuildErrors: ($errors | split("\n") | map(select(length > 0))),
+                      failures: [{
+                        Test: "Build compilation",
+                        Output: ("--- BUILD FAILED: " + $pkg + "\n" + $errors),
+                        Elapsed: "unknown"
+                      }]
+                    }')
+
+                  # Add to summary
+                  jq --argjson new_entry "$BUILD_JSON" '. += [$new_entry]' test-failures-summary.json > test-failures-summary.json.tmp
+                  mv test-failures-summary.json.tmp test-failures-summary.json
+                fi
+              done < "$TEMP_BUILD_PACKAGES"
+            fi
+
+            rm -f "$TEMP_BUILD_PACKAGES"
 
             echo "✅ Test failure summary created with $(jq 'length' test-failures-summary.json) packages"
 
@@ -477,6 +549,7 @@ jobs:
             test-failures.txt
             test-failures-detailed.txt
             test-failures-summary.json
+            test-failures-signatures.json
           retention-days: 1
           if-no-files-found: ignore
 
