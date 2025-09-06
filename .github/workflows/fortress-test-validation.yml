@@ -126,16 +126,108 @@ jobs:
           fi
 
       # ————————————————————————————————————————————————————————————————
-      # Enhanced test results validation with failure details
+      # Deduplicate test failures across matrix jobs
+      # ————————————————————————————————————————————————————————————————
+      - name: 🔄 Deduplicate test failures
+        run: |
+          echo "🔄 Deduplicating test failures across matrix jobs..."
+
+          # Initialize deduplicated results
+          echo '[]' > deduplicated-failures.json
+
+          TOTAL_RAW_FAILURES=0
+          TOTAL_UNIQUE_FAILURES=0
+
+          # Collect all signature files from different matrix jobs (including subdirectories)
+          if compgen -G "test-results/*test-failures-signatures.json" >/dev/null 2>&1; then
+            echo "📋 Found failure signature files:"
+            ls -la test-results/*test-failures-signatures.json 2>/dev/null || echo "No signature files found"
+
+            # Merge all signature files and deduplicate by signature
+            for sig_file in test-results/*test-failures-signatures.json; do
+              if [[ -s "$sig_file" ]]; then
+                echo "📄 Processing: $sig_file"
+                RAW_COUNT=$(jq 'length' "$sig_file" 2>/dev/null || echo "0")
+                TOTAL_RAW_FAILURES=$((TOTAL_RAW_FAILURES + RAW_COUNT))
+                echo "  • Raw failures in this file: $RAW_COUNT"
+              fi
+            done
+
+            # Combine all signature files and deduplicate
+            jq -s 'add | group_by(.signature) | map({
+              signature: .[0].signature,
+              unique_id: .[0].unique_id,
+              type: .[0].type,
+              package: .[0].package,
+              test: .[0].test,
+              output: .[0].output,
+              occurrences: length,
+              matrix_jobs: [.[].matrix_job // "unknown"] | unique
+            })' test-results/*test-failures-signatures.json > deduplicated-failures.json 2>/dev/null || echo '[]' > deduplicated-failures.json
+
+            TOTAL_UNIQUE_FAILURES=$(jq 'length' deduplicated-failures.json 2>/dev/null || echo "0")
+
+            echo "📊 Deduplication Results:"
+            echo "  • Total raw failure reports: $TOTAL_RAW_FAILURES"
+            echo "  • Total unique failures: $TOTAL_UNIQUE_FAILURES"
+
+            if [[ $TOTAL_RAW_FAILURES -gt $TOTAL_UNIQUE_FAILURES ]]; then
+              DUPLICATE_COUNT=$((TOTAL_RAW_FAILURES - TOTAL_UNIQUE_FAILURES))
+              echo "  • Duplicates eliminated: $DUPLICATE_COUNT"
+            fi
+          else
+            echo "⚠️ No signature files found - falling back to legacy detection"
+            TOTAL_RAW_FAILURES=0
+            TOTAL_UNIQUE_FAILURES=0
+
+            # Count failures from legacy summary files when signature files are missing
+            if compgen -G "test-results/*test-failures-summary.json" >/dev/null 2>&1; then
+              echo "📋 Counting failures from legacy summary files..."
+              for summary_file in test-results/*test-failures-summary.json; do
+                if [[ -s "$summary_file" ]]; then
+                  echo "📄 Processing legacy file: $summary_file"
+                  # Count both test and build failures from the summary file
+                  LEGACY_TEST_FAILURES=$(jq '[.[] | select(.Type == "test" or .Type == null) | .failures[]?] | length' "$summary_file" 2>/dev/null || echo "0")
+                  LEGACY_BUILD_FAILURES=$(jq '[.[] | select(.Type == "build")] | length' "$summary_file" 2>/dev/null || echo "0")
+                  LEGACY_TOTAL=$((LEGACY_TEST_FAILURES + LEGACY_BUILD_FAILURES))
+                  TOTAL_UNIQUE_FAILURES=$((TOTAL_UNIQUE_FAILURES + LEGACY_TOTAL))
+                  echo "  • Test failures: $LEGACY_TEST_FAILURES"
+                  echo "  • Build failures: $LEGACY_BUILD_FAILURES"
+                  echo "  • Total from this file: $LEGACY_TOTAL"
+                fi
+              done
+              echo "📊 Legacy detection found: $TOTAL_UNIQUE_FAILURES total failures"
+            else
+              echo "⚠️ No legacy summary files found either"
+            fi
+          fi
+
+          # Save deduplication stats for reporting
+          jq -n --arg raw "$TOTAL_RAW_FAILURES" --arg unique "$TOTAL_UNIQUE_FAILURES" '{
+            raw_failure_count: ($raw | tonumber),
+            unique_failure_count: ($unique | tonumber),
+            duplicates_eliminated: (($raw | tonumber) - ($unique | tonumber))
+          }' > deduplication-stats.json
+
+      # ————————————————————————————————————————————————————————————————
+      # Enhanced test results validation with deduplication
       # ————————————————————————————————————————————————————————————————
       - name: 🔍 Validate test results
         run: |
-          echo "🔍 Validating test results from enhanced statistics..."
+          echo "🔍 Validating test results using deduplicated failure analysis..."
           VALIDATION_FAILED=false
-          TOTAL_FAILURES=0
           TOTAL_TESTS=0
 
-          # Check regular test results
+          # Load deduplication statistics
+          RAW_FAILURES=0
+          UNIQUE_FAILURES=0
+          if [[ -f deduplication-stats.json ]]; then
+            RAW_FAILURES=$(jq -r '.raw_failure_count // 0' deduplication-stats.json)
+            UNIQUE_FAILURES=$(jq -r '.unique_failure_count // 0' deduplication-stats.json)
+            DUPLICATES_ELIMINATED=$(jq -r '.duplicates_eliminated // 0' deduplication-stats.json)
+          fi
+
+          # Check regular test results for overall test counts and exit codes
           if compgen -G "test-results/test-stats-*.json" >/dev/null 2>&1; then
             echo "📋 Found test statistics files:"
             ls -la test-results/test-stats-*.json
@@ -143,13 +235,11 @@ jobs:
             for stats_file in test-results/test-stats-*.json; do
               echo "📊 Checking $stats_file..."
 
-              # Extract enhanced test results
+              # Extract basic test results
               TEST_PASSED=$(jq -r '.test_passed // empty' "$stats_file")
               TEST_EXIT_CODE=$(jq -r '.test_exit_code // empty' "$stats_file")
               TEST_NAME=$(jq -r '.name // empty' "$stats_file")
               TEST_MODE=$(jq -r '.test_mode // "unknown"' "$stats_file")
-              SUITE_FAILURES=$(jq -r '.total_failures // 0' "$stats_file")
-              AFFECTED_PACKAGES=$(jq -r '.affected_packages // 0' "$stats_file")
               TEST_COUNT=$(jq -r '.test_count // 0' "$stats_file")
 
               echo "  • Test Suite: $TEST_NAME"
@@ -159,19 +249,8 @@ jobs:
               echo "  • Passed: $TEST_PASSED"
 
               if [[ "$TEST_PASSED" == "false" ]] || [[ "$TEST_EXIT_CODE" != "0" ]]; then
-                echo "  • Failed Tests: $SUITE_FAILURES"
-                echo "  • Affected Packages: $AFFECTED_PACKAGES"
-
-                # Show specific failure details if available
-                FAILURE_DETAILS=$(jq -r '.failure_details // null' "$stats_file")
-                if [[ "$FAILURE_DETAILS" != "null" ]] && [[ "$FAILURE_DETAILS" != "[]" ]]; then
-                  echo "  • Failed Test Names:"
-                  echo "$FAILURE_DETAILS" | jq -r '.[] | "    - \(.Test) (\(.Package | split("/") | .[-1] // .[-2] // .))"' 2>/dev/null | head -5 || true
-                fi
-
-                echo "❌ Test suite '$TEST_NAME' failed with exit code $TEST_EXIT_CODE ($SUITE_FAILURES failures)"
+                echo "❌ Test suite '$TEST_NAME' failed with exit code $TEST_EXIT_CODE"
                 VALIDATION_FAILED=true
-                TOTAL_FAILURES=$((TOTAL_FAILURES + SUITE_FAILURES))
               else
                 echo "✅ Test suite '$TEST_NAME' passed"
               fi
@@ -180,6 +259,35 @@ jobs:
             done
           else
             echo "⚠️ No regular test statistics found"
+          fi
+
+          # Use deduplicated failure count as the authoritative failure count
+          # If deduplication found failures, use that count
+          # If deduplication failed but validation failed, use a fallback count
+          if [[ $UNIQUE_FAILURES -gt 0 ]]; then
+            TOTAL_FAILURES=$UNIQUE_FAILURES
+            echo "✅ Using deduplicated failure count: $TOTAL_FAILURES"
+          elif [[ "$VALIDATION_FAILED" == "true" ]]; then
+            # Count from legacy files if deduplication failed
+            TOTAL_FAILURES=0
+            if compgen -G "test-results/*test-failures-summary.json" >/dev/null 2>&1; then
+              for summary_file in test-results/*test-failures-summary.json; do
+                if [[ -s "$summary_file" ]]; then
+                  LEGACY_COUNT=$(jq '[.[] | select(.failures) | .failures[]] | length' "$summary_file" 2>/dev/null || echo "0")
+                  BUILD_COUNT=$(jq '[.[] | select(.Type == "build")] | length' "$summary_file" 2>/dev/null || echo "0")
+                  TOTAL_FAILURES=$((TOTAL_FAILURES + LEGACY_COUNT + BUILD_COUNT))
+                fi
+              done
+            fi
+            # Fallback: if still 0 but validation failed, report at least 1 failure
+            if [[ $TOTAL_FAILURES -eq 0 ]]; then
+              TOTAL_FAILURES=1
+              echo "⚠️ Using fallback failure count (validation failed but no specific failures counted)"
+            else
+              echo "✅ Using legacy failure count: $TOTAL_FAILURES"
+            fi
+          else
+            TOTAL_FAILURES=0
           fi
 
           # Check fuzz test results if enabled
@@ -217,22 +325,59 @@ jobs:
             fi
           fi
 
-          # Enhanced validation summary
+          # Enhanced validation summary with deduplication info
           echo ""
           echo "🏁 Validation Summary:"
           echo "  • Total Tests: $TOTAL_TESTS"
-          echo "  • Total Failures: $TOTAL_FAILURES"
+          echo "  • Unique Failures: $TOTAL_FAILURES"
+          if [[ $RAW_FAILURES -gt 0 && $RAW_FAILURES -gt $UNIQUE_FAILURES ]]; then
+            echo "  • Raw Reports: $RAW_FAILURES (eliminated $DUPLICATES_ELIMINATED duplicates)"
+          fi
 
           # Display detailed failure information if tests failed
           if [[ "$VALIDATION_FAILED" == "true" ]]; then
             echo ""
-            echo "🔍 Detailed Failure Analysis:"
+            echo "🔍 Detailed Failure Analysis (Deduplicated):"
             echo "==============================================="
 
-            # Look for failure details in downloaded artifacts
-            if compgen -G "test-results/test-failures-summary.json" >/dev/null 2>&1; then
-              echo "📋 Found structured failure details:"
-              for failure_file in test-results/test-failures-summary.json; do
+            # Use deduplicated failures if available
+            if [[ -f deduplicated-failures.json ]] && [[ $(jq 'length' deduplicated-failures.json 2>/dev/null || echo "0") -gt 0 ]]; then
+              echo "📋 Found deduplicated failure details:"
+              DEDUP_COUNT=$(jq 'length' deduplicated-failures.json)
+              echo "  • Unique failures after deduplication: $DEDUP_COUNT"
+
+              # Show build failures first
+              BUILD_FAILURES=$(jq -r '.[] | select(.type == "build") | "  🔨 " + (.package | split("/") | .[-1] // .[-2] // .) + ": Build compilation failed (" + (.occurrences | tostring) + " matrix jobs)"' deduplicated-failures.json 2>/dev/null)
+              if [[ -n "$BUILD_FAILURES" ]]; then
+                echo ""
+                echo "🔨 Build Failures:"
+                echo "------------------"
+                echo "$BUILD_FAILURES"
+
+                # Show detailed build errors
+                jq -r '.[] | select(.type == "build") |
+                  "📦 " + (.package | split("/") | .[-1] // .[-2] // .) + " (detected in " + (.occurrences | tostring) + " matrix jobs):" +
+                  "\n" + .output' deduplicated-failures.json 2>/dev/null | sed 's/^/  /' | head -c 2000
+              fi
+
+              # Show test failures with line numbers when available
+              TEST_FAILURES=$(jq -r '.[] | select(.type == "test") |
+                if (.line_number and .line_number != null) then
+                  "  📦 " + (.package | split("/") | .[-1] // .[-2] // .) + ": " + .test + ":" + (.line_number | tostring) + " (" + (.occurrences | tostring) + " matrix jobs)"
+                else
+                  "  📦 " + (.package | split("/") | .[-1] // .[-2] // .) + ": " + .test + " (" + (.occurrences | tostring) + " matrix jobs)"
+                end' deduplicated-failures.json 2>/dev/null)
+              if [[ -n "$TEST_FAILURES" ]]; then
+                echo ""
+                echo "🧪 Test Failures:"
+                echo "-----------------"
+                echo "$TEST_FAILURES"
+              fi
+
+            # Fallback to old structured failure details
+            elif compgen -G "test-results/*test-failures-summary.json" >/dev/null 2>&1; then
+              echo "📋 Found legacy structured failure details:"
+              for failure_file in test-results/*test-failures-summary.json; do
                 echo ""
                 echo "📄 Processing: $failure_file"
 
@@ -241,14 +386,41 @@ jobs:
                 if [[ "$PACKAGES" -gt 0 ]]; then
                   echo "  • Affected Packages: $PACKAGES"
 
-                  # Show package summary (filter out malformed package names)
-                  jq -r '.[] | select(.Package | test("^[a-zA-Z0-9/_.-]+$")) | "  📦 \(.Package | split("/") | .[-1] // .[-2] // .): \(.failures | length) failure(s)"' "$failure_file" 2>/dev/null || true
+                  # Show package summary grouped by failure type
+                  echo "📦 Package Summary:"
 
-                  echo ""
-                  echo "🚨 Failed Tests:"
-                  echo "---------------"
+                  # Show build failures first
+                  BUILD_PACKAGES=$(jq -r '.[] | select(.Type == "build") | select(.Package | test("^[a-zA-Z0-9/_.-]+$")) | "  🔨 \(.Package | split("/") | .[-1] // .[-2] // .): Build failed"' "$failure_file" 2>/dev/null || true)
+                  if [[ -n "$BUILD_PACKAGES" ]]; then
+                    echo "$BUILD_PACKAGES"
+                  fi
 
-                  # Show detailed failed tests with package context (leaf failures only)
+                  # Then show test failures
+                  TEST_PACKAGES=$(jq -r '.[] | select(.Type == "test" or .Type == null) | select(.Package | test("^[a-zA-Z0-9/_.-]+$")) | "  📦 \(.Package | split("/") | .[-1] // .[-2] // .): \(.failures | length) test failure(s)"' "$failure_file" 2>/dev/null || true)
+                  if [[ -n "$TEST_PACKAGES" ]]; then
+                    echo "$TEST_PACKAGES"
+                  fi
+
+                  # Show build failures in detail
+                  BUILD_FAILURE_COUNT=$(jq -r '[.[] | select(.Type == "build")] | length' "$failure_file" 2>/dev/null || echo "0")
+                  if [[ "$BUILD_FAILURE_COUNT" -gt 0 ]]; then
+                    echo ""
+                    echo "🔨 Build Failures:"
+                    echo "------------------"
+
+                    jq -r '.[] | select(.Type == "build") | select(.Package | test("^[a-zA-Z0-9/_.-]+$")) |
+                      "📦 " + (.Package | split("/") | .[-1] // .[-2] // .) + ":" +
+                      ((.BuildErrors[]? // []) | "\n  ❌ " + .)' "$failure_file" 2>/dev/null || true
+                  fi
+
+                  # Show test failures
+                  TEST_FAILURE_COUNT=$(jq -r '[.[] | select(.Type == "test" or .Type == null)] | length' "$failure_file" 2>/dev/null || echo "0")
+                  if [[ "$TEST_FAILURE_COUNT" -gt 0 ]]; then
+                    echo ""
+                    echo "🧪 Test Failures:"
+                    echo "-----------------"
+
+                  # Show detailed failed tests with package context (leaf failures only) - only for test failures
                   #
                   # Problem: Go's nested test structure (TestA/TestB/TestC) reports failures for
                   # all parent tests when a leaf test fails, causing confusing output like:
@@ -259,7 +431,7 @@ jobs:
                   #
                   # Solution: Extract and deduplicate to show only the actual failed leaf tests
                   # This reduces "4 failures" to "1 actual failure" for better clarity.
-                  RAW_FAILED_TESTS=$(jq -r '.[] as $parent | select($parent.Package | test("^[a-zA-Z0-9/_.-]+$")) | $parent.failures[] | .Test + " (" + ($parent.Package | split("/") | .[-1] // .[-2] // .) + ")"' "$failure_file" 2>/dev/null)
+                  RAW_FAILED_TESTS=$(jq -r '.[] as $parent | select($parent.Type == "test" or $parent.Type == null) | select($parent.Package | test("^[a-zA-Z0-9/_.-]+$")) | $parent.failures[] | .Test + " (" + ($parent.Package | split("/") | .[-1] // .[-2] // .) + ")"' "$failure_file" 2>/dev/null)
 
                   # Smart filtering: Only show the most specific (deepest nested) test failures
                   FAILED_TESTS=$(echo "$RAW_FAILED_TESTS" | awk '
@@ -317,23 +489,25 @@ jobs:
                     head -c 2000 "$failure_file" | sed 's/^/  /'
                   fi
 
-                  # Show any error outputs if available from the enhanced failure details
-                  ERROR_OUTPUTS=$(jq -r '.[] as $package | select($package.Package | test("^[a-zA-Z0-9/_.-]+$")) | $package.failures[] | select(.Output and .Output != "" and .Output != null) | "❌ \(.Test) (\($package.Package | split("/") | .[-1] // .[-2] // .))\n\(.Output)\n"' "$failure_file" 2>/dev/null | head -c 3000)
+                  # Show any error outputs if available from the enhanced failure details (for test failures only)
+                  ERROR_OUTPUTS=$(jq -r '.[] as $package | select($package.Type == "test" or $package.Type == null) | select($package.Package | test("^[a-zA-Z0-9/_.-]+$")) | $package.failures[] | select(.Output and .Output != "" and .Output != null) | "❌ \(.Test) (\($package.Package | split("/") | .[-1] // .[-2] // .))\n\(.Output)\n"' "$failure_file" 2>/dev/null | head -c 3000)
                   if [[ -n "$ERROR_OUTPUTS" ]]; then
                     echo ""
                     echo "📝 Test Error Messages:"
                     echo "----------------------"
                     echo "$ERROR_OUTPUTS"
                   fi
+
+                  fi  # End of test failures section
                 else
                   echo "  • No structured failure data found in JSON"
                 fi
               done
 
             # Fallback to simple text files if JSON not available
-            elif compgen -G "test-results/test-failures.txt" >/dev/null 2>&1; then
+            elif compgen -G "test-results/*test-failures.txt" >/dev/null 2>&1; then
               echo "📋 Found text failure details:"
-              for failure_file in test-results/test-failures.txt; do
+              for failure_file in test-results/*test-failures.txt; do
                 if [[ -s "$failure_file" ]]; then
                   echo ""
                   echo "📄 Processing: $failure_file"
@@ -353,21 +527,41 @@ jobs:
 
             echo ""
             echo "==============================================="
-            echo "❌ Test validation failed - $TOTAL_FAILURES test(s) failed across all suites"
-            echo "::error title=Test Validation Failed::$TOTAL_FAILURES test(s) failed across all test suites. Check enhanced failure details above."
+            if [[ $RAW_FAILURES -gt $UNIQUE_FAILURES ]]; then
+              echo "❌ Test validation failed - $TOTAL_FAILURES unique failure(s) (from $RAW_FAILURES reports across matrix jobs)"
+              echo "::error title=Test Validation Failed::$TOTAL_FAILURES unique test failure(s) detected (eliminated $DUPLICATES_ELIMINATED duplicates from $RAW_FAILURES total reports). Check deduplicated failure analysis above."
+            else
+              echo "❌ Test validation failed - $TOTAL_FAILURES test(s) failed"
+              echo "::error title=Test Validation Failed::$TOTAL_FAILURES test(s) failed across all test suites. Check failure details above."
+            fi
             exit 1
           else
             echo "✅ All $TOTAL_TESTS tests passed validation"
           fi
 
       # ————————————————————————————————————————————————————————————————
-      # Create validation summary for GitHub UI
+      # Create validation summary for GitHub UI with deduplication info
       # ————————————————————————————————————————————————————————————————
       - name: 📊 Create validation summary
         if: always()
         run: |
-          echo "## 🔍 Test Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔍 Test Validation Summary (With Deduplication)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Load deduplication stats for summary
+          if [[ -f deduplication-stats.json ]]; then
+            RAW_COUNT=$(jq -r '.raw_failure_count // 0' deduplication-stats.json)
+            UNIQUE_COUNT=$(jq -r '.unique_failure_count // 0' deduplication-stats.json)
+            ELIMINATED_COUNT=$(jq -r '.duplicates_eliminated // 0' deduplication-stats.json)
+
+            if [[ $RAW_COUNT -gt $UNIQUE_COUNT ]]; then
+              echo "### 🎯 Deduplication Results" >> $GITHUB_STEP_SUMMARY
+              echo "- **Raw Failure Reports**: $RAW_COUNT" >> $GITHUB_STEP_SUMMARY
+              echo "- **Unique Failures**: $UNIQUE_COUNT" >> $GITHUB_STEP_SUMMARY
+              echo "- **Duplicates Eliminated**: $ELIMINATED_COUNT" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
 
           # Count test suites and statistics (using reliable file counting)
           TEST_SUITE_COUNT=0
@@ -462,6 +656,9 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: validation-summary
-          path: test-results/
+          path: |
+            test-results/
+            deduplicated-failures.json
+            deduplication-stats.json
           retention-days: 1
           if-no-files-found: ignore
