@@ -407,25 +407,25 @@ func TestParseInstallArgsWithMockedArgs(t *testing.T) {
 	}{
 		{
 			name:          "valid arguments",
-			args:          []string{"cmd", "owner=testowner", "repo=testrepo"},
+			args:          []string{"cmd", "function", "owner=testowner", "repo=testrepo"},
 			expectedOwner: "testowner",
 			expectedRepo:  "testrepo",
 		},
 		{
 			name:        "missing owner",
-			args:        []string{"cmd", "repo=testrepo"},
+			args:        []string{"cmd", "function", "repo=testrepo"},
 			expectError: true,
 			errorType:   errMissingOwner,
 		},
 		{
 			name:        "missing repo",
-			args:        []string{"cmd", "owner=testowner"},
+			args:        []string{"cmd", "function", "owner=testowner"},
 			expectError: true,
 			errorType:   errMissingRepo,
 		},
 		{
 			name:          "with flags",
-			args:          []string{"cmd", "owner=testowner", "repo=testrepo", "dryrun=true", "verbose=true", "cleanup=true"},
+			args:          []string{"cmd", "function", "owner=testowner", "repo=testrepo", "dryrun=true", "verbose=true", "cleanup=true"},
 			expectedOwner: "testowner",
 			expectedRepo:  "testrepo",
 			expectedDry:   true,

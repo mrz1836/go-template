@@ -71,9 +71,20 @@ func validateRequiredArgs(owner, repo string) error {
 	return nil
 }
 
-// parseInstallArgs extracts parameters from command line arguments
+// parseInstallArgs extracts parameters from command line arguments or MAGE_ARGS environment variable
 func parseInstallArgs() (owner, repo string, dryRun, verbose, cleanup bool, err error) {
-	for _, arg := range os.Args[1:] {
+	var args []string
+
+	// Check if MAGE_ARGS is available (mage binary execution)
+	if mageArgs := os.Getenv("MAGE_ARGS"); mageArgs != "" {
+		// Use MAGE_ARGS environment variable (for mage binary execution)
+		args = strings.Fields(mageArgs)
+	} else if len(os.Args) > 2 {
+		// Use os.Args (for go run execution), skip the command name
+		args = os.Args[2:] // Skip program name and function name
+	}
+
+	for _, arg := range args {
 		parseArgument(arg, &owner, &repo, &dryRun, &verbose, &cleanup)
 	}
 
