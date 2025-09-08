@@ -163,13 +163,13 @@ git clone https://github.com/mrz1836/go-template.git my-lib && cd my-lib
 go install github.com/mrz1836/mage-x/cmd/magex@latest
 
 # Run the install script to customize the project for your organization
-magex installTemplate owner=yourorg repo=yourproject
+magex InstallTemplate owner=yourorg repo=yourproject
 ```
 
 **Example:**
 ```bash
 # For GitHub user "acme" creating a project called "awesome-api"
-magex installTemplate owner=acme repo=awesome-api
+magex InstallTemplate owner=acme repo=awesome-api
 ```
 
 <br/>
