@@ -297,7 +297,7 @@ func reportResults(modifiedFiles []string, dryRun bool) {
 }
 
 // InstallTemplate initializes a new project from go-template
-// Usage: magex installTemplate owner=yourorg repo=yourrepo [dryrun=true] [verbose=true] [cleanup=true]
+// Usage: magex InstallTemplate owner=yourorg repo=yourrepo [dryrun=true] [verbose=true] [cleanup=true]
 func InstallTemplate() error {
 	owner, repo, dryRun, verbose, cleanup, err := parseInstallArgs()
 	if err != nil {
