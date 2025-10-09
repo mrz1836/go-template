@@ -23,7 +23,7 @@ const (
 	testOwnerRepoPath = "testowner/testrepo"
 	testGoFile        = "test.go"
 	testGoTemplate    = "go-template"
-	testBsvBlockchain = "mrz1836"
+	testOrg           = "mrz1836"
 )
 
 func TestValidatePath(t *testing.T) {
@@ -262,11 +262,11 @@ func TestApplyReplacements(t *testing.T) {
 		},
 		{
 			name:    "multiple replacements",
-			content: testTemplateRepo + " and " + testGoTemplate + " by " + testBsvBlockchain,
+			content: testTemplateRepo + " and " + testGoTemplate + " by " + testOrg,
 			replacements: []struct{ from, to string }{
 				{testTemplateRepo, testOwnerRepoPath},
 				{testGoTemplate, "testrepo"},
-				{testBsvBlockchain, "testowner"},
+				{testOrg, "testowner"},
 			},
 			path:         testGoFile,
 			wantContent:  testOwnerRepoPath + " and testrepo by testowner",
@@ -312,7 +312,7 @@ func TestCreateReplacements(t *testing.T) {
 	expected := []struct{ from, to string }{
 		{testTemplateRepo, testOwnerRepoPath},
 		{testGoTemplate, "testrepo"},
-		{testBsvBlockchain, "testowner"},
+		{testOrg, "testowner"},
 	}
 
 	assert.Equal(t, expected, replacements)
@@ -511,11 +511,11 @@ func BenchmarkIsBinaryFile(b *testing.B) {
 }
 
 func BenchmarkApplyReplacements(b *testing.B) {
-	content := strings.Repeat(testTemplateRepo+" is a template by "+testBsvBlockchain+" for "+testGoTemplate+" projects. ", 100)
+	content := strings.Repeat(testTemplateRepo+" is a template by "+testOrg+" for "+testGoTemplate+" projects. ", 100)
 	replacements := []struct{ from, to string }{
 		{testTemplateRepo, testOwnerRepoPath},
 		{testGoTemplate, "testrepo"},
-		{testBsvBlockchain, "testowner"},
+		{testOrg, "testowner"},
 	}
 
 	b.ResetTimer()
