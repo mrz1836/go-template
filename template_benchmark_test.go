@@ -8,7 +8,7 @@ import (
 
 // BenchmarkGreet benchmarks the Greet function.
 func BenchmarkGreet(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = template.Greet("BenchmarkUser")
 	}
 }
