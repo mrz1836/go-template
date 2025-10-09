@@ -13,6 +13,19 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// Test constants to avoid code duplication
+const (
+	testOwnerArg      = "owner=testowner"
+	testRepoArg       = "repo=testrepo"
+	testTemplateRepo  = "mrz1836/go-template"
+	testMainGoFile    = "main.go"
+	testImagePngFile  = "image.png"
+	testOwnerRepoPath = "testowner/testrepo"
+	testGoFile        = "test.go"
+	testGoTemplate    = "go-template"
+	testBsvBlockchain = "mrz1836"
+)
+
 func TestValidatePath(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -76,12 +89,12 @@ func TestParseArgument(t *testing.T) {
 	}{
 		{
 			name:          "parse owner argument",
-			arg:           "owner=testowner",
+			arg:           testOwnerArg,
 			expectedOwner: "testowner",
 		},
 		{
 			name:         "parse repo argument",
-			arg:          "repo=testrepo",
+			arg:          testRepoArg,
 			expectedRepo: "testrepo",
 		},
 		{
@@ -179,12 +192,12 @@ func TestIsBinaryFile(t *testing.T) {
 	}{
 		{
 			name:     "text file",
-			path:     "main.go",
+			path:     testMainGoFile,
 			expected: false,
 		},
 		{
 			name:     "png image",
-			path:     "image.png",
+			path:     testImagePngFile,
 			expected: true,
 		},
 		{
@@ -204,7 +217,7 @@ func TestIsBinaryFile(t *testing.T) {
 		},
 		{
 			name:     "case insensitive",
-			path:     "IMAGE.PNG",
+			path:     "IMAGE.PNG", // Keep uppercase to test case insensitivity
 			expected: true,
 		},
 		{
@@ -239,24 +252,24 @@ func TestApplyReplacements(t *testing.T) {
 	}{
 		{
 			name:    "single replacement",
-			content: "package mrz1836/go-template",
+			content: "package " + testTemplateRepo,
 			replacements: []struct{ from, to string }{
-				{"mrz1836/go-template", "testowner/testrepo"},
+				{testTemplateRepo, testOwnerRepoPath},
 			},
-			path:         "test.go",
-			wantContent:  "package testowner/testrepo",
+			path:         testGoFile,
+			wantContent:  "package " + testOwnerRepoPath,
 			wantModified: true,
 		},
 		{
 			name:    "multiple replacements",
-			content: "mrz1836/go-template and go-template by mrz1836",
+			content: testTemplateRepo + " and " + testGoTemplate + " by " + testBsvBlockchain,
 			replacements: []struct{ from, to string }{
-				{"mrz1836/go-template", "testowner/testrepo"},
-				{"go-template", "testrepo"},
-				{"mrz1836", "testowner"},
+				{testTemplateRepo, testOwnerRepoPath},
+				{testGoTemplate, "testrepo"},
+				{testBsvBlockchain, "testowner"},
 			},
-			path:         "test.go",
-			wantContent:  "testowner/testrepo and testrepo by testowner",
+			path:         testGoFile,
+			wantContent:  testOwnerRepoPath + " and testrepo by testowner",
 			wantModified: true,
 		},
 		{
@@ -297,9 +310,9 @@ func TestCreateReplacements(t *testing.T) {
 	replacements := createReplacements(owner, repo)
 
 	expected := []struct{ from, to string }{
-		{"mrz1836/go-template", "testowner/testrepo"},
-		{"go-template", "testrepo"},
-		{"mrz1836", "testowner"},
+		{testTemplateRepo, testOwnerRepoPath},
+		{testGoTemplate, "testrepo"},
+		{testBsvBlockchain, "testowner"},
 	}
 
 	assert.Equal(t, expected, replacements)
@@ -314,7 +327,7 @@ func TestShouldSkipFile(t *testing.T) {
 	}{
 		{
 			name:     "regular go file",
-			path:     "main.go",
+			path:     testMainGoFile,
 			isDir:    false,
 			expected: false,
 		},
@@ -338,7 +351,7 @@ func TestShouldSkipFile(t *testing.T) {
 		},
 		{
 			name:     "binary file",
-			path:     "image.png",
+			path:     testImagePngFile,
 			isDir:    false,
 			expected: true,
 		},
@@ -366,7 +379,7 @@ func TestShouldSkipFile(t *testing.T) {
 	}
 }
 
-func TestProcessFile_PathValidation(t *testing.T) {
+func TestProcessFilePathValidation(t *testing.T) {
 	// Test that processFile properly validates paths
 	replacements := []struct{ from, to string }{
 		{"test", "replacement"},
@@ -407,25 +420,25 @@ func TestParseInstallArgsWithMockedArgs(t *testing.T) {
 	}{
 		{
 			name:          "valid arguments",
-			args:          []string{"cmd", "function", "owner=testowner", "repo=testrepo"},
+			args:          []string{"cmd", "function", testOwnerArg, testRepoArg},
 			expectedOwner: "testowner",
 			expectedRepo:  "testrepo",
 		},
 		{
 			name:        "missing owner",
-			args:        []string{"cmd", "function", "repo=testrepo"},
+			args:        []string{"cmd", "function", testRepoArg},
 			expectError: true,
 			errorType:   errMissingOwner,
 		},
 		{
 			name:        "missing repo",
-			args:        []string{"cmd", "function", "owner=testowner"},
+			args:        []string{"cmd", "function", testOwnerArg},
 			expectError: true,
 			errorType:   errMissingRepo,
 		},
 		{
 			name:          "with flags",
-			args:          []string{"cmd", "function", "owner=testowner", "repo=testrepo", "dryrun=true", "verbose=true", "cleanup=true"},
+			args:          []string{"cmd", "function", testOwnerArg, testRepoArg, "dryrun=true", "verbose=true", "cleanup=true"},
 			expectedOwner: "testowner",
 			expectedRepo:  "testrepo",
 			expectedDry:   true,
@@ -481,8 +494,8 @@ func BenchmarkValidatePath(b *testing.B) {
 
 func BenchmarkIsBinaryFile(b *testing.B) {
 	files := []string{
-		"main.go",
-		"image.png",
+		testMainGoFile,
+		testImagePngFile,
 		"document.pdf",
 		"library.so",
 		"README.md",
@@ -498,11 +511,11 @@ func BenchmarkIsBinaryFile(b *testing.B) {
 }
 
 func BenchmarkApplyReplacements(b *testing.B) {
-	content := strings.Repeat("mrz1836/go-template is a template by mrz1836 for go-template projects. ", 100)
+	content := strings.Repeat(testTemplateRepo+" is a template by "+testBsvBlockchain+" for "+testGoTemplate+" projects. ", 100)
 	replacements := []struct{ from, to string }{
-		{"mrz1836/go-template", "testowner/testrepo"},
-		{"go-template", "testrepo"},
-		{"mrz1836", "testowner"},
+		{testTemplateRepo, testOwnerRepoPath},
+		{testGoTemplate, "testrepo"},
+		{testBsvBlockchain, "testowner"},
 	}
 
 	b.ResetTimer()
