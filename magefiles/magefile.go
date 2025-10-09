@@ -4,6 +4,7 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"os"
@@ -14,9 +15,11 @@ import (
 )
 
 var (
-	errMissingOwner = errors.New("missing required parameter: owner=<value>")
-	errMissingRepo  = errors.New("missing required parameter: repo=<value>")
-	errInvalidPath  = errors.New("invalid path: path traversal not allowed")
+	errMissingOwner           = errors.New("missing required parameter: owner=<value>")
+	errMissingRepo            = errors.New("missing required parameter: repo=<value>")
+	errInvalidPath            = errors.New("invalid path: path traversal not allowed")
+	errUnexpectedModuleFormat = errors.New("unexpected module path format")
+	errModuleNotFound         = errors.New("module declaration not found in go.mod")
 )
 
 // logMessage prints a message to stdout (allowed alternative to fmt.Printf)
@@ -164,15 +167,60 @@ func processFile(path string, replacements []struct{ from, to string }, dryRun, 
 	return modified, nil
 }
 
+// getTemplateInfo extracts the current module owner and repo name from go.mod
+func getTemplateInfo() (owner, repo string, err error) {
+	file, err := os.Open("go.mod")
+	if err != nil {
+		return "", "", fmt.Errorf("failed to open go.mod: %w", err)
+	}
+
+	defer func() {
+		_ = file.Close()
+	}()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if strings.HasPrefix(line, "module ") {
+			modulePath := strings.TrimPrefix(line, "module ")
+			// Expected format: github.com/owner/repo or similar
+			parts := strings.Split(modulePath, "/")
+			if len(parts) >= 3 {
+				owner = parts[len(parts)-2]
+				repo = parts[len(parts)-1]
+
+				return owner, repo, nil
+			}
+
+			return "", "", fmt.Errorf("%w: %s", errUnexpectedModuleFormat, modulePath)
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return "", "", fmt.Errorf("error reading go.mod: %w", err)
+	}
+
+	return "", "", errModuleNotFound
+}
+
 // createReplacements creates the list of string replacements needed
 func createReplacements(owner, repo string) []struct{ from, to string } {
+	// Get current template owner and repo from go.mod
+	templateOwner, templateRepo, err := getTemplateInfo()
+	if err != nil {
+		// Fallback to default values if go.mod cannot be read
+		// This allows the function to work in test environments
+		templateOwner = "mrz1836"
+		templateRepo = "go-template"
+	}
+
 	return []struct {
 		from string
 		to   string
 	}{
-		{"mrz1836/go-template", fmt.Sprintf("%s/%s", owner, repo)},
-		{"go-template", repo},
-		{"mrz1836", owner},
+		{fmt.Sprintf("%s/%s", templateOwner, templateRepo), fmt.Sprintf("%s/%s", owner, repo)},
+		{templateRepo, repo},
+		{templateOwner, owner},
 	}
 }
 
