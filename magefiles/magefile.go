@@ -203,15 +203,50 @@ func getTemplateInfo() (owner, repo string, err error) {
 	return "", "", errModuleNotFound
 }
 
+// getFallbackTemplateInfo returns template info by trying multiple locations
+// This is extracted to make it testable and avoid hardcoding values in multiple places
+func getFallbackTemplateInfo() (owner, repo string, err error) {
+	// Try to extract from go.mod in current directory
+	owner, repo, err = getTemplateInfo()
+	if err == nil {
+		return owner, repo, nil
+	}
+
+	// If not found, try parent directory (magefiles subdirectory case)
+	originalDir, dirErr := os.Getwd()
+	if dirErr != nil {
+		return "", "", fmt.Errorf("failed to get working directory: %w", dirErr)
+	}
+
+	if chErr := os.Chdir(".."); chErr != nil {
+		return "", "", fmt.Errorf("failed to change to parent directory: %w", chErr)
+	}
+
+	defer func() {
+		_ = os.Chdir(originalDir)
+	}()
+
+	owner, repo, err = getTemplateInfo()
+	if err != nil {
+		return "", "", fmt.Errorf("failed to read template info from go.mod: %w", err)
+	}
+
+	return owner, repo, nil
+}
+
 // createReplacements creates the list of string replacements needed
 func createReplacements(owner, repo string) []struct{ from, to string } {
 	// Get current template owner and repo from go.mod
 	templateOwner, templateRepo, err := getTemplateInfo()
 	if err != nil {
-		// Fallback to default values if go.mod cannot be read
-		// This allows the function to work in test environments
-		templateOwner = "mrz1836"
-		templateRepo = "go-template"
+		// Fallback: try multiple locations (current dir and parent dir)
+		// This allows the function to work when called from subdirectories
+		templateOwner, templateRepo, err = getFallbackTemplateInfo()
+		if err != nil {
+			// If we still can't read go.mod, log error and continue with empty values
+			// This shouldn't happen in normal usage, but makes the code more resilient
+			logMessage("Warning: Could not read template info from go.mod: %v\n", err)
+		}
 	}
 
 	return []struct {
