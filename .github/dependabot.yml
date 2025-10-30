@@ -114,9 +114,6 @@ updates:
       timezone: "America/New_York"
     allow:
       - dependency-type: "direct"
-    ignore:
-      - dependency-name: "alpine"
-      - dependency-name: "scratch"
     groups:
       dockerfiles-all:
         patterns: ["*"]
