@@ -1,94 +1,99 @@
-# 🚀 go-template
-> From Zero to Go Hero: Pre-wired Template for Modern Libraries
+<div align="center">
 
-<table>
-  <thead>
-    <tr>
-      <th>CI&nbsp;/&nbsp;CD</th>
-      <th>Quality&nbsp;&amp;&nbsp;Security</th>
-      <th>Docs&nbsp;&amp;&nbsp;Meta</th>
-      <th>Community</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td valign="top" align="left">
-        <a href="https://github.com/mrz1836/go-template/releases">
-          <img src="https://img.shields.io/github/release-pre/mrz1836/go-template?logo=github&style=flat&v=1" alt="Latest Release">
-        </a><br/>
-        <a href="https://github.com/mrz1836/go-template/actions">
-          <img src="https://img.shields.io/github/actions/workflow/status/mrz1836/go-template/fortress.yml?branch=master&logo=github&style=flat" alt="Build Status">
-        </a><br/>
-		<a href="https://github.com/mrz1836/go-template/actions">
-          <img src="https://github.com/mrz1836/go-template/actions/workflows/codeql-analysis.yml/badge.svg?style=flat" alt="CodeQL">
-        </a><br/>
-        <a href="https://github.com/mrz1836/go-template/commits/master">
-		  <img src="https://img.shields.io/github/last-commit/mrz1836/go-template?style=flat&logo=clockify&logoColor=white" alt="Last commit">
-		</a>
-      </td>
-      <td valign="top" align="left">
-        <a href="https://goreportcard.com/report/github.com/mrz1836/go-template">
-          <img src="https://goreportcard.com/badge/github.com/mrz1836/go-template?style=flat" alt="Go Report Card">
-        </a><br/>
-		<a href="https://codecov.io/gh/mrz1836/go-template/tree/master">
-          <img src="https://codecov.io/gh/mrz1836/go-template/branch/master/graph/badge.svg?style=flat" alt="Code Coverage">
-        </a><br/>
-		<a href="https://scorecard.dev/viewer/?uri=github.com/mrz1836/go-template">
-          <img src="https://api.scorecard.dev/projects/github.com/mrz1836/go-template/badge?logo=springsecurity&logoColor=white" alt="OpenSSF Scorecard">
-        </a><br/>
-		<a href=".github/SECURITY.md">
-          <img src="https://img.shields.io/badge/security-policy-blue?style=flat&logo=springsecurity&logoColor=white" alt="Security policy">
-        </a><br/>
-		<a href="https://www.bestpractices.dev/projects/10822">
-		  <img src="https://www.bestpractices.dev/projects/10822/badge?style=flat&logo=springsecurity&logoColor=white" alt="OpenSSF Best Practices">
-		</a>
-      </td>
-      <td valign="top" align="left">
-        <a href="https://golang.org/">
-          <img src="https://img.shields.io/github/go-mod/go-version/mrz1836/go-template?style=flat" alt="Go version">
-        </a><br/>
-        <a href="https://pkg.go.dev/github.com/mrz1836/go-template?tab=doc">
-          <img src="https://pkg.go.dev/badge/github.com/mrz1836/go-template.svg?style=flat" alt="Go docs">
-        </a><br/>
-        <a href=".github/AGENTS.md">
-          <img src="https://img.shields.io/badge/AGENTS.md-found-40b814?style=flat&logo=openai" alt="AGENTS.md rules">
-        </a><br/>
-		<a href="https://magefile.org/">
-          <img src="https://img.shields.io/badge/mage-powered-brightgreen?style=flat&logo=probot&logoColor=white" alt="Mage Powered">
-        </a><br/>
-		<a href=".github/dependabot.yml">
-          <img src="https://img.shields.io/badge/dependencies-automatic-blue?logo=dependabot&style=flat" alt="Dependabot">
-        </a>
-      </td>
-      <td valign="top" align="left">
-        <a href="https://github.com/mrz1836/go-template/graphs/contributors">
-          <img src="https://img.shields.io/github/contributors/mrz1836/go-template?style=flat&logo=contentful&logoColor=white" alt="Contributors">
-        </a><br/>
-        <a href="https://github.com/sponsors/mrz1836">
-          <img src="https://img.shields.io/badge/sponsor-MrZ-181717.svg?logo=github&style=flat" alt="Sponsor">
-        </a><br/>
-        <a href="https://mrz1818.com/?tab=tips&utm_source=github&utm_medium=sponsor-link&utm_campaign=go-template&utm_term=go-template&utm_content=go-template">
-          <img src="https://img.shields.io/badge/donate-bitcoin-ff9900.svg?logo=bitcoin&style=flat" alt="Donate Bitcoin">
-        </a>
-      </td>
-    </tr>
-  </tbody>
-</table>
+# 🚀&nbsp;&nbsp;go-template
+
+**From Zero to Go Hero: Pre-wired Template for Modern Libraries**
 
 <br/>
 
-## 🗂️ Table of Contents
-* [What's Inside](#-whats-inside)
-* [Installation](#-installation)
-* [Documentation](#-documentation)
-* [Examples & Tests](#-examples--tests)
-* [Benchmarks](#-benchmarks)
-* [Code Standards](#-code-standards)
-* [AI Compliance](#-ai-compliance)
-* [Maintainers](#-maintainers)
-* [Contributing](#-contributing)
-* [License](#-license)
+<a href="https://github.com/mrz1836/go-template/releases"><img src="https://img.shields.io/github/release-pre/mrz1836/go-template?include_prereleases&style=flat-square&logo=github&color=black" alt="Release"></a>
+<a href="https://golang.org/"><img src="https://img.shields.io/github/go-mod/go-version/mrz1836/go-template?style=flat-square&logo=go&color=00ADD8" alt="Go Version"></a>
+<a href="https://github.com/mrz1836/go-template/blob/master/LICENSE"><img src="https://img.shields.io/github/license/mrz1836/go-template?style=flat-square&color=blue" alt="License"></a>
 
+<br/>
+
+<table align="center" border="0">
+  <tr>
+    <td align="right">
+       <code>CI / CD</code> &nbsp;&nbsp;
+    </td>
+    <td align="left">
+       <a href="https://github.com/mrz1836/go-template/actions"><img src="https://img.shields.io/github/actions/workflow/status/mrz1836/go-template/fortress.yml?branch=master&label=build&logo=github&style=flat-square" alt="Build"></a>
+       <a href="https://github.com/mrz1836/go-template/actions"><img src="https://img.shields.io/github/last-commit/mrz1836/go-template?style=flat-square&logo=git&logoColor=white&label=last%20update" alt="Last Commit"></a>
+    </td>
+    <td align="right">
+       &nbsp;&nbsp;&nbsp;&nbsp; <code>Quality</code> &nbsp;&nbsp;
+    </td>
+    <td align="left">
+       <a href="https://goreportcard.com/report/github.com/mrz1836/go-template"><img src="https://goreportcard.com/badge/github.com/mrz1836/go-template?style=flat-square" alt="Go Report"></a>
+       <a href="https://codecov.io/gh/mrz1836/go-template"><img src="https://codecov.io/gh/mrz1836/go-template/branch/master/graph/badge.svg?style=flat-square" alt="Coverage"></a>
+    </td>
+  </tr>
+
+  <tr>
+    <td align="right">
+       <code>Security</code> &nbsp;&nbsp;
+    </td>
+    <td align="left">
+       <a href="https://scorecard.dev/viewer/?uri=github.com/mrz1836/go-template"><img src="https://api.scorecard.dev/projects/github.com/mrz1836/go-template/badge?style=flat-square" alt="Scorecard"></a>
+       <a href=".github/SECURITY.md"><img src="https://img.shields.io/badge/policy-active-success?style=flat-square&logo=security&logoColor=white" alt="Security"></a>
+    </td>
+    <td align="right">
+       &nbsp;&nbsp;&nbsp;&nbsp; <code>Community</code> &nbsp;&nbsp;
+    </td>
+    <td align="left">
+       <a href="https://github.com/mrz1836/go-template/graphs/contributors"><img src="https://img.shields.io/github/contributors/mrz1836/go-template?style=flat-square&color=orange" alt="Contributors"></a>
+       <a href="https://mrz1818.com/"><img src="https://img.shields.io/badge/donate-bitcoin-ff9900?style=flat-square&logo=bitcoin" alt="Bitcoin"></a>
+    </td>
+  </tr>
+</table>
+
+</div>
+
+<br/>
+<br/>
+
+<div align="center">
+
+### <code>Project Navigation</code>
+
+</div>
+
+<table align="center">
+  <tr>
+    <td align="center" width="33%">
+       🚀&nbsp;<a href="#-installation"><code>Installation</code></a>
+    </td>
+    <td align="center" width="33%">
+       🧪&nbsp;<a href="#-examples--tests"><code>Examples&nbsp;&&nbsp;Tests</code></a>
+    </td>
+    <td align="center" width="33%">
+       📚&nbsp;<a href="#-documentation"><code>Documentation</code></a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+       🤝&nbsp;<a href="#-contributing"><code>Contributing</code></a>
+    </td>
+    <td align="center">
+      🛠️&nbsp;<a href="#-code-standards"><code>Code&nbsp;Standards</code></a>
+    </td>
+    <td align="center">
+      ⚡&nbsp;<a href="#-benchmarks"><code>Benchmarks</code></a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      🤖&nbsp;<a href="#-ai-compliance"><code>AI&nbsp;Compliance</code></a>
+    </td>
+    <td align="center">
+       ⚖️&nbsp;<a href="#-license"><code>License</code></a>
+    </td>
+    <td align="center">
+       👥&nbsp;<a href="#-maintainers"><code>Maintainers</code></a>
+    </td>
+  </tr>
+</table>
 <br/>
 
 ## 🧩 What's Inside
