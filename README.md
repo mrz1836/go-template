@@ -84,7 +84,7 @@
   </tr>
   <tr>
     <td align="center">
-      🤖&nbsp;<a href="#-ai-compliance"><code>AI&nbsp;Compliance</code></a>
+      🤖&nbsp;<a href="#-ai-usage--assistant-guidelines"><code>AI&nbsp;Usage</code></a>
     </td>
     <td align="center">
        ⚖️&nbsp;<a href="#-license"><code>License</code></a>
@@ -317,7 +317,7 @@ Then create and push a new Git tag using:
 magex version:bump push=true bump=patch branch=master
 ```
 
-This process ensures consistent, repeatable releases with properly versioned artifacts and citation metadata.
+This process ensures consistent, repeatable releases with properly versioned artifacts and metadata.
 
 </details>
 
