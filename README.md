@@ -122,10 +122,10 @@ Clone it, [rename a few placeholders](#-template-kick-off-guide-3-easy-steps), a
   _[golangci-lint](https://github.com/golangci/golangci-lint) with 50+ linters and [gofumpt](https://github.com/mvdan/gofumpt) keeps the codebase clean and idiomatic - no bikeshedding required._
 
 - **🤖 AI-Friendly Policies**
-  _[AGENTS.md](.github/AGENTS.md), [CLAUDE.md](.github/CLAUDE.md), [cursorrules](.cursorrules), and [sweep.yaml](.github/sweep.yaml) ensure [ChatGPT](https://openai.com), [Claude](https://claude.ai/), [Cursor](https://www.cursor.com/) & [Sweep](https://sweep.dev/) follow the same house rules._
+  _[AGENTS.md](.github/AGENTS.md), [CLAUDE.md](.github/CLAUDE.md), ensure [ChatGPT](https://openai.com), [Claude](https://claude.ai/) & [Gemini](https://gemini.google.com/) follow the same house rules._
 
 - **🌍 Community-Ready Meta**
-  _[Issue/PR templates](.github/ISSUE_TEMPLATE), [CODEOWNERS](.github/CODEOWNERS), [CITATION](CITATION.cff), [label sync](.github/labels.yml), and a welcome bot to show contributors exactly how to get involved._
+  _[Issue/PR templates](.github/ISSUE_TEMPLATE), [CODEOWNERS](.github/CODEOWNERS), [label sync](.github/labels.yml), and a welcome bot to show contributors exactly how to get involved._
 
 <br/>
 
@@ -291,77 +291,11 @@ go install github.com/mrz1836/mage-x/cmd/magex@latest
 * **Instant Cloud Workspaces** via [Gitpod](https://gitpod.io/) – spin up a fully configured dev environment with automatic linting and tests.
 * **Out‑of‑the‑Box VS Code Happiness** with a preconfigured [Go](https://code.visualstudio.com/docs/languages/go) workspace and [`.vscode`](.vscode) folder with all the right settings.
 * **Optional Release Broadcasts** to your community via [Slack](https://slack.com), [Discord](https://discord.com), or [Twitter](https://twitter.com) – plug in your webhook.
-* **AI Compliance Playbook** – machine‑readable guidelines ([AGENTS.md](.github/AGENTS.md), [CLAUDE.md](.github/CLAUDE.md), [.cursorrules](.cursorrules), [sweep.yaml](.github/sweep.yaml)) keep ChatGPT, Claude, Cursor & Sweep aligned with your repo's rules.
+* **AI Playbook** – machine‑readable guidelines in [tech conventions](.github/tech-conventions/ai-compliance.md)
 * **Go-Pre-commit System** - [High-performance Go-native pre-commit hooks](https://github.com/mrz1836/go-pre-commit) with 17x faster execution—run the same formatting, linting, and tests before every commit, just like CI.
 * **Zero Python Dependencies** - Pure Go implementation with environment-based configuration via [.env.base](.github/.env.base).
 * **DevContainers for Instant Onboarding** – Launch a ready-to-code environment in seconds with [VS Code DevContainers](https://containers.dev/) and the included [.devcontainer.json](.devcontainer.json) config.
 
-</details>
-
-<details>
-<summary><strong><code>Repository File Glossary</code></strong></summary>
-<br/>
-
-This glossary describes each tracked file in the repository and notes if it is required for GitHub or another external service.
-
-| File Path                                                                                      | Description                                     | Service          |
-|------------------------------------------------------------------------------------------------|-------------------------------------------------|------------------|
-| [.cursorrules](.cursorrules)                                                                   | Rules for Cursor AI integrations                | Cursor           |
-| [.devcontainer.json](.devcontainer.json)                                                       | VS Code dev or GitHub container configuration   | VS Code & GitHub |
-| [.dockerignore](.dockerignore)                                                                 | Paths ignored by Docker builds                  | Docker           |
-| [.editorconfig](.editorconfig)                                                                 | Editor configuration defaults                   | Editor           |
-| [.gitattributes](.gitattributes)                                                               | Git attributes and export settings              | Git              |
-| [.github/.env.base](.github/.env.base)                                                         | Shared environment variables for GitHub Actions | GitHub Actions   |
-| [.github/.env.custom](.github/.env.custom)                                                     | Custom environment variables for GitHub Actions | GitHub Actions   |
-| [.github/AGENTS.md](.github/AGENTS.md)                                                         | Contribution rules and guidelines               | GitHub           |
-| [.github/CLAUDE.md](.github/CLAUDE.md)                                                         | Claude agent instructions                       | Claude           |
-| [.github/CODEOWNERS](.github/CODEOWNERS)                                                       | Code ownership declarations for GitHub          | GitHub           |
-| [.github/CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md)                                       | Community behavior standards                    | GitHub           |
-| [.github/CODE_STANDARDS.md](.github/CODE_STANDARDS.md)                                         | Coding style guide                              | GitHub           |
-| [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md)                                             | How to contribute to the project                | GitHub           |
-| [.github/FUNDING.yml](.github/FUNDING.yml)                                                     | Funding links displayed by GitHub               | GitHub           |
-| [.github/IMAGES/go-share-image.png](.github/IMAGES/go-share-image.png)                         | Social sharing image                            | GitHub           |
-| [.github/ISSUE_TEMPLATE/bug_report.yml](.github/ISSUE_TEMPLATE/bug_report.yml)                 | Issue template for bug reports                  | GitHub           |
-| [.github/ISSUE_TEMPLATE/feature_request.yml](.github/ISSUE_TEMPLATE/feature_request.yml)       | Issue template for feature requests             | GitHub           |
-| [.github/ISSUE_TEMPLATE/question.yml](.github/ISSUE_TEMPLATE/question.yml)                     | Issue template for questions                    | GitHub           |
-| [.github/SECURITY.md](.github/SECURITY.md)                                                     | Security policy                                 | GitHub           |
-| [.github/SUPPORT.md](.github/SUPPORT.md)                                                       | Support guidelines                              | GitHub           |
-| [.github/dependabot.yml](.github/dependabot.yml)                                               | Dependabot configuration                        | GitHub           |
-| [.github/labels.yml](.github/labels.yml)                                                       | Repository label definitions                    | GitHub           |
-| [.github/pull_request_template.md](.github/pull_request_template.md)                           | Pull request description template               | GitHub           |
-| [.github/sweep.yaml](.github/sweep.yaml)                                                       | Sweep AI configuration                          | Sweep AI         |
-| [.github/workflows/auto-merge-on-approval.yml](.github/workflows/auto-merge-on-approval.yml)   | Workflow for automatic merges                   | GitHub Actions   |
-| [.github/workflows/codeql-analysis.yml](.github/workflows/codeql-analysis.yml)                 | CodeQL security analysis workflow               | GitHub Actions   |
-| [.github/workflows/dependabot-auto-merge.yml](.github/workflows/dependabot-auto-merge.yml)     | Auto merge Dependabot PRs                       | GitHub Actions   |
-| [.github/workflows/fortress.yml](.github/workflows/fortress.yml)                               | Fortress security & testing workflow            | GitHub Actions   |
-| [.github/workflows/pull-request-management.yml](.github/workflows/pull-request-management.yml) | Pull request triage workflow                    | GitHub Actions   |
-| [.github/workflows/scorecard.yml](.github/workflows/scorecard.yml)                             | OpenSSF Scorecard workflow                      | GitHub Actions   |
-| [.github/workflows/stale.yml](.github/workflows/stale-check.yml)                               | Close stale issues and PRs                      | GitHub Actions   |
-| [.github/workflows/sync-labels.yml](.github/workflows/sync-labels.yml)                         | Sync repository labels                          | GitHub Actions   |
-| [.gitignore](.gitignore)                                                                       | Files and directories Git should ignore         | Git              |
-| [.gitpod.yml](.gitpod.yml)                                                                     | Gitpod workspace configuration                  | Gitpod           |
-| [.golangci.json](.golangci.json)                                                               | GolangCI-Lint configuration                     | GolangCI-Lint    |
-| [.goreleaser.yml](.goreleaser.yml)                                                             | GoReleaser configuration for release automation | GoReleaser       |
-| [.prettierignore](.github/.prettierignore)                                                     | Paths ignored by Prettier formatting            | Prettier         |
-| [.prettierrc.yml](.github/.prettierrc.yml)                                                     | Prettier configuration file                     | Prettier         |
-| [.vscode/extensions.json](.vscode/extensions.json)                                             | Recommended VS Code extensions                  | VS Code          |
-| [.vscode/launch.json](.vscode/launch.json)                                                     | VS Code debugging configuration                 | VS Code          |
-| [.vscode/settings.json](.vscode/settings.json)                                                 | VS Code workspace settings                      | VS Code          |
-| [.vscode/tasks.json](.vscode/tasks.json)                                                       | VS Code tasks configuration                     | VS Code          |
-| [CITATION.cff](CITATION.cff)                                                                   | Citation metadata recognized by GitHub          | GitHub           |
-| [Dockerfile](Dockerfile)                                                                       | Docker image build instructions                 | Docker           |
-| [LICENSE](LICENSE)                                                                             | Project license                                 | Yours!           |
-| [README.md](README.md)                                                                         | Project overview and usage                      | Yours!           |
-| [codecov.yml](codecov.yml)                                                                     | Codecov upload configuration                    | Codecov          |
-| [examples/example.go](examples/example.go)                                                     | Example usage of the library                    | None             |
-| [go.mod](go.mod)                                                                               | Go module definition                            | Go               |
-| [go.sum](go.sum)                                                                               | Dependency checksums generated by Go            | Go               |
-| [magefile.go](magefiles/magefile.go)                                                           | Magefile with MAGE-X targets                    | MAGE-X           |
-| [template.go](template.go)                                                                     | Main package source code                        | Yours!           |
-| [template_benchmark_test.go](template_benchmark_test.go)                                       | Go benchmark tests                              | Go test          |
-| [template_example_test.go](template_example_test.go)                                           | Example tests for documentation                 | Go test          |
-| [template_fuzz_test.go](template_fuzz_test.go)                                                 | Go fuzz tests                                   | Go test          |
-| [template_test.go](template_test.go)                                                           | Unit tests                                      | Go test          |
 </details>
 
 <details>
@@ -509,15 +443,8 @@ Read more about this Go project's [code standards](.github/CODE_STANDARDS.md).
 
 <br/>
 
-## 🤖 AI Compliance
-This project documents expectations for AI assistants using a few dedicated files:
-
-- [AGENTS.md](.github/AGENTS.md) — canonical rules for coding style, workflows, and pull requests used by [Codex](https://chatgpt.com/codex).
-- [CLAUDE.md](.github/CLAUDE.md) — quick checklist for the [Claude](https://www.anthropic.com/product) agent.
-- [.cursorrules](.cursorrules) — machine-readable subset of the policies for [Cursor](https://www.cursor.so/) and similar tools.
-- [sweep.yaml](.github/sweep.yaml) — rules for [Sweep](https://github.com/sweepai/sweep), a tool for code review and pull request management.
-
-Edit `AGENTS.md` first when adjusting these policies, and keep the other files in sync within the same pull request.
+## 🤖 AI Usage & Assistant Guidelines
+Read the [AI Usage & Assistant Guidelines](.github/tech-conventions/ai-compliance.md) for details on how AI is used in this project and how to interact with the AI assistants.
 
 <br/>
 
