@@ -3,8 +3,9 @@ package template_test
 import (
 	"testing"
 
-	"github.com/mrz1836/go-template"
 	"github.com/stretchr/testify/require"
+
+	"github.com/mrz1836/go-template"
 )
 
 // FuzzGreet validates that Greet always returns a string that starts with "Hello " and is at least 6 characters long.
