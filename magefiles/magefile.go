@@ -311,7 +311,7 @@ func processAllFiles(replacements []struct{ from, to string }, dryRun, verbose b
 
 // removeShareImage removes the default share image if it exists
 func removeShareImage(shareImagePath string, verbose bool) ([]string, error) {
-	var cleanupFiles []string
+	cleanupFiles := make([]string, 0, 1)
 
 	if _, err := os.Stat(shareImagePath); err != nil {
 		// File doesn't exist, nothing to remove
