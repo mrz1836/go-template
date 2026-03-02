@@ -193,12 +193,16 @@
             "revive": {
                 "rules": [
                     {
-                        "name": "var-naming",
                         "arguments": [
                             [],
                             [],
-                            [{"skipPackageNameChecks": true}]
-                        ]
+                            [
+                                {
+                                    "skipPackageNameChecks": true
+                                }
+                            ]
+                        ],
+                        "name": "var-naming"
                     }
                 ]
             },
