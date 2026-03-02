@@ -115,20 +115,67 @@ func isBinaryFile(path string) bool {
 	return false
 }
 
-// applyReplacements applies string replacements to content
-func applyReplacements(content string, replacements []struct{ from, to string }, path string, verbose bool) (string, bool) {
-	newContent := content
-	modified := false
+// protectedPatterns returns a list of string patterns that must NOT be replaced during
+// template instantiation. These are tool references, maintainer attributions, and
+// copyright notices that point to mrz1836's published tools — not repo-specific values.
+// Add new patterns here if additional tool references are added to the template.
+func protectedPatterns() []string {
+	return []string{
+		// Tool references: mage-x build tool (published by mrz1836, used by all projects)
+		"github.com/mrz1836/mage-x",
+		"mrz1836/mage-x",
+		// Tool references: go-pre-commit hooks
+		"github.com/mrz1836/go-pre-commit",
+		// Tool references: go-coverage tool
+		"github.com/mrz1836/go-coverage",
+		// Tool references: go-broadcast sync tool
+		"github.com/mrz1836/go-broadcast",
+		// Authorship: maintainer comment headers in workflow/action files
+		"#  Maintainer: @mrz1836",
+		// Authorship: copyright and attribution in fortress.yml
+		"#  Copyright 2025 @mrz1836",
+		"#  Attribution is requested if reused: Created by @mrz1836",
+	}
+}
 
-	for _, replacement := range replacements {
-		if strings.Contains(newContent, replacement.from) {
-			newContent = strings.ReplaceAll(newContent, replacement.from, replacement.to)
-			modified = true
+// protectAndReplace applies replacements to content while preserving protected patterns.
+// Protected patterns are temporarily swapped to unique placeholders before replacements
+// run, then restored afterward. This prevents tool references and authorship comments
+// from being inadvertently overwritten by the global owner/repo substitution.
+func protectAndReplace(content string, replacements []struct{ from, to string }) string {
+	protected := protectedPatterns()
+	activeProtections := make(map[string]string, len(protected))
 
-			if verbose {
-				logMessage("   📝 %s: %s → %s\n", path, replacement.from, replacement.to)
-			}
+	// Step 1: Replace protected patterns with unique placeholders
+	for i, p := range protected {
+		if strings.Contains(content, p) {
+			placeholder := fmt.Sprintf("__PROTECTED_%d__", i)
+			content = strings.ReplaceAll(content, p, placeholder)
+			activeProtections[placeholder] = p
 		}
+	}
+
+	// Step 2: Apply normal replacements (protected content is shielded by placeholders)
+	for _, r := range replacements {
+		content = strings.ReplaceAll(content, r.from, r.to)
+	}
+
+	// Step 3: Restore protected patterns
+	for placeholder, original := range activeProtections {
+		content = strings.ReplaceAll(content, placeholder, original)
+	}
+
+	return content
+}
+
+// applyReplacements applies string replacements to content, protecting known tool
+// references and authorship comments from being overwritten.
+func applyReplacements(content string, replacements []struct{ from, to string }, path string, verbose bool) (string, bool) {
+	newContent := protectAndReplace(content, replacements)
+	modified := newContent != content
+
+	if modified && verbose {
+		logMessage("   📝 %s: modified\n", path)
 	}
 
 	return newContent, modified
