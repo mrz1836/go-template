@@ -559,6 +559,105 @@ func TestParseInstallArgsWithMockedArgs(t *testing.T) {
 	}
 }
 
+// TestProtectedPatterns verifies that protectAndReplace (via applyReplacements) preserves
+// tool references and maintainer comments while still substituting template-specific values.
+func TestProtectedPatterns(t *testing.T) {
+	// Replacements mimic a real template instantiation: mrz1836/go-template → testuser/testproject
+	replacements := []struct{ from, to string }{
+		{"mrz1836/go-template", "testuser/testproject"},
+		{"go-template", "testproject"},
+		{"mrz1836", "testuser"},
+	}
+
+	tests := []struct {
+		name        string
+		input       string
+		wantOutput  string
+		description string
+	}{
+		{
+			name:        "template repo reference is replaced",
+			input:       `import "github.com/mrz1836/go-template/pkg/util"`,
+			wantOutput:  `import "github.com/testuser/testproject/pkg/util"`,
+			description: "normal template references must be substituted",
+		},
+		{
+			name:        "mage-x tool reference is preserved",
+			input:       "go install github.com/mrz1836/mage-x/cmd/magex@latest",
+			wantOutput:  "go install github.com/mrz1836/mage-x/cmd/magex@latest",
+			description: "mage-x tool install lines must not be modified",
+		},
+		{
+			name:        "go-pre-commit tool reference is preserved",
+			input:       "uses: github.com/mrz1836/go-pre-commit",
+			wantOutput:  "uses: github.com/mrz1836/go-pre-commit",
+			description: "go-pre-commit references must not be modified",
+		},
+		{
+			name:        "maintainer comment is preserved",
+			input:       "#  Maintainer: @mrz1836",
+			wantOutput:  "#  Maintainer: @mrz1836",
+			description: "authorship header comments must not be modified",
+		},
+		{
+			name:        "copyright attribution is preserved",
+			input:       "#  Copyright 2025 @mrz1836",
+			wantOutput:  "#  Copyright 2025 @mrz1836",
+			description: "copyright attribution must not be modified",
+		},
+		{
+			name: "mixed content: replacements and protections in same file",
+			input: `module github.com/mrz1836/go-template
+
+# Build tooling
+go install github.com/mrz1836/mage-x/cmd/magex@latest
+
+#  Maintainer: @mrz1836
+#  Copyright 2025 @mrz1836
+#  Attribution is requested if reused: Created by @mrz1836
+`,
+			wantOutput: `module github.com/testuser/testproject
+
+# Build tooling
+go install github.com/mrz1836/mage-x/cmd/magex@latest
+
+#  Maintainer: @mrz1836
+#  Copyright 2025 @mrz1836
+#  Attribution is requested if reused: Created by @mrz1836
+`,
+			description: "module path replaced, tool references and authorship preserved",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotContent, _ := applyReplacements(tt.input, replacements, "test.go", false)
+			assert.Equal(t, tt.wantOutput, gotContent, tt.description)
+		})
+	}
+}
+
+// TestProtectedPatternsNotEmpty verifies that the protected patterns list is non-empty
+// and contains the expected tool references and authorship markers.
+func TestProtectedPatternsNotEmpty(t *testing.T) {
+	patterns := protectedPatterns()
+	require.NotEmpty(t, patterns, "protectedPatterns must return at least one pattern")
+
+	// Spot-check for the most critical entries
+	patternSet := make(map[string]struct{}, len(patterns))
+	for _, p := range patterns {
+		patternSet[p] = struct{}{}
+	}
+
+	criticalPatterns := []string{
+		"github.com/mrz1836/mage-x",
+		"#  Maintainer: @mrz1836",
+	}
+	for _, cp := range criticalPatterns {
+		assert.Contains(t, patternSet, cp, "expected critical pattern %q in protectedPatterns()", cp)
+	}
+}
+
 // Benchmark tests for performance-critical functions
 func BenchmarkValidatePath(b *testing.B) {
 	paths := []string{
