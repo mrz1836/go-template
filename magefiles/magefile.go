@@ -184,7 +184,7 @@ func applyReplacements(content string, replacements []struct{ from, to string },
 // writeFileIfModified writes content to file if changes were made and not in dry run
 func writeFileIfModified(path, content string, modified, dryRun bool) error {
 	if modified && !dryRun {
-		if err := os.WriteFile(path, []byte(content), 0o600); err != nil {
+		if err := os.WriteFile(filepath.Clean(path), []byte(content), 0o600); err != nil { //nolint:gosec // path is validated by the caller via validatePath before this function is invoked
 			return err
 		}
 	}
