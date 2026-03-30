@@ -3,7 +3,7 @@ module github.com/mrz1836/go-template
 go 1.24
 
 require (
-	github.com/magefile/mage v1.16.1
+	github.com/magefile/mage v1.17.0
 	github.com/stretchr/testify v1.11.1
 )
 
