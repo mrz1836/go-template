@@ -25,6 +25,7 @@ const (
 	testGoFile        = "test.go"
 	testGoTemplate    = "go-template"
 	testOrg           = "testowner"
+	testRepo          = "testrepo"
 )
 
 func TestValidatePath(t *testing.T) {
@@ -91,12 +92,12 @@ func TestParseArgument(t *testing.T) {
 		{
 			name:          "parse owner argument",
 			arg:           testOwnerArg,
-			expectedOwner: "testowner",
+			expectedOwner: testOrg,
 		},
 		{
 			name:         "parse repo argument",
 			arg:          testRepoArg,
-			expectedRepo: "testrepo",
+			expectedRepo: testRepo,
 		},
 		{
 			name:           "parse dryrun true",
@@ -150,18 +151,18 @@ func TestValidateRequiredArgs(t *testing.T) {
 	}{
 		{
 			name:  "valid args",
-			owner: "testowner",
-			repo:  "testrepo",
+			owner: testOrg,
+			repo:  testRepo,
 		},
 		{
 			name:    "missing owner",
 			owner:   "",
-			repo:    "testrepo",
+			repo:    testRepo,
 			wantErr: errMissingOwner,
 		},
 		{
 			name:    "missing repo",
-			owner:   "testowner",
+			owner:   testOrg,
 			repo:    "",
 			wantErr: errMissingRepo,
 		},
@@ -266,11 +267,11 @@ func TestApplyReplacements(t *testing.T) {
 			content: testTemplateRepo + " and " + testGoTemplate + " by " + testOrg,
 			replacements: []struct{ from, to string }{
 				{testTemplateRepo, testOwnerRepoPath},
-				{testGoTemplate, "testrepo"},
-				{testOrg, "testowner"},
+				{testGoTemplate, testRepo},
+				{testOrg, testOrg},
 			},
 			path:         testGoFile,
-			wantContent:  testOwnerRepoPath + " and testrepo by testowner",
+			wantContent:  testOwnerRepoPath + " and " + testRepo + " by " + testOrg,
 			wantModified: true,
 		},
 		{
@@ -350,8 +351,8 @@ func TestGetTemplateInfoError(t *testing.T) {
 }
 
 func TestCreateReplacements(t *testing.T) {
-	owner := "testowner"
-	repo := "testrepo"
+	owner := testOrg
+	repo := testRepo
 
 	// Change to parent directory where go.mod exists
 	originalDir, err := os.Getwd()
@@ -374,16 +375,16 @@ func TestCreateReplacements(t *testing.T) {
 	// The replacements should use the values from go.mod (dynamic)
 	expected := []struct{ from, to string }{
 		{fmt.Sprintf("%s/%s", templateOwner, templateRepo), testOwnerRepoPath},
-		{templateRepo, "testrepo"},
-		{templateOwner, "testowner"},
+		{templateRepo, testRepo},
+		{templateOwner, testOrg},
 	}
 
 	assert.Equal(t, expected, replacements)
 }
 
 func TestCreateReplacementsFallback(t *testing.T) {
-	owner := "testowner"
-	repo := "testrepo"
+	owner := testOrg
+	repo := testRepo
 
 	// Test fallback behavior when go.mod is not accessible
 	// Stay in magefiles directory where go.mod doesn't exist in current dir
@@ -396,8 +397,8 @@ func TestCreateReplacementsFallback(t *testing.T) {
 	// Should use fallback values (dynamic based on current implementation)
 	expected := []struct{ from, to string }{
 		{fmt.Sprintf("%s/%s", fallbackOwner, fallbackRepo), testOwnerRepoPath},
-		{fallbackRepo, "testrepo"},
-		{fallbackOwner, "testowner"},
+		{fallbackRepo, testRepo},
+		{fallbackOwner, testOrg},
 	}
 
 	assert.Equal(t, expected, replacements)
@@ -506,8 +507,8 @@ func TestParseInstallArgsWithMockedArgs(t *testing.T) {
 		{
 			name:          "valid arguments",
 			args:          []string{"cmd", "function", testOwnerArg, testRepoArg},
-			expectedOwner: "testowner",
-			expectedRepo:  "testrepo",
+			expectedOwner: testOrg,
+			expectedRepo:  testRepo,
 		},
 		{
 			name:        "missing owner",
@@ -524,8 +525,8 @@ func TestParseInstallArgsWithMockedArgs(t *testing.T) {
 		{
 			name:          "with flags",
 			args:          []string{"cmd", "function", testOwnerArg, testRepoArg, "dryrun=true", "verbose=true", "cleanup=true"},
-			expectedOwner: "testowner",
-			expectedRepo:  "testrepo",
+			expectedOwner: testOrg,
+			expectedRepo:  testRepo,
 			expectedDry:   true,
 			expectedVerb:  true,
 			expectedClean: true,
@@ -698,8 +699,8 @@ func BenchmarkApplyReplacements(b *testing.B) {
 	content := strings.Repeat(testTemplateRepo+" is a template by "+testOrg+" for "+testGoTemplate+" projects. ", 100)
 	replacements := []struct{ from, to string }{
 		{testTemplateRepo, testOwnerRepoPath},
-		{testGoTemplate, "testrepo"},
-		{testOrg, "testowner"},
+		{testGoTemplate, testRepo},
+		{testOrg, testOrg},
 	}
 
 	b.ResetTimer()
