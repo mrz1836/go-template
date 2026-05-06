@@ -1,6 +1,6 @@
 module github.com/mrz1836/go-template
 
-go 1.24
+go 1.25
 
 require (
 	github.com/magefile/mage v1.17.2
