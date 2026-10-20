@@ -18,6 +18,8 @@
 #   • Force‑push and delete‑branch disabled via branch‑protection rules.
 #   • PR limit = 10 to avoid queue flooding.
 #   • All dependency PRs require passing CI checks before merging.
+#   • Cooldown on version updates – new releases must age 3 days (gomod: patch 3 / minor 7 / major 14)
+#     before a PR opens; trusted publishers are excluded. Security updates are never delayed.
 # ────────────────────────────────────────────────────────────────
 
 version: 2
@@ -34,6 +36,11 @@ updates:
       day: "tuesday"
       time: "11:00"
       timezone: "America/New_York"
+    cooldown:
+      default-days: 3
+      semver-major-days: 14
+      semver-minor-days: 7
+      semver-patch-days: 3
     allow:
       - dependency-type: "direct"
     groups:
@@ -59,6 +66,9 @@ updates:
       day: "tuesday"
       time: "11:15"
       timezone: "America/New_York"
+    cooldown:
+      default-days: 3
+      exclude: ["actions/*", "github/*", "gitleaks/*", "ossf/*"]
     allow:
       - dependency-type: "direct"
     groups:
@@ -82,6 +92,9 @@ updates:
       day: "tuesday"
       time: "11:30"
       timezone: "America/New_York"
+    cooldown:
+      default-days: 3
+      exclude: ["ghcr.io/devcontainers/features/*"]
     allow:
       - dependency-type: "direct"
     groups:
@@ -105,6 +118,8 @@ updates:
       day: "tuesday"
       time: "11:45"
       timezone: "America/New_York"
+    cooldown:
+      default-days: 3
     allow:
       - dependency-type: "direct"
     groups:
